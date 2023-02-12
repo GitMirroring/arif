@@ -1,0 +1,77 @@
+.TH ARIF_RIME 3 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arif_rime - example Rime IME integration for ARIF
+.
+.SH SYNOPSYS
+.EX
+.B #include <arif_rime.h>
+.PP
+.BI "extern struct arif_engine const " arif_rime_engine ;
+.EE
+.
+.SH DESCRIPTION
+An example implementation of ARIF engine, powered by the Rime IME core library.
+.PP
+See the manual page of
+.BR arif_set_engine ()
+for how to use this engine.
+.SS Initialization
+The
+.IR init ()
+function of
+.I arif_rime_engine
+ignores the first argument.
+Engine configuration is instead read from environment variables.
+.PP
+Note that the variables are only read during the first
+.IR init ()
+call, initialization of subsequent engine instances share the same
+configuration.
+.
+.SH ENVIRONMENT
+.TP
+.B ARIF_RIME_SHARED_DATA_DIR
+Path to the directory where Rime schema data files are stored.
+.IP
+Defaults to "/usr/share/rime-data".
+.TP
+.B ARIF_RIME_USER_DATA_DIR
+Path to the directory where user configuration files are stored.
+.TP
+.B ARIF_RIME_LOG_DIR
+Path to the directory where Rime log files will be written to.
+.IP
+Defaults to "/tmp".
+.TP
+.B ARIF_RIME_LOG_LEVEL
+Rime minimum log level.
+Should be one of INFO, WARNING, ERROR or FATAL (case insensitive).
+.IP
+Default log level is INFO.
+.TP
+.B ARIF_RIME_MODULES
+A whitespace-separated list of Rime modules to load before Rime initialization.
+.
+.SH BUGS
+This is only an example to shed light on how an ARIF engine can be implemented.
+It is not intended for everyday use.
+.PP
+Only part of Rime's features are supported, and may not work as expected
+with certain configurations.
+.
+.SH COPYRIGHT
+Copyright (C) 2023  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR arif_set_engine (3)
+.PP
+Rime IME core library: <https://github.com/rime/librime>

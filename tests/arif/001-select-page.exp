@@ -1,0 +1,59 @@
+# 
+# Copyright (C) 2023  CismonX <admin@cismon.net>
+# 
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+# 
+
+set tool arif
+set timeout 1
+
+set page_size [ random_int    5   10    ]
+set text_len  [ random_int    10  100   ]
+set text      [ random_string $text_len ]
+
+arif_test_start $page_size [ expr { $text_len + 2 } ]
+
+arif_query $text
+expect \n
+
+set pages [ expr { $text_len / $page_size + ( $text_len % $page_size > 0 ) } ]
+set page  1
+for { set i 0 } { $i < 100 } { incr i } {
+    set new_page [ random_int -1 $pages ]
+    arif_select_page $new_page
+    if { $new_page == 0 } {
+        if { $page < $pages } {
+            set new_page [ incr page ]
+        } else {
+            set new_page -1
+        }
+    } elseif { $new_page == -1 } {
+        if { $page > 1 } {
+            set new_page [ incr page -1 ]
+        } else {
+            set new_page -1
+        }
+    } else {
+        if { $new_page > $pages } {
+            set new_page -1
+        } else {
+            set page $new_page
+        }
+    }
+    expect {
+        -ex $new_page\n {}
+        default {
+            break
+        }
+    }
+}
+
+if { $i == 100 } {
+    pass "ok"
+} else {
+    fail "select page fail"
+}
+
+arif_test_stop

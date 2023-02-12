@@ -1,0 +1,97 @@
+.TH ARIF_QUERY 3 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arif_query - query for candidates
+.
+.SH SYNOPSYS
+.EX
+.B #include <arif/arif.h>
+.PP
+.B int
+.B arif_query (
+.BI "    struct arif_ctx *" ctx ,
+.BI "    char const      *" line ,
+.BI "    int              " offset ,
+.BI "    int              " len
+.B );
+.EE
+.
+.SH DESCRIPTION
+The
+.BR arif_query ()
+function queries the input method engine associated with input context
+.IR ctx
+for candidates to replace the given input text
+.IR line .
+Candidates can be later obtained using the
+.BR \%arif_fetch ()
+function.
+.PP
+The actual text to query for candidates starts at
+.I offset
+byte offset, and has a length of
+.I len
+bytes.
+The IME may look at the text before
+.IR offset ,
+so it should be valid (instead of garbage data).
+.PP
+The caller is free to modify or deallocate
+.I line
+after the
+.BR arif_query ()
+call, as the function keeps its copy inside
+.IR ctx .
+.PP
+If the text referred to by
+.I line
+and
+.I len
+is empty, or identical to the previous text, this function has no effect.
+.SS Trailing digits
+If the input text contains trailing ASCII digits, the function removes them
+(by modifying
+.IR len )
+before sending the text to IME.
+Meanwhile, if the remaining text is identical to the text from the last
+query, the aforementioned digits are converted into an integer and then
+used as an index to select a candidate from the current page.
+.PP
+When a candidate is selected, candidates from the previous query are replaced
+by a single candidate page containing only the selected candidate.
+If the integer cannot be used to select a valid candidate, it is ignored.
+.PP
+See the "Inlined candidate selection" subsection in NOTES for the rationale
+behind this.
+.
+.SH RETURN VALUES
+Returns the byte length of the input text after removing the trailing digits.
+.
+.SH NOTES
+.SS Inlined candidate selection
+In a typical input method framework, numeric keys are used for candidate
+selection.
+The ARIF library, however, is designed to work with line editors like
+GNU Readline, where numeric keys serve the same purpose as alphabet keys.
+.PP
+In an
+.BR arif_query ()
+function call, a candidate selection request can be inlined into the
+input text.
+This approach works well with Readline's completion API, and eliminates the
+need to hack the keymap.
+.
+.SH COPYRIGHT
+Copyright (C) 2023  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR arif_fetch (3),
+.BR arif_select_page (3)

@@ -1,0 +1,234 @@
+.TH ARIF_SET_ENGINE 3 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arif_set_engine - set input method engine
+.
+.SH SYNOPSYS
+.EX
+.B #include <arif/arif.h>
+.PP
+.B void
+.B arif_set_engine (
+.BI "    struct arif_ctx          *" ctx ,
+.BI "    struct arif_engine const *" engine ,
+.BI "    void                     *" engine_data
+.B );
+.EE
+.
+.SH DESCRIPTION
+The
+.BR arif_set_engine ()
+function changes the input context
+.IR ctx 's
+current input method engine and its associated data pointer to
+.I \%engine
+and
+.IR \%engine_data .
+It also resets the internal state of
+.IR ctx .
+.PP
+Passing NULL
+to
+.I engine
+is allowed.
+See the "Input context without engine" subsection in NOTES for details.
+.PP
+After setting the engine, it must be initialized before calling
+.BR arif_query ()
+with
+.IR ctx .
+.SS Input method engines
+The
+.B struct arif_engine
+type defines a few functions for ARIF to communite with an input method engine.
+.PP
+.in +4n
+.EX
+struct arif_engine {
+    arif_engine_init_func     *init;
+    arif_engine_finalize_func *finalize;
+    arif_engine_info_func     *info;
+    arif_engine_query_func    *query;
+};
+.EE
+.in
+.PP
+Only the
+.I query
+function is used by the ARIF library.
+It's up to the library user to call the other functions when needed.
+.SS Engine initialization
+If an input method engine needs to be initialized before use, the
+.I init
+function must be implemented.
+Otherwise, it should be NULL.
+.PP
+.in +4n
+.EX
+typedef int (arif_engine_init_func) (
+    void const  *args,
+    void       **engine_data_ptr
+);
+.EE
+.in
+.PP
+Extra info can be passed into the initializer function through
+.IR args .
+.PP
+If initialization is successful, the function must return 0.
+Optionally, it can store a pointer to
+.IR engine_data_ptr ,
+which will be passed as an argument on subsequent engine function calls.
+.PP
+If initialization fails, the function must return a non-zero value.
+.SS Engine finalization
+If not NULL, the
+.I finalize
+function is used for cleaning up resources for an engine, when the engine is
+no longer in use.
+.PP
+.in +4n
+.EX
+typedef void (arif_engine_finalize_func) (
+    void *engine_data
+);
+.EE
+.in
+.PP
+The
+.I engine_data
+argument is the pointer stored to
+.I engine_data_ptr
+during initialization.
+.SS Engine info
+If not NULL, the
+.I info
+function is used for retrieving information of an engine.
+.PP
+.in +4n
+.EX
+typedef void (arif_engine_info_func) (
+    void        *engine_data,
+    char const **name_ptr,
+    char const **description_ptr
+);
+.EE
+.in
+.PP
+The
+.I engine_data
+argument is the pointer stored to
+.I engine_data_ptr
+during initialization.
+.PP
+The function can store a NUL-terminated string that identifies an engine
+to
+.IR name_ptr .
+It's preferably a short and memorable word (like "pinyin" and "rime").
+.PP
+The function can store another NUL-terminated string to
+.IR description_ptr ,
+to provide additional information of the engine, such as version,
+copyright notice, homepage URL, etc.
+.SS Query engine for candidates
+The
+.I query
+function is used for asking the engine for candidates of an input text.
+It must not be NULL.
+.PP
+.in +4n
+.EX
+typedef int (arif_engine_query_func) (
+    void                    *engine_data,
+    char const              *line,
+    int                      offset,
+    int                      len,
+    int                      num_candidates,
+    struct arif_cand const **candidates_ptr
+);
+.EE
+.in
+.PP
+The
+.I engine_data
+argument is the pointer stored to
+.I engine_data_ptr
+during initialization.
+.PP
+The
+.IR line ,
+.I offset
+and
+.I len
+arguments correspond to the arguments of function
+.BR arif_query ()
+with the same name.
+If
+.I line
+is NULL, it means that the caller is asking for more candidates for the
+previous input text.
+.PP
+The
+.I num_candidates
+argument is the minimum number of candidates required from the engine.
+The engine should store the pointer of an array containing at least that many
+candidates to
+.IR candidates_ptr ,
+and return the number of candidates.
+If returning less than
+.IR num_candidates ,
+it indicates that the entire list of candidates is exhausted.
+The engine should ensure that the memory location referenced by those
+candidates are valid until the next
+.I query
+call with non-NULL
+.IR line .
+.PP
+Note that the engine is not responsible for specifying the display text for a
+candidate.
+The
+.I display
+and
+.I display_len
+members of a candidate should be ignored by the caller.
+.PP
+Both
+.I line
+and
+.I candidates_ptr
+can be NULL, in which case the caller is indicating that a candidate at
+.I offset
+is selected with inlined candidate selection (see
+.BR \%arif_query ()),
+and the return value is ignored.
+The engine may make use of this information for purposes like analytics.
+.
+.SH NOTES
+.SS Input context without engine
+For an input context, when
+.BR arif_set_engine ()
+is not yet called, or last called with a NULL
+.I engine
+argument, the input context does not have an associated input method engine.
+.PP
+In such input contexts, functions other than
+.BR arif_set_engine ()
+or
+.BR arif_ctx_destroy ()
+must not be called.
+.
+.SH COPYRIGHT
+Copyright (C) 2023  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR arif_ctx_destroy (3),
+.BR arif_fetch (3),
+.BR arif_query (3)

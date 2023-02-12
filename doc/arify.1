@@ -1,0 +1,104 @@
+.TH ARIFY 1 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arify - execute program with input methods
+.
+.SH SYNOPSYS
+.B arify
+.RI [ options ]
+.I pathname
+.RI [ args ]
+.
+.SH DESCRIPTION
+Executes the program referred to by
+.IR pathname ,
+passing
+.I args
+as its command-line arguments.
+.PP
+If the program uses a line editor supported by ARIF,
+it will be provided with the ability to interact with input method engines.
+The exact behaviour depends on the frontend specified.
+.
+.SH OPTIONS
+.TP
+\fB\-e\fR \fIengines\fR
+Overrides the ARIFY_ENGINES environment variable with
+.IR engines .
+.IP
+If multiple
+.BR \-e
+options are provided, the resulting value is a concatentation of each
+.IR engines ,
+with an ASCII Space character as separator.
+.TP
+\fB\-f\fR \fIfrontend\fR
+Overrides the ARIFY_FRONTEND environment variable with
+.IR frontend .
+.TP
+\fB\-l\fR \fIlog-file\fR
+Overrides the ARIFY_LOG_FILE environment variable with
+.IR log-file .
+.TP
+\fB\-n\fR \fIpage-size\fR
+Overrides the ARIFY_PAGE_SIZE environment variable with
+.IR page-size .
+.TP
+\fB\-p\fR \fIpreload-library\fR
+Path to the preload library (e.g. "/usr/local/lib/libarify.so").
+.IP
+Default value depends on the specified install directory when building ARIF.
+.TP
+\fB\-V\fR
+Prints the version number of ARIF, and then exits.
+.
+.SH EXIT STATUS
+If an error occurs before
+.I pathname
+is executed, the program exits with status 1.
+Otherwise, the exit status equals to that program's exit status.
+.
+.SH ENVIRONMENT
+.TP
+.B ARIFY_FRONTEND
+The frontend program to use.
+.IP
+If the variable is unset or empty, value \%"readline" will be used.
+.TP
+.B ARIFY_ENGINES
+Whitespace-separated list of input method engines to use.
+At least one engine should be specified.
+.TP
+.B ARIFY_LOG_FILE
+Path to the file where error logs (and debug logs, if enabled)
+will be written to.
+.IP
+If the variable is unset or empty, value \%"/dev/null" will be used.
+.TP
+.B ARIFY_PAGE_SIZE
+Maximum number of candidates per page (at most 99).
+.IP
+If the variable is unset or empty, value 5 will be used.
+.
+.SH NOTES
+This manual page only contains part of
+.BR arify 's
+usage.
+For anything not covered here, please refer to ARIF's Info entry.
+.
+.SH COPYRIGHT
+Copyright (C) 2023  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR arif_set_engine (3),
+.BR readline (3)
+.PP
+The Info entry for ARIF

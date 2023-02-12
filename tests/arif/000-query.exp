@@ -1,0 +1,37 @@
+# 
+# Copyright (C) 2023  CismonX <admin@cismon.net>
+# 
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+# 
+
+set tool arif
+set timeout 1
+
+set text_len [ random_int    1  16     ]
+set text     [ random_string $text_len ]
+
+arif_test_start
+
+arif_query $text
+expect {
+    -ex $text_len\n {}
+    default {
+        fail "query fail"
+        return
+    }
+}
+
+arif_query ${text}1
+expect {
+    -ex $text_len\n {}
+    default {
+        fail "query fail"
+        return
+    }
+}
+
+pass "ok"
+
+arif_test_stop

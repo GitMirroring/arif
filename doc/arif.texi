@@ -1,0 +1,315 @@
+\input texinfo  @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename arif.info
+@include version.texi
+@settitle ARIF User Manual
+@c %**end of header
+
+@macro manpage {name, section, url}
+@uref{\url\,, @code{\name\(\section\)}}
+@end macro
+
+@macro arifmanpage {name, section}
+@manpage{\name\, \section\, /arif/man-pages/man\section\/\name\.\section\.html}
+@end macro
+
+@macro posixmanpage {name, section}
+@manpage{\name\, \section\,
+    https://pubs.opengroup.org/onlinepubs/9699919799/functions/\name\.html}
+@end macro
+
+@tex
+\global\def\linkcolor{0 0 1}
+\global\def\urlcolor{0 0 1}
+\global\urefurlonlylinktrue
+@end tex
+
+@copying
+This manual is for ARIF (Another Readline Input Framework),
+version @value{VERSION}.
+
+Copyright @copyright{} 2023  CismonX <admin@@cismon.net>
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@titlepage
+@title ARIF
+@subtitle Another Readline Input Framework, version @value{VERSION}
+@author CismonX
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+
+@end titlepage
+
+
+@summarycontents
+@contents
+
+@ifnottex
+@node Top
+@top ARIF
+
+@insertcopying
+
+@end ifnottex
+
+
+@menu
+@ifhtml
+Chapters
+@end ifhtml
+* Overview::     About the ARIF project.
+* ARIF Library:: Using the ARIF library.
+* @code{arify}:: Using the @code{arify} command line tool.
+
+Appendices
+* General Index::                   Index of general concepts of ARIF.
+* GNU Free Documentation License::  Copying conditions of this manual.
+@end menu
+
+
+@node Overview
+@chapter Overview
+
+ARIF (Another Readline Input Framework) is an input method framework for
+GNU Readline.
+
+The ARIF project codebase is mainly comprised of two parts: The ARIF library
+(@code{libarif}), which provides C API to communicate with
+input method engines; and the @code{arify} command-line tool, which can make
+ARIF library features available to existing Readline programs.
+
+@menu
+@ifhtml
+Sections
+@end ifhtml
+* Why ARIF::      Why would I use ARIF.
+* Contributing::  Contribute to ARIF.
+@end menu
+
+
+@node Why ARIF
+@section Why ARIF
+
+ARIF cannot, and does not try to compete with modern input method frameworks
+like IBus and Fcitx, which are way more mature, and supports more features.
+
+Instead, ARIF aims to provide a lightweight, portable and minimalist solution
+that can serve as a last resort.  Particularly, ARIF does not depend on
+GUI toolkits like GTK or Qt (whereas most input method frameworks choose so),
+but instead focuses on line editors like GNU Readline (which has stable API
+and good portability).
+
+Let us suppose that you're SSH'ing to your PC from a friend's to get some
+urgent work done, but unfortunately there isn't any input method that you're
+familiar with installed on his/her PC.  In situations like that, ARIF may be
+a good option.
+
+Also, if you prefer a ``uniform user experience'' when using Readline programs,
+you may choose ARIF over GUI-based input method frameworks (just like why
+Emacs users may choose @uref{https://github.com/tumashu/pyim,, pyim}).
+
+
+@node Contributing
+@section Contributing
+
+The ARIF project is hosted on Savannah.  Contribute to ARIF by writing to
+one of the mailing lists
+@uref{https://savannah.nongnu.org/mail/?group=arif, here}.
+
+Currently ARIF is considered experimental, and is not ready for open
+collaboration.  However, feel free to report bugs and request for new features.
+Other discussions are also welcomed.
+
+
+@node ARIF Library
+@chapter The ARIF Library
+
+The ARIF library API is separated into three parts: the base, frontend and
+engine API.
+
+@cindex ARIF Library Base API
+The base API manages input contexts and candidate pages, and acts as a bridge
+between the frontend and the engine.
+See the following manual pages for details.
+
+@itemize @bullet
+@item @arifmanpage{arif_ctx_create, 3}
+@item @arifmanpage{arif_ctx_destroy, 3}
+@item @arifmanpage{arif_set_engine, 3}
+@item @arifmanpage{arif_query, 3}
+@item @arifmanpage{arif_fetch, 3}
+@item @arifmanpage{arif_select_page, 3}
+@end itemize
+
+@menu
+@ifhtml
+Sections
+@end ifhtml
+* Frontends:: Frontend implementations of ARIF.
+* Engines::   Implementing an engine for ARIF.
+@end menu
+
+
+@node Frontends
+@section Frontends
+
+An ARIF frontend determines how to fetch and interpret user input, and
+how to present candidates to users.
+
+@cindex ARIF Library Readline Frontend API
+The ARIF library already comes with a frontend based on GNU Readline's
+completion API.  See the manual pages for the following functions:
+
+@itemize @bullet
+@item @arifmanpage{arif_rl_complete, 3}
+@item @arifmanpage{arif_rl_display, 3}
+@end itemize
+
+ARIF is designed to (hopefully) cope with any line editor, not Readline
+in particular.  You can implement your own frontend if Readline is not your
+cup of tea.
+
+More frontends (e.g. @uref{https://sites.astro.caltech.edu/~mcs/tecla,, tecla},
+@uref{https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html,, ZLE}) may
+be supported in the future.
+
+
+@node Engines
+@section Engines
+
+An ARIF engine's responsibility is to generate candidates from a given
+input text, presumably by communicating with an actual input method engine.
+The manual page for @arifmanpage{arif_set_engine, 3} contains a detailed
+description for how to implement an ARIF engine.
+
+The ARIF project codebase contains an example engine implementation,
+powered by the @uref{https://github.com/rime/librime, Rime IME core library}.
+See the @arifmanpage{arif_rime, 3} manual page for details.
+
+
+@node @code{arify}
+@chapter The @code{arify} Command Line Tool
+
+The @code{arify} command-line tool, implemented on top of the ARIF library,
+can be used to make ARIF features available to existing programs, without the
+need to modify, rebuild or write plugins for those programs.
+
+See the @arifmanpage{arify, 1} manual page for detailed usage of @code{arify}.
+
+
+@menu
+@ifhtml
+Sections
+@end ifhtml
+* Engine Names::      Naming convention for engines.
+* Readline Frontend:: Using @code{arify}'s Readline frontend.
+* Limitations::       When @code{arify} does not work.
+@end menu
+
+
+@node Engine Names
+@section Engine Names
+
+The @code{arify} command-line tool loads engine implementations from shared
+libraries.  Each engine name passed to @code{arify} should comply with the
+following format:
+
+@example
+$@{lib_name@}:$@{symbol_name@}
+@end example
+
+The @code{$@{lib_name@}} is the path to the shared library file containing
+the engine implementation.  This name is used as the first argument to pass to
+@posixmanpage{dlopen, 3}.
+
+The @code{$@{symbol_name@}} is the name of the @code{struct arif_engine const}
+where the engine is implemented.  This name is used as the second argument to
+pass to @posixmanpage{dlsym, 3}.
+
+If the two names match the following pattern, a @code{$@{short_name@}} can be
+used instead of the full name:
+
+@example
+lib$@{short_name@}$@{shlib_suffix@}:arif_$@{short_name@}_engine
+@end example
+
+Where @code{$@{shlib_suffix@}} is the common name suffix for shared library
+files on the current platform (e.g. @code{.so} on GNU/Linux).
+
+
+@node Readline Frontend
+@section Readline Frontend
+
+@cindex New Readline Functions
+In addition to @code{libarif}'s Readline features, @code{arify} also provides
+the following Readline functions:
+
+@itemize @bullet
+@item @code{arify-toggle}: Turn on/off input method engine.  When turned on,
+Readline's completion functions will be replaced by those provided by ARIF.
+When turned off, the previously saved completion functions will be restored.
+@item @code{arify-engine-info}: Prints information regarding the currently
+active engine.
+@item @code{arify-next-engine}: Switch to the next loaded engine.  If there are
+no more available engines, switch to the first engine instead.
+@item @code{arify-page-up}, @code{arify-page-down}: Switch to previous/next
+page of candidates, and display them.
+@end itemize
+
+@cindex Example @code{~/.inputrc} Snippet
+By default, these Readline functions are not bound to any keys.  To use them,
+configure the key bindings from a Readline init file.
+Here is an example @code{~/.inputrc} snippet:
+
+@example
+set show-all-if-ambiguous on
+
+"\e ":     arify-toggle
+"\e\b":    arify-next-engine
+"\e[5;3~": arify-page-up    # M-PgUp
+"\e[6;3~": arify-page-down  # M-PgDn
+@end example
+
+
+@node Limitations
+@section Limitations
+
+Theoretically @code{arify} should work with most programs with a supported
+frontend.  However, there are situations where it may not work as expected:
+
+@itemize @bullet
+@item @code{arify} does not work when @code{LD_PRELOAD} is not functioning.
+@item @code{arify} may also fail to work, when the program it's working with
+does fancy things with Readline API (e.g. changing handler functions during
+user input), which may break the internal states @code{arify} maintains.
+@end itemize
+
+Meanwhile, adding support for more frontends may not be as simple (or even
+possible) as with Readline, due to the way how @code{arify} works.
+
+
+@node General Index
+@appendix General Index
+
+@printindex cp
+
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+
+@bye

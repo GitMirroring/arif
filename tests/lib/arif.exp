@@ -1,0 +1,68 @@
+# 
+# Copyright (C) 2023  CismonX <admin@cismon.net>
+# 
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+# 
+
+if { [ info exists ARIF_ENABLE_DEBUG ] && $ARIF_ENABLE_DEBUG == 1 } {
+    exp_internal 1
+}
+
+proc arif_test_start {
+    { page_size 5   }
+    { buf_size  64  }
+    { gen_all   yes }
+} {
+    global ARIF_TEST_BIN
+    set run_cmd [ list $ARIF_TEST_BIN -p $page_size -b $buf_size ]
+    if { $gen_all } {
+        lappend $run_cmd -a
+    }
+
+    set stty_init { raw -echo }
+    global spawn_id
+    spawn {*}$run_cmd
+}
+
+proc arif_test_stop {} {
+    global spawn_id
+    send \x04
+}
+
+proc random_uint32_list { len } {
+    set nbytes [ expr { $len * 4 } ]
+    return [ exec od -An -tu4 -N$nbytes /dev/urandom ]
+}
+
+proc random_int { min max } {
+    set num [ random_uint32_list 1 ]
+    return [ expr { $num % ( $max - $min + 1 ) + $min } ]
+}
+
+proc random_string { len } {
+    set nums  [ random_uint32_list $len ]
+    set chars [ split abcdefghijklmnopqrstuvwxyz "" ]
+
+    for { set i 0 } { $i < $len } { incr i } {
+        set offset [ expr { [ lindex $nums $i ] % 26 } ]
+        append str [ lindex $chars $offset ]
+    }
+    return $str
+}
+
+proc arif_fetch {} {
+    global spawn_id
+    send <\n
+}
+
+proc arif_query { text } {
+    global spawn_id
+    send >$text\n
+}
+
+proc arif_select_page { page } {
+    global spawn_id
+    send :$page\n
+}

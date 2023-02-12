@@ -1,0 +1,23 @@
+# 
+# Copyright (C) 2023  CismonX <admin@cismon.net>
+# 
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+# 
+
+package=@PACKAGE@
+version=@VERSION@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+pkgincludedir=${includedir}/${package}
+
+Name: ${package}
+Description: Another Readline Input Framework
+Version: ${version}
+URL: https://nongnu.org/arif
+Libs: -L${libdir} -larif
+Cflags: -I${includedir} -I${pkgincludedir}

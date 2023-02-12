@@ -1,0 +1,26 @@
+# 
+# Copyright (C) 2023  CismonX <admin@cismon.net>
+# 
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+# 
+
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build
+    image: pureos/byzantium
+    commands:
+      - apt -y update
+      - apt -y install
+            build-essential pkg-config autoconf automake libtool
+            autoconf-archive dejagnu texinfo libreadline-dev
+      - autoreconf -i && mkdir build && cd build
+      - ../configure --with-readline --without-rime --enable-debug
+            CFLAGS='-O0 -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow'
+            CPPFLAGS='-D_POSIX_C_SOURCE=200112L'
+      - make
+      - make check

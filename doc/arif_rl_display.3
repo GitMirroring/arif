@@ -1,0 +1,50 @@
+.TH ARIF_RL_DISPLAY 3 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arif_rl_display - display Readline completion candidates
+.
+.SH SYNOPSYS
+.EX
+.B #include <arif/arif_rl.h>
+.PP
+.B void
+.B arif_rl_display (
+.BI "    struct arif_ctx  *" ctx ,
+.BI "    char            **" matches ,
+.BI "    int               " num ,
+.BI "    int               " max_len
+.B );
+.EE
+.
+.SH DESCRIPTION
+The
+.BR arif_rl_display ()
+function fetches the current page of candidates from input context
+.IR ctx ,
+and prints their display text with Readline's
+.BR rl_display_match_list ()
+function.
+.PP
+This function is intended be called from within a custom Readline
+.I rl_completion_display_matches_hook
+function, with arguments
+.IR matches ,
+.I num
+and
+.I max_len
+passed as-is.
+.
+.SH COPYRIGHT
+Copyright (C) 2023  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR arif_fetch (3),
+.BR readline (3)
