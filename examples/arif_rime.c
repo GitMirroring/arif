@@ -354,7 +354,7 @@ get_log_level (
     if (0 == strcasecmp("FATAL", log_level)) {
         return 3;
     }
-    return 0;
+    return 2;
 }
 
 static char const **
