@@ -104,9 +104,7 @@ arif_rime_finalize (
     free_candidates(ctx);
 
     if (rime_api != NULL) {
-        if (ctx->session != 0) {
-            rime_api->destroy_session(ctx->session);
-        }
+        rime_api->destroy_session(ctx->session);
     }
 
     free(ctx);
@@ -140,7 +138,7 @@ arif_rime_init (
     assert(ctx != NULL);
 
     *ctx = (struct engine_ctx) {
-        .session = rime_api->create_session(),
+        .session = 0,
     };
     *engine_data_ptr = ctx;
     return 0;

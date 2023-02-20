@@ -60,7 +60,6 @@ struct arif_ctx {
 // Forward declaration start
 static struct cand_page *
               choose_candidate  (struct cand_page *, int);
-static void   clear_old_line    (struct arif_ctx *);
 static int    compare_text      (char const *, int, char const *, int);
 static void   copy_candidate    (struct arif_cand *, struct arif_cand const *,
                                  int, arif_cand_disp_func *);
@@ -77,6 +76,7 @@ static struct cand_page *
 static void   new_pages         (struct arif_cand const *, int, int,
                                  arif_cand_disp_func *, struct cand_page **,
                                  struct cand_page **);
+static void   set_old_line      (struct arif_ctx *, char const *, int, int);
 // Forward declaration end
 
 static struct cand_page *
@@ -103,16 +103,6 @@ choose_candidate (
     cand->display = NULL;
     free_page_list(page);
     return new_page;
-}
-
-static inline void
-clear_old_line (
-    struct arif_ctx *ctx
-) {
-    free((char *) ctx->old_line);
-    ctx->old_line   = NULL;
-    ctx->old_offset = 0;
-    ctx->old_len    = 0;
 }
 
 static inline int
@@ -213,14 +203,14 @@ free_page_list (
     if (head == NULL) {
         return;
     }
-    struct cand_page *prev = head->prev;
+    struct cand_page *next, *prev = head->prev;
     // free forward
-    for (struct cand_page *next, *page = head; page != NULL; page = next) {
+    for (struct cand_page *page = head; page != NULL; page = next) {
         next = page->next;
         free_page(page);
     }
     // free backward
-    for (struct cand_page *next, *page = prev; page != NULL; page = next) {
+    for (struct cand_page *page = prev; page != NULL; page = next) {
         next = page->prev;
         free_page(page);
     }
@@ -398,11 +388,7 @@ arif_query (
         char *saved_line = malloc(sizeof(char) * (offset + len));
         assert(saved_line != NULL);
 
-        free((char *) ctx->old_line);
-        ctx->old_line   = memcpy(saved_line, line, offset + len);
-        ctx->old_offset = offset;
-        ctx->old_len    = len;
-
+        set_old_line(ctx, memcpy(saved_line, line, offset + len), offset, len);
         first_candidates(ctx, saved_line, offset, len);
     } else {
         // same text as old query
@@ -426,7 +412,7 @@ arif_query (
         ctx->page_num      = 1;
         ctx->no_more_pages = false;
 
-        clear_old_line(ctx);
+        set_old_line(ctx, NULL, 0, 0);
     }
 
   finish:
@@ -482,8 +468,21 @@ arif_set_engine (
     ctx->page_num      = 0;
     ctx->no_more_pages = false;
 
-    clear_old_line(ctx);
+    set_old_line(ctx, NULL, 0, 0);
 
     ctx->engine        = engine;
     ctx->engine_data   = engine_data;
+}
+
+static inline void
+set_old_line (
+    struct arif_ctx *ctx,
+    char const      *old_line,
+    int              old_offset,
+    int              old_len
+) {
+    free((char *) ctx->old_line);
+    ctx->old_line   = old_line;
+    ctx->old_offset = old_offset;
+    ctx->old_len    = old_len;
 }
