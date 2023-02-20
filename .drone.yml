@@ -12,14 +12,14 @@ name: default
 
 steps:
   - name: build
-    image: pureos/byzantium
+    image: debian:bullseye-slim
     commands:
       - apt -y update
       - apt -y install
             build-essential pkg-config autoconf automake libtool
-            autoconf-archive dejagnu texinfo libreadline-dev
+            autoconf-archive dejagnu texinfo libreadline-dev librime-dev
       - autoreconf -i && mkdir build && cd build
-      - ../configure --with-readline --without-rime --enable-debug
+      - ../configure --with-readline --with-rime --enable-debug
             CFLAGS='-O0 -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow'
             CPPFLAGS='-D_POSIX_C_SOURCE=200112L'
       - make
