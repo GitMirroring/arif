@@ -39,7 +39,7 @@ ARIF_CHECK_PKG([readline], [>= 6.0], [GNU Readline], [], [
 ])
 AM_CONDITIONAL([BUILD_ARIF_READLINE], [test x${with_readline} != xno])
 
-ARIF_CHECK_PKG([rime], [>= 1.7], [Rime Input Method Engine], [
+ARIF_CHECK_PKG([rime], [>= 1.6], [Rime Input Method Engine], [
     AS_VAR_SET([with_rime], [no])
 ], [
     AC_DEFINE([HAVE_RIME], [1],
