@@ -274,8 +274,6 @@ configure the key bindings from a Readline init file.
 Here is an example @code{~/.inputrc} snippet:
 
 @example
-set show-all-if-ambiguous on
-
 "\e ":     arify-toggle
 "\e\b":    arify-next-engine
 "\e[5;3~": arify-page-up    # M-PgUp

@@ -108,6 +108,12 @@ arif_rl_complete(
         assert(match != NULL);
         match[0] = '\0';
         comp_list[0] = match;
+
+        // This hack ensures that candidates are always displayed,
+        // even without `show-all-if-ambiguous` on.
+        if (rl_completion_type == TAB) {
+            arif_rl_display(ctx, NULL, num, 0);
+        }
     }
 
     return comp_list;
