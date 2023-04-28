@@ -31,8 +31,8 @@ if BUILD_ARIFY
   arify_LDADD    = libarify.la
   arify_SOURCES  = arify_cli.c
 
-  libarify_la_CPPFLAGS = $(ARIF_CPPFLAGS_)
-  libarify_la_LIBADD   = $(DL_LIBS) libarif.la
+  libarify_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)
+  libarify_la_LIBADD   = $(READLINE_LIBS) $(DL_LIBS) libarif.la
   libarify_la_SOURCES  = arify.c
 
 if BUILD_ARIF_READLINE
