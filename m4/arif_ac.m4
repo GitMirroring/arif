@@ -43,13 +43,13 @@ dnl
 AC_DEFUN([ARIF_CHECK_PKG], [
     m4_pushdef([with_var_], [with_]m4_translit([$1], [-+.], [___]))
     AC_ARG_WITH([$1], m4_normalize([
-        AS_HELP_STRING([--with-$1[[=PREFIX]]], [installation path of $3])
+        AS_HELP_STRING(
+		[--with-$1[[=PKGCONFIGDIR]]], [pkg-config search path for $3])
     ]), [], [$4])
     AS_VAR_IF(with_var_, [no], [$6], [
         AS_VAR_SET([SAVED_PKG_CONFIG_PATH_], ["${PKG_CONFIG_PATH}"])
         AS_VAR_IF(with_var_, [yes], [], [
-            AS_VAR_SET([PKG_CONFIG_PATH],
-                    ["${with_$1}/lib/pkgconfig:${PKG_CONFIG_PATH}"])
+            AS_VAR_SET([PKG_CONFIG_PATH], ["${with_$1}:${PKG_CONFIG_PATH}"])
         ])
         export PKG_CONFIG_PATH
         PKG_CHECK_MODULES(m4_toupper([$1]), [$1 $2], [$5])

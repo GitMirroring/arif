@@ -11,5 +11,4 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = doc examples include src tests
 
 
-pkgconfigdir   = $(libdir)/pkgconfig
 pkgconfig_DATA = arif.pc

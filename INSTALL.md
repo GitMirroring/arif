@@ -32,11 +32,11 @@ Build and Install
   ARIF can be built and installed from source using the GNU build system.
 
   Notable build options:
-  - `--with-readline[=PREFIX]` (default), `--without-readline`
+  - `--with-readline[=PKGCONFIGDIR]` (default), `--without-readline`
     * Whether to build the ARIF library with GNU Readline features.
   - `--enable-arify` (default), `--disable-arify`
     * Whether to build the `arify` command-line tool.
-  - `--with-rime[=PREFIX]`, `--without-rime` (default)
+  - `--with-rime[=PKGCONFIGDIR]`, `--without-rime` (default)
     * Whether to build the example Rime IME integration.
 
   Example shell script:

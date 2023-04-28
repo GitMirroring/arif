@@ -91,6 +91,7 @@ AC_CHECK_FUNCS([atexit memchr strcasecmp])
 
 # -- Output --
 
+PKG_INSTALLDIR()
 AC_CONFIG_FILES([
     Makefile
     doc/Makefile
