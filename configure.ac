@@ -15,7 +15,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 PKG_PROG_PKG_CONFIG([0.27])
 LT_PREREQ([2.4.2])
-LT_INIT
+LT_INIT([dlopen])
 
 # -- Checks for programs --
 

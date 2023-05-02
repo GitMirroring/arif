@@ -18,6 +18,7 @@ if BUILD_ARIF_RIME
   dist_man3_MANS  += arif_rime.3
 
   libarifrime_la_CPPFLAGS = $(RIME_CFLAGS) -I$(top_srcdir)/include
+  libarifrime_la_LDFLAGS  = -module
   libarifrime_la_LIBADD   = $(RIME_LIBS)
   libarifrime_la_SOURCES  = arif_rime.c
 
