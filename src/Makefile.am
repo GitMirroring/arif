@@ -28,7 +28,6 @@ if BUILD_ARIFY
   lib_LTLIBRARIES += libarify.la
 
   arify_CPPFLAGS = $(ARIF_CPPFLAGS_) -DARIFY_LIBDIR=$(libdir)
-  arify_LDADD    = libarify.la
   arify_SOURCES  = arify_cli.c
 
   libarify_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)
