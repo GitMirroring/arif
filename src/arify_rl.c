@@ -111,7 +111,7 @@ complete (
 
 static void
 disable_arify (
-    bool supress_message
+    bool suppress_message
 ) {
     rl_basic_quote_characters          = rlctx.old_basic_quote_chars;
     rl_attempted_completion_function   = rlctx.old_comp_func;
@@ -121,7 +121,7 @@ disable_arify (
     rl_sort_completion_matches         = rlctx.old_sort_matches;
 
     rlctx.enabled = false;
-    if (!supress_message) {
+    if (!suppress_message) {
         rlprintf("%s", "[arify] disabled");
     }
     arify_debug_printf("%s", "disabled");
