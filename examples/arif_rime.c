@@ -30,7 +30,6 @@
 
 #include <assert.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,7 +58,6 @@
 struct engine_ctx {
     RimeSessionId      session;
     struct cand_entry *candidates;
-    bool               no_more_candidates;
 };
 
 // Forward declaration start
@@ -68,7 +66,7 @@ static void          arif_rime_info     (void *, char const **, char const **);
 static int           arif_rime_init     (void *, void **);
 static int           arif_rime_query    (void *, char const *, int, int, int,
                                          struct arif_cand const **);
-static bool          copy_candidate     (struct arif_cand *, RimeContext *);
+static int           copy_candidate     (struct arif_cand *, RimeContext *);
 static int           init_rime          (void);
 static void          finalize_rime      (void);
 static void          free_candidates    (struct engine_ctx *);
@@ -184,21 +182,28 @@ arif_rime_query (
     ctx->candidates = entries;
 
     int idx = 0;
-    for (; !ctx->no_more_candidates && idx < num_candidates; ++idx) {
+    while (idx < num_candidates) {
         RIME_STRUCT(RimeContext, rimectx);
         if (!rime_api->get_context(ctx->session, &rimectx)) {
             break;
         }
 
         struct arif_cand *candidate = entries->candidates + idx;
-        if (copy_candidate(candidate, &rimectx)) {
-            ctx->no_more_candidates = true;
-        }
+        int result = copy_candidate(candidate, &rimectx);
 
         rime_api->free_context(&rimectx);
 
+        if (result < 0) {
+            // no candidates
+            break;
+        }
+        ++idx;
+        if (result > 0) {
+            // last candidate
+            break;
+        }
         if (!rime_api->process_key(ctx->session, XK_Down, 0)) {
-            ctx->no_more_candidates = true;
+            break;
         }
     }
     entries->num_candidates = idx;
@@ -206,7 +211,7 @@ arif_rime_query (
     return idx;
 }
 
-static bool
+static int
 copy_candidate (
     struct arif_cand *dest,
     RimeContext      *src
@@ -214,6 +219,9 @@ copy_candidate (
     RimeMenu        *menu        = &src->menu;
     RimeComposition *composition = &src->composition;
     int candidate_idx = menu->highlighted_candidate_index;
+    if (candidate_idx >= menu->page_size) {
+        return -1;
+    }
 
     char const *text     = menu->candidates[candidate_idx].text;
     int         text_len = strlen(text);
