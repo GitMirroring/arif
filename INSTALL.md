@@ -41,8 +41,8 @@ Build and Install
 
   Example shell script:
 
-    autoreconf -i
     mkdir build && cd build
+    autoreconf -i ..
     ../configure --prefix=${HOME}/.local
     make
     make install
