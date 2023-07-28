@@ -1,11 +1,11 @@
-dnl  
+dnl
 dnl  Copyright (C) 2023  CismonX <admin@cismon.net>
-dnl  
+dnl
 dnl  Copying and distribution of this file, with or without modification,
 dnl  are permitted in any medium without royalty,
 dnl  provided the copyright notice and this notice are preserved.
 dnl  This file is offered as-is, without any warranty.
-dnl  
+dnl
 
 AC_PREREQ([2.69])
 AC_INIT([arif], [0.1.0], [arif-devel@nongnu.org])

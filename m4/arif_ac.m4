@@ -1,6 +1,6 @@
 dnl
 dnl  Copyright (C) 2023  CismonX <admin@cismon.net>
-dnl  
+dnl
 dnl  Copying and distribution of this file, with or without modification,
 dnl  are permitted in any medium without royalty,
 dnl  provided the copyright notice and this notice are preserved.
@@ -10,7 +10,7 @@ dnl
 dnl
 dnl  ARIF_ARG_ENABLE(feature, default-value, description, [extra-msg],
 dnl                  [action-if-enabled], [action-if-disabled])
-dnl  
+dnl
 dnl  Wrapper for AC_ARG_ENABLE.
 dnl
 AC_DEFUN([ARIF_ARG_ENABLE], [
@@ -36,7 +36,7 @@ AC_DEFUN([ARIF_ARG_ENABLE], [
 dnl
 dnl  ARIF_CHECK_PKG(package, version, package-name, [action-if-not-given],
 dnl                 [action-if-found], [action-if-without])
-dnl  
+dnl
 dnl  Checks if a package exists with `pkg-config', and provides option for
 dnl  the configure script to specify the package's custom install location.
 dnl
@@ -60,7 +60,7 @@ AC_DEFUN([ARIF_CHECK_PKG], [
 
 dnl
 dnl  ARIF_TRY_APPLY(macro-name, ...)
-dnl  
+dnl
 dnl  If `macro-name' is defined, for each remaining argument,
 dnl  applies the macro to that argument.
 dnl
