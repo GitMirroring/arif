@@ -39,6 +39,7 @@
 #include <rime_api.h>
 
 #include "arif_defs.h"
+#include "arif_rime_workaround.h"
 
 #ifndef ARIF_RIME_APP_NAME
 #  define ARIF_RIME_APP_NAME  "rime.arif"
@@ -283,6 +284,9 @@ init_rime (void)
     traits.modules       = get_modules("ARIF_RIME_MODULES");
 
     rime_api->setup(&traits);
+    // Prevent glog (used by Rime for logging) from writing to stderr,
+    // since it may break Readline output.
+    arif_rime_workaround_glog_nostderr();
     rime_api->initialize(&traits);
 
     // Rime uses static C++ variables to store its states, which get destroyed

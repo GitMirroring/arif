@@ -7,6 +7,7 @@
 #
 
 include_HEADERS =
+noinst_HEADERS  =
 lib_LTLIBRARIES =
 dist_man3_MANS  =
 
@@ -14,12 +15,13 @@ dist_man3_MANS  =
 if BUILD_ARIF_RIME
 
   include_HEADERS += arif_rime.h
+  noinst_HEADERS  += arif_rime_workaround.h
   lib_LTLIBRARIES += libarifrime.la
   dist_man3_MANS  += arif_rime.3
 
   libarifrime_la_CPPFLAGS = $(RIME_CFLAGS) -I$(top_srcdir)/include
   libarifrime_la_LDFLAGS  = -module
   libarifrime_la_LIBADD   = $(RIME_LIBS)
-  libarifrime_la_SOURCES  = arif_rime.c
+  libarifrime_la_SOURCES  = arif_rime.c arif_rime_workaround.cc
 
 endif  # BUILD_ARIF_RIME
