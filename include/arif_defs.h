@@ -20,10 +20,10 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_FUNC_ATTRIBUTE_NORETURN
-#  define ARIF_NORETURN  __attribute__((noreturn))
+#ifdef HAVE__BUILTIN_UNREACHABLE
+#  define ARIF_UNREACHABLE()  __builtin_unreachable()
 #else
-#  define ARIF_NORETURN
+#  define ARIF_UNREACHABLE()
 #endif
 
 #ifdef HAVE_VAR_ATTRIBUTE_UNUSED
@@ -44,5 +44,5 @@
 #ifdef ARIF_DEBUG
 #  define ARIF_DEBUG_ASSERT(expr)  assert(expr)
 #else
-#  define ARIF_DEBUG_ASSERT(expr)
+#  define ARIF_DEBUG_ASSERT(expr)  if (!(expr)) { ARIF_UNREACHABLE(); }
 #endif

@@ -54,7 +54,7 @@ struct options {
 static void   append_str    (char const *, char **, char);
 static char * concat_str    (char const *, char const *, char);
 static int    parse_options (int, char *const [], struct options *);
-static void   print_usage   (char const *) ARIF_NORETURN;
+static void   print_usage   (char const *);
 static void   set_envs      (struct options *);
 // Forward declaration end
 
