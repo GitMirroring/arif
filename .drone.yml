@@ -15,7 +15,7 @@ steps:
     image: debian:bookworm-slim
     commands:
       - apt-get -y update && apt-get -y install
-            build-essential pkgconf autoconf automake libtool
+            gcc g++ make pkgconf autoconf automake libtool
             autoconf-archive dejagnu texinfo libreadline-dev librime-dev
       - mkdir build && cd build && autoreconf -i ..
       - ../configure --with-readline --with-rime --enable-arif-debug
@@ -23,3 +23,4 @@ steps:
             CPPFLAGS='-D_POSIX_C_SOURCE=200112L'
       - make
       - make check
+      - make dist
