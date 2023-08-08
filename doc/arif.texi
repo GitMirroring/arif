@@ -242,7 +242,7 @@ If the two names match the following pattern, a @code{$@{short_name@}} can be
 used instead of the full name:
 
 @example
-lib$@{short_name@}$@{shlib_suffix@}:arif_$@{short_name@}_engine
+$@{libdir@}/arif/$@{short_name@}$@{shlib_suffix@}:arif_$@{short_name@}_engine
 @end example
 
 Where @code{$@{shlib_suffix@}} is the common name suffix for shared library

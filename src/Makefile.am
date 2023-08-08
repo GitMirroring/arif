@@ -9,7 +9,7 @@
 bin_PROGRAMS    =
 lib_LTLIBRARIES = libarif.la
 
-ARIF_CPPFLAGS_ = -I$(top_srcdir)/include
+ARIF_CPPFLAGS_ = -I$(top_srcdir)/include -DARIF_LIBDIR=$(libdir)
 
 libarif_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)
 libarif_la_LIBADD   = $(READLINE_LIBS)
@@ -27,7 +27,7 @@ if BUILD_ARIFY
   bin_PROGRAMS    += arify
   lib_LTLIBRARIES += libarify.la
 
-  arify_CPPFLAGS = $(ARIF_CPPFLAGS_) -DARIFY_LIBDIR=$(libdir)
+  arify_CPPFLAGS = $(ARIF_CPPFLAGS_)
   arify_SOURCES  = arify_cli.c
 
   libarify_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)

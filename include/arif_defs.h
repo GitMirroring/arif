@@ -46,3 +46,7 @@
 #else
 #  define ARIF_DEBUG_ASSERT(expr)  if (!(expr)) { ARIF_UNREACHABLE(); }
 #endif
+
+#ifndef ARIF_LIBDIR
+#  define ARIF_LIBDIR  /usr/local/lib
+#endif
