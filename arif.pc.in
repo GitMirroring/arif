@@ -13,11 +13,10 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-pkgincludedir=${includedir}/${package}
 
 Name: ${package}
 Description: Another Readline Input Framework
 Version: ${version}
 URL: https://nongnu.org/arif
 Libs: -L${libdir} -larif
-Cflags: -I${includedir} -I${pkgincludedir}
+Cflags: -I${includedir}

@@ -6,13 +6,13 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
-noinst_HEADERS     = arif_defs.h arify.h
-pkginclude_HEADERS = arif.h
+noinst_HEADERS  = arif_defs.h arify.h
+include_HEADERS = arif.h
 
 
 if BUILD_ARIF_READLINE
 
-  noinst_HEADERS     += arify_rl.h
-  pkginclude_HEADERS += arif_rl.h
+  noinst_HEADERS  += arify_rl.h
+  include_HEADERS += arif_rl.h
 
 endif  # BUILD_ARIF_READLINE
