@@ -11,7 +11,7 @@ dnl
 dnl  ARIF_ARG_ENABLE(feature, default-value, description, [extra-msg],
 dnl                  [action-if-enabled], [action-if-disabled])
 dnl
-dnl  Wrapper for AC_ARG_ENABLE.
+dnl  Provides an option to enable or disable a feature.
 dnl
 AC_DEFUN([ARIF_ARG_ENABLE], [
     m4_pushdef([arg_action_], m4_if([$2], [no], [enable], [disable]))
@@ -23,19 +23,20 @@ AC_DEFUN([ARIF_ARG_ENABLE], [
         AS_VAR_SET(enable_var_, [$2])
     ])
     AS_VAR_IF(enable_var_, [no], [
-        $6
         AC_MSG_RESULT([no])
+        $6
     ], [
-        $5
         AC_MSG_RESULT([yes])
+        $5
     ])
     m4_popdef([arg_action_])
     m4_popdef([enable_var_])
 ])
 
+
 dnl
 dnl  ARIF_CHECK_PKG(package, version, package-name, [action-if-not-given],
-dnl                 [action-if-found], [action-if-without])
+dnl                 [action-if-with], [action-if-without])
 dnl
 dnl  Checks if a package exists with `pkg-config', and provides option for
 dnl  the configure script to specify the package's custom install location.
@@ -44,7 +45,7 @@ AC_DEFUN([ARIF_CHECK_PKG], [
     m4_pushdef([with_var_], [with_]m4_translit([$1], [-+.], [___]))
     AC_ARG_WITH([$1], m4_normalize([
         AS_HELP_STRING(
-		[--with-$1[[=PKGCONFIGDIR]]], [pkg-config search path for $3])
+            [--with-$1[[=PKGCONFIGDIR]]], [pkg-config search path for $3])
     ]), [], [$4])
     AS_VAR_IF(with_var_, [no], [$6], [
         AS_VAR_SET([SAVED_PKG_CONFIG_PATH_], ["${PKG_CONFIG_PATH}"])
