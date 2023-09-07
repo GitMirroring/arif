@@ -87,12 +87,19 @@ arif_rl_complete(
         char *match = malloc(sizeof(char) * (len + 1));
         assert(match != NULL);
 
-        memcpy(match, text, skip);
-        memcpy(match + skip, cand->text, cand->len);
-        memcpy(match + skip + cand->len, line + cand->replace_len,
-                len - cand->len - skip);
         match[len] = '\0';
-        comp_list[idx] = match;
+        comp_list[idx] = memcpy(match, text, skip);
+
+        int offset = skip;
+        memcpy(match + offset, line, cand->replace_start);
+
+        offset += cand->replace_start;
+        memcpy(match + offset, cand->text, cand->len);
+
+        offset += cand->len;
+        memcpy(match + offset,
+                line + cand->replace_start + cand->replace_len,
+                len - offset);
     }
     comp_list[num + 1] = NULL;
 

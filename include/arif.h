@@ -64,6 +64,7 @@ typedef int (arif_engine_query_func) (
 struct arif_cand {
     char const *text;
     int         len;
+    int         replace_start;
     int         replace_len;
     char const *transform;
     int         transform_len;

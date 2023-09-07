@@ -39,6 +39,7 @@ type is defined as:
 struct arif_cand {
     char const *text;
     int         len;
+    int         replace_start;
     int         replace_len;
     char const *transform;
     int         transform_len;
@@ -57,7 +58,8 @@ is its length in bytes.
 Member
 .I replace_len
 is the number of leading bytes of the original text that are meant to
-be replaced by the candidate.
+be replaced by the candidate, starting from byte offset
+.IR replace_start .
 .PP
 Should the original text passed to
 .BR arif_query ()

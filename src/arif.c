@@ -131,6 +131,7 @@ copy_candidate (
     *dest = (struct arif_cand) {
         .text          = src->text,
         .len           = src->len,
+        .replace_start = src->replace_start,
         .replace_len   = src->replace_len,
         .transform     = src->transform,
         .transform_len = src->transform_len,

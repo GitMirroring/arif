@@ -227,13 +227,14 @@ copy_candidate (
     char const *text     = menu->candidates[candidate_idx].text;
     int         text_len = strlen(text);
     char const *line     = composition->preedit;
-    int         line_len = strlen(line);
+    int         line_len = composition->length;
 
     char *buf = malloc(text_len + line_len);
     assert(buf != NULL);
 
     dest->text          = memcpy(buf, text, text_len);
     dest->len           = text_len;
+    dest->replace_start = composition->sel_start;
     dest->replace_len   = composition->sel_end - composition->sel_start;
     dest->transform     = memcpy(buf + text_len, line, line_len);
     dest->transform_len = line_len;
