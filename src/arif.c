@@ -386,11 +386,12 @@ arif_query (
 
     if (0 != compare_text(old_input, ctx->old_len, input, input_len)) {
         // new text
-        char *saved_line = malloc(sizeof(char) * (offset + len));
+        char *saved_line = malloc(sizeof(char) * (offset + input_len));
         assert(saved_line != NULL);
 
-        set_old_line(ctx, memcpy(saved_line, line, offset + len), offset, len);
-        first_candidates(ctx, saved_line, offset, len);
+        memcpy(saved_line, line, offset + input_len);
+        set_old_line(ctx, saved_line, offset, input_len);
+        first_candidates(ctx, saved_line, offset, input_len);
     } else {
         // same text as old query
         if (input_len == len) {
