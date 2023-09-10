@@ -30,6 +30,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,7 +68,8 @@ static void          arif_rime_info     (void *, char const **, char const **);
 static int           arif_rime_init     (void *, void **);
 static int           arif_rime_query    (void *, char const *, int, int, int,
                                          struct arif_cand const **);
-static int           copy_candidate     (struct arif_cand *, RimeContext *);
+static int           copy_candidate     (struct arif_cand *, RimeContext *,
+                                         char const *, int);
 static int           init_rime          (void);
 static void          finalize_rime      (void);
 static void          free_candidates    (struct engine_ctx *);
@@ -154,6 +156,9 @@ arif_rime_query (
 ) {
     struct engine_ctx *ctx = engine_data;
 
+    char *prefix     = NULL;
+    int   prefix_len = 0;
+
     if (line != NULL) {
         free_candidates(ctx);
         rime_api->destroy_session(ctx->session);
@@ -164,6 +169,29 @@ arif_rime_query (
             if (!rime_api->process_key(ctx->session, text[idx], 0)) {
                 return 0;
             }
+
+            RIME_STRUCT(RimeStatus, rimestatus);
+            if (!rime_api->get_status(ctx->session, &rimestatus)) {
+                return 0;
+            }
+            bool is_composing = rimestatus.is_composing;
+            rime_api->free_status(&rimestatus);
+            if (is_composing) {
+                continue;
+            }
+
+            // When `is_composing == false`, it means that
+            // the previous input has triggered a commit.
+            RIME_STRUCT(RimeCommit, rimecommit);
+            if (!rime_api->get_commit(ctx->session, &rimecommit)) {
+                continue;
+            }
+            int commit_len = strlen(rimecommit.text);
+            prefix = realloc(prefix, prefix_len + commit_len);
+            assert(prefix != NULL);
+            memcpy(prefix + prefix_len, rimecommit.text, commit_len);
+            prefix_len += commit_len;
+            rime_api->free_commit(&rimecommit);
         }
     } else if (candidates_ptr == NULL) {
         // TODO: handle candidate selection so that we can preserve a
@@ -190,7 +218,7 @@ arif_rime_query (
         }
 
         struct arif_cand *candidate = entries->candidates + idx;
-        int result = copy_candidate(candidate, &rimectx);
+        int result = copy_candidate(candidate, &rimectx, prefix, prefix_len);
 
         rime_api->free_context(&rimectx);
 
@@ -207,6 +235,20 @@ arif_rime_query (
             break;
         }
     }
+
+    if (idx == 0 && prefix_len > 0) {
+        struct arif_cand *cand = &entries->candidates[0];
+
+        *cand = (struct arif_cand) {
+            .text        = prefix,
+            .len         = prefix_len,
+            .replace_len = len,
+        };
+        idx = 1;
+    } else {
+        free(prefix);
+    }
+
     entries->num_candidates = idx;
     *candidates_ptr = entries->candidates;
     return idx;
@@ -215,7 +257,9 @@ arif_rime_query (
 static int
 copy_candidate (
     struct arif_cand *dest,
-    RimeContext      *src
+    RimeContext      *src,
+    char const       *prefix,
+    int               prefix_len
 ) {
     RimeMenu        *menu        = &src->menu;
     RimeComposition *composition = &src->composition;
@@ -229,15 +273,21 @@ copy_candidate (
     char const *line     = composition->preedit;
     int         line_len = composition->length;
 
-    char *buf = malloc(text_len + line_len);
+    char *buf = malloc(text_len + prefix_len + line_len);
     assert(buf != NULL);
 
-    dest->text          = memcpy(buf, text, text_len);
-    dest->len           = text_len;
-    dest->replace_start = composition->sel_start;
-    dest->replace_len   = composition->sel_end - composition->sel_start;
-    dest->transform     = memcpy(buf + text_len, line, line_len);
-    dest->transform_len = line_len;
+    memcpy(buf,                         text,   text_len);
+    memcpy(buf + text_len,              prefix, prefix_len);
+    memcpy(buf + text_len + prefix_len, line,   line_len);
+
+    *dest = (struct arif_cand) {
+        .text          = buf,
+        .len           = text_len,
+        .replace_start = prefix_len + composition->sel_start,
+        .replace_len   = composition->sel_end - composition->sel_start,
+        .transform     = buf + text_len,
+        .transform_len = prefix_len + line_len,
+    };
 
     return menu->is_last_page && candidate_idx + 1 == menu->page_size;
 }
