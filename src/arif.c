@@ -181,6 +181,7 @@ first_candidates (
                 &current_page, &last_page);
     }
 
+    free_page_list(ctx->current_page);
     ctx->current_page = current_page;
     ctx->last_page    = last_page;
     ctx->page_num     = 1;
