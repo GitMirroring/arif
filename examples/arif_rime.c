@@ -194,8 +194,7 @@ arif_rime_query (
             rime_api->free_commit(&rimecommit);
         }
     } else if (candidates_ptr == NULL) {
-        // TODO: handle candidate selection so that we can preserve a
-        //       Rime session when possible.
+        rime_api->select_candidate(ctx->session, offset);
         return 0;
     } else {
         if (!rime_api->find_session(ctx->session)) {
