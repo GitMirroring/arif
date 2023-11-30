@@ -185,13 +185,19 @@ candidates are valid until the next
 call with non-NULL
 .IR line .
 .PP
-Note that the engine is not responsible for specifying the display text for a
-candidate.
-The
+The engine is not responsible for specifying the display text for a candidate,
+however, it may reuse the
 .I display
 and
 .I display_len
-members of a candidate should be ignored by the caller.
+members to store descriptive information regarding the candidate.
+This information will be passed to the display function of the input context
+through the
+.I comment
+and
+.I comment_len
+arguments (see
+.BR \%arif_ctx_create ()).
 .PP
 Both
 .I line
@@ -230,6 +236,7 @@ You should have received a copy of the license along with this document.
 If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
 .
 .SH SEE ALSO
+.BR arif_ctx_create (3),
 .BR arif_ctx_destroy (3),
 .BR arif_fetch (3),
 .BR arif_query (3)

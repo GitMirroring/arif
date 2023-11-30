@@ -33,6 +33,8 @@ struct arif_ctx;
 typedef char *(arif_cand_disp_func) (
     char const *text,
     int         len,
+    char const *comment,
+    int         comment_len,
     int         idx,
     int        *display_len_ptr
 );

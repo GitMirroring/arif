@@ -53,10 +53,12 @@ type is defined as:
 .in +4n
 .EX
 typedef char *(arif_cand_disp_func) (
-    char *text,
-    int   len,
-    int   idx,
-    int  *display_len_ptr
+    char const *text,
+    int         len,
+    char const *comment,
+    int         comment_len,
+    int         idx,
+    int        *display_len_ptr
 );
 .EE
 .in
@@ -65,6 +67,13 @@ Argument
 .I text
 is the candidate's text to replace the original text, and
 .I len
+is its length in bytes.
+.PP
+If
+.I comment
+is not NULL, it contains descriptive text regarding the candidate.
+Argument
+.I comment_len
 is its length in bytes.
 .PP
 Argument

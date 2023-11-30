@@ -260,25 +260,45 @@ copy_candidate (
     char const       *prefix,
     int               prefix_len
 ) {
-    RimeMenu        *menu        = &src->menu;
-    RimeComposition *composition = &src->composition;
+    RimeMenu *menu = &src->menu;
     int candidate_idx = menu->highlighted_candidate_index;
     if (candidate_idx >= menu->page_size) {
         return -1;
     }
 
-    char const *text     = menu->candidates[candidate_idx].text;
-    int         text_len = strlen(text);
+    RimeCandidate   *candidate   = &menu->candidates[candidate_idx];
+    RimeComposition *composition = &src->composition;
+
+    char const *text = candidate->text;
+    if (text == NULL) {
+        text = "";
+    }
+    int text_len = strlen(text);
+
+    char const *comment = candidate->comment;
+    if (comment == NULL) {
+        comment = "";
+    }
+    int comment_len = strlen(comment);
+
     char const *line     = composition->preedit;
     int         line_len = composition->length;
 
-    char *buf = malloc(text_len + prefix_len + line_len);
+    char *buf = malloc(text_len + prefix_len + line_len + comment_len + 1);
     assert(buf != NULL);
 
-    memcpy(buf,                         text,   text_len);
-    memcpy(buf + text_len,              prefix, prefix_len);
-    memcpy(buf + text_len + prefix_len, line,   line_len);
+    memcpy(buf,                                    text,    text_len);
+    memcpy(buf + text_len,                         prefix,  prefix_len);
+    memcpy(buf + text_len + prefix_len,            line,    line_len);
+    memcpy(buf + text_len + prefix_len + line_len, comment, comment_len);
 
+    // Distinguish "no comment" from "empty comment",
+    // so that the frontend can handle them differently.
+    if (candidate->comment == NULL) {
+        comment = NULL;
+    } else {
+        comment = buf + text_len + line_len;
+    }
     *dest = (struct arif_cand) {
         .text          = buf,
         .len           = text_len,
@@ -286,6 +306,8 @@ copy_candidate (
         .replace_len   = composition->sel_end - composition->sel_start,
         .transform     = buf + text_len,
         .transform_len = prefix_len + line_len,
+        .display       = comment,
+        .display_len   = comment_len,
     };
 
     return menu->is_last_page && candidate_idx + 1 == menu->page_size;

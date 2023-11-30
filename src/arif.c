@@ -63,7 +63,8 @@ static struct cand_page *
 static int    compare_text      (char const *, int, char const *, int);
 static void   copy_candidate    (struct arif_cand *, struct arif_cand const *,
                                  int, arif_cand_disp_func *);
-static char * disp_cand_default (char const *, int, int, int *);
+static char * disp_cand_default (char const *, int, char const *, int,
+                                 int, int *);
 static void   first_candidates  (struct arif_ctx *, char const *, int, int);
 static void   free_page         (struct cand_page *);
 static void   free_page_list    (struct cand_page *);
@@ -126,7 +127,8 @@ copy_candidate (
     arif_cand_disp_func    *disp_cand
 ) {
     int display_len;
-    char *display = disp_cand(src->text, src->len, idx + 1, &display_len);
+    char *display = disp_cand(src->text, src->len,
+            src->display, src->display_len, idx + 1, &display_len);
 
     *dest = (struct arif_cand) {
         .text          = src->text,
@@ -144,17 +146,31 @@ static char *
 disp_cand_default (
     char const *text,
     int         len,
+    char const *comment,
+    int         comment_len,
     int         idx,
     int        *display_len_ptr
 ) {
-    char const *fmt = "[%d] %.*s";
-    int display_len = snprintf(NULL, 0, fmt, idx, len, text);
+    char const *fmt;
+    int         display_len;
+    if (comment == NULL) {
+        fmt         = "[%d] %.*s";
+        display_len = snprintf(NULL, 0, fmt, idx, len, text);
+    } else {
+        fmt         = "[%d] %.*s (%.*s)";
+        display_len = snprintf(NULL, 0, fmt, idx, len, text,
+                comment_len, comment);
+    }
     assert(display_len >= 0);
 
     char *disp = malloc(sizeof(char) * (display_len + 1));
     assert(disp != NULL);
 
-    sprintf(disp, fmt, idx, len, text);
+    if (comment == NULL) {
+        sprintf(disp, fmt, idx, len, text);
+    } else {
+        sprintf(disp, fmt, idx, len, text, comment_len, comment);
+    }
 
     *display_len_ptr = display_len;
     return disp;
