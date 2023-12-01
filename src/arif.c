@@ -127,12 +127,12 @@ copy_candidate (
     arif_cand_disp_func    *disp_cand
 ) {
     int display_len;
-    char *display = disp_cand(src->text, src->len,
+    char *display = disp_cand(src->text, src->text_len,
             src->display, src->display_len, idx + 1, &display_len);
 
     *dest = (struct arif_cand) {
         .text          = src->text,
-        .len           = src->len,
+        .text_len      = src->text_len,
         .replace_start = src->replace_start,
         .replace_len   = src->replace_len,
         .transform     = src->transform,

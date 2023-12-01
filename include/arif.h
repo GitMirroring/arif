@@ -32,7 +32,7 @@ struct arif_ctx;
 
 typedef char *(arif_cand_disp_func) (
     char const *text,
-    int         len,
+    int         text_len,
     char const *comment,
     int         comment_len,
     int         idx,
@@ -65,7 +65,7 @@ typedef int (arif_engine_query_func) (
 
 struct arif_cand {
     char const *text;
-    int         len;
+    int         text_len;
     int         replace_start;
     int         replace_len;
     char const *transform;

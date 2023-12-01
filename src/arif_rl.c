@@ -83,7 +83,7 @@ arif_rl_complete(
             line_len = end;
         }
 
-        int len = line_len - cand->replace_len + cand->len + skip;
+        int len = line_len - cand->replace_len + cand->text_len + skip;
         char *match = malloc(sizeof(char) * (len + 1));
         assert(match != NULL);
 
@@ -94,9 +94,9 @@ arif_rl_complete(
         memcpy(match + offset, line, cand->replace_start);
 
         offset += cand->replace_start;
-        memcpy(match + offset, cand->text, cand->len);
+        memcpy(match + offset, cand->text, cand->text_len);
 
-        offset += cand->len;
+        offset += cand->text_len;
         memcpy(match + offset,
                 line + cand->replace_start + cand->replace_len,
                 len - offset);

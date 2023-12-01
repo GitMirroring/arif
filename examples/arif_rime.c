@@ -240,7 +240,7 @@ arif_rime_query (
 
         *cand = (struct arif_cand) {
             .text        = prefix,
-            .len         = prefix_len,
+            .text_len    = prefix_len,
             .replace_len = len,
         };
         idx = 1;
@@ -301,7 +301,7 @@ copy_candidate (
     }
     *dest = (struct arif_cand) {
         .text          = buf,
-        .len           = text_len,
+        .text_len      = text_len,
         .replace_start = prefix_len + composition->sel_start,
         .replace_len   = composition->sel_end - composition->sel_start,
         .transform     = buf + text_len,

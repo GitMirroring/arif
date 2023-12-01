@@ -181,7 +181,7 @@ generate_candidate (
 
     *cand = (struct arif_cand) {
         .text        = text,
-        .len         = len,
+        .text_len    = len,
         .replace_len = len,
     };
 }
