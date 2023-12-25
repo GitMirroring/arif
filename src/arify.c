@@ -59,10 +59,9 @@
 #  error "__attribute__((destructor)) not supported"
 #endif
 
-#define ARIFY_ENGINE_PATH_(libdir, engine) \
-        #libdir "/arif/" engine ARIF_SHLIB_SUFFIX
-#define ARIFY_ENGINE_PATH(libdir, engine)  ARIFY_ENGINE_PATH_(libdir, engine)
-#define ARIFY_ENGINE_SYM(engine)           "arif_" engine "_engine"
+#define ARIFY_ENGINE_LIB(engine)  \
+        ARIF_LIBDIR "/arif/" engine ARIF_SHLIB_SUFFIX
+#define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
 
 #ifndef ARIFY_MAX_PAGE_SIZE
 #  define ARIFY_MAX_PAGE_SIZE  99
@@ -313,11 +312,10 @@ load_engine (
     char *var_tmp = NULL;
 
     if (var_name == NULL) {
-        size_t lib_name_len
-                = sizeof ARIFY_ENGINE_PATH(ARIF_LIBDIR, "") + strlen(lib_name);
+        size_t lib_name_len = sizeof ARIFY_ENGINE_LIB("") + strlen(lib_name);
         lib_tmp = malloc(sizeof(char) * lib_name_len);
         assert(lib_tmp != NULL);
-        sprintf(lib_tmp, ARIFY_ENGINE_PATH(ARIF_LIBDIR, "%s"), lib_name);
+        sprintf(lib_tmp, ARIFY_ENGINE_LIB("%s"), lib_name);
 
         size_t var_name_len = sizeof ARIFY_ENGINE_SYM("") + strlen(lib_name);
         var_tmp = malloc(sizeof(char) * var_name_len);

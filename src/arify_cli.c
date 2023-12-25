@@ -35,8 +35,7 @@
 #include "arif.h"
 #include "arif_defs.h"
 
-#define ARIFY_PRELOAD_LIB_(libdir)  #libdir "/libarify" ARIF_SHLIB_SUFFIX
-#define ARIFY_PRELOAD_LIB(libdir)   ARIFY_PRELOAD_LIB_(libdir)
+#define ARIFY_PRELOAD_LIB  ARIF_LIBDIR "/libarify" ARIF_SHLIB_SUFFIX
 
 struct options {
     char *frontend;
@@ -172,7 +171,7 @@ main (
     assert(program != NULL);
 
     struct options opts = {
-        .preload = ARIFY_PRELOAD_LIB(ARIF_LIBDIR),
+        .preload = ARIFY_PRELOAD_LIB,
     };
     argv += parse_options(argc, argv, &opts);
     set_envs(&opts);
