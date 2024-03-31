@@ -19,15 +19,11 @@ LT_INIT([dlopen])
 
 # -- Checks for programs --
 
-AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_INSTALL
-AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_MKDIR_P
-AC_PROG_SED
 
 # -- Checks for libraries --
 
@@ -70,25 +66,10 @@ AM_CONDITIONAL([BUILD_ARIFY], [test x${enable_arify} != xno])
 
 # -- Checks for compiler builtins and attributes --
 
-ARIF_TRY_APPLY([AX_GCC_BUILTIN], [__builtin_unreachable])
-ARIF_TRY_APPLY([AX_GCC_FUNC_ATTRIBUTE], [constructor], [destructor])
-ARIF_TRY_APPLY([AX_GCC_VAR_ATTRIBUTE], [unused])
-
-# -- Checks for header files --
-
-AC_CHECK_HEADERS([fcntl.h strings.h unistd.h])
-
-# -- Checks for typedefs, structures, and compiler characteristics --
-
-AC_CHECK_HEADER_STDBOOL
-AC_C_INLINE
-AC_TYPE_SIZE_T
-
-# -- Checks for library functions
-
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit memchr strcasecmp])
+AX_GCC_BUILTIN([__builtin_unreachable])
+AX_GCC_FUNC_ATTRIBUTE([constructor])
+AX_GCC_FUNC_ATTRIBUTE([destructor])
+AX_GCC_VAR_ATTRIBUTE([unused])
 
 # -- Output --
 

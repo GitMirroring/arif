@@ -33,7 +33,6 @@ AC_DEFUN([ARIF_ARG_ENABLE], [
     m4_popdef([enable_var_])
 ])
 
-
 dnl
 dnl  ARIF_CHECK_PKG(package, version, package-name, [action-if-not-given],
 dnl                 [action-if-with], [action-if-without])
@@ -57,16 +56,4 @@ AC_DEFUN([ARIF_CHECK_PKG], [
         AS_VAR_SET([PKG_CONFIG_PATH], ["${SAVED_PKG_CONFIG_PATH_}"])
     ])
     m4_popdef([with_var_])
-])
-
-dnl
-dnl  ARIF_TRY_APPLY(macro-name, ...)
-dnl
-dnl  If `macro-name' is defined, for each remaining argument,
-dnl  applies the macro to that argument.
-dnl
-AC_DEFUN([ARIF_TRY_APPLY], [
-    m4_ifdef([$1], [
-        m4_foreach([val_], [m4_shift($@)], [$1(val_)])
-    ])
 ])
