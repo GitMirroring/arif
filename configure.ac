@@ -53,15 +53,7 @@ ARIF_ARG_ENABLE([arif-debug], [no], [debugging features for ARIF], [], [
 ])
 AM_CONDITIONAL([ENABLE_DEBUG], [test x${enable_debug} = xyes])
 
-ARIF_ARG_ENABLE([arify], [yes], [the arify command line tool], [], [
-    AS_VAR_IF([with_readline], [no], [
-        AC_MSG_WARN(m4_normalize([
-            The arify command line tool will not be built,
-            as the ARIF library is configured without GNU Readline.
-        ]))
-        AS_VAR_SET([enable_arify], [no])
-    ])
-])
+ARIF_ARG_ENABLE([arify], [yes], [the arify program])
 AM_CONDITIONAL([BUILD_ARIFY], [test x${enable_arify} != xno])
 
 # -- Checks for compiler builtins and attributes --
