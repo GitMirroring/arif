@@ -6,9 +6,11 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
+bin_PROGRAMS       =
 include_HEADERS    =
 noinst_HEADERS     =
 pkglib_LTLIBRARIES =
+dist_man1_MANS     =
 dist_man3_MANS     =
 
 
@@ -25,3 +27,14 @@ if BUILD_ARIF_RIME
   rime_la_SOURCES  = arif_rime.c arif_rime_workaround.cc
 
 endif  # BUILD_ARIF_RIME
+
+if BUILD_RL_LOOP
+
+  bin_PROGRAMS   += rl-loop
+  dist_man1_MANS += rl-loop.1
+
+  rl_loop_CPPFLAGS = $(READLINE_CFLAGS)
+  rl_loop_LDADD    = $(READLINE_LIBS)
+  rl_loop_SOURCES  = rl_loop.c
+
+endif  # BUILD_RL_LOOP

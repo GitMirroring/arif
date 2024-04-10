@@ -1,0 +1,88 @@
+.TH RL-LOOP 1 "Apr 10, 2024" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+rl-loop - Readline loop
+.
+.SH SYNOPSIS
+.B rl-loop
+.RI [ options ]
+.I pathname
+.RI [ args ]
+.
+.SH DESCRIPTION
+Interactively reads user input with GNU Readline.
+.PP
+For each line of user input, executes the program referred to by
+.IR pathname ,
+passing
+.I args
+as its command-line arguments.
+.
+.SH OPTIONS
+.TP
+.B -e
+Executes
+.I pathname
+even if the input line is empty.
+.TP
+\fB\-i\fR \fIreplace-idx\fR
+When executing
+.IR pathname ,
+replaces the value of the nth (starting from 1) argument referred to by
+.I replace-idx
+with the line of text.
+.IP
+If this option is not provided, or has a value of 0, the line will be written
+to standard input instead.
+.TP
+\fB\-n\fR \fIname\fR
+Readline application name.
+Default value is "rl-loop".
+.IP
+Allows application-specific settings in a Readline init file.
+See "Conditional Init Constructs" subsection of GNU Readline's user manual.
+.TP
+\fB\-p\fR \fIprompt\fR
+The prompt text to be printed before reading user input.
+Default value is "% ".
+.
+.SH EXIT STATUS
+The program exits with status 0 if there are no errors, or 1 if otherwise.
+.
+.SH NOTES
+The functionalities provided by this program can be achived with a simple
+Bash script
+.RB ( "read -e"
+and friends).
+.PP
+However, Bash resets Readline state after each
+.BR read (1),
+necessitating the need to reinstall the completion functions if they are
+not handled by Bash, which could be tricky to workaround.
+.PP
+You may find this program useful when dealing with such cases (e.g. when using
+.BR arify (1)).
+.
+.SH EXAMPLES
+Copy each line to the Wayland clipboard:
+.PP
+.in +4n
+.EX
+$ rl-loop -i4 -- wl-copy -t text/plain -- %
+.EE
+.in
+.
+.SH COPYRIGHT
+Copyright (C) 2024  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see <https://www.gnu.org/licenses/fdl-1.3.html>.
+.
+.SH SEE ALSO
+.BR bash (1),
+.BR readline (3)

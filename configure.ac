@@ -56,6 +56,16 @@ AM_CONDITIONAL([ENABLE_DEBUG], [test x${enable_debug} = xyes])
 ARIF_ARG_ENABLE([arify], [yes], [the arify program])
 AM_CONDITIONAL([BUILD_ARIFY], [test x${enable_arify} != xno])
 
+ARIF_ARG_ENABLE([rl-loop], [no], [the rl-loop program], [], [
+    AS_VAR_IF([with_readline], [no], [
+        AC_MSG_ERROR(m4_normalize([
+            The rl-loop program could not be built,
+            since mandatory dependency GNU Readline is not configured.
+        ]))
+    ])
+])
+AM_CONDITIONAL([BUILD_RL_LOOP], [test x${enable_rl_loop} != xno])
+
 # -- Checks for compiler builtins and attributes --
 
 AX_GCC_BUILTIN([__builtin_unreachable])

@@ -19,7 +19,8 @@ steps:
             gcc g++ make pkgconf autoconf automake libtool
             autoconf-archive dejagnu texinfo libreadline-dev librime-dev
       - mkdir build && cd build && autoreconf -i ..
-      - ../configure --with-readline --with-rime --enable-arif-debug
+      - ../configure --with-readline --with-rime
+            --enable-arif-debug --enable-arify --enable-rl-loop
             CFLAGS='-O0 -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow'
             CPPFLAGS='-D_POSIX_C_SOURCE=200112L'
       - make
