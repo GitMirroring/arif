@@ -21,7 +21,7 @@ Prerequisites
   - C compiler with ISO C99 support
   - GNU Texinfo (optional, for building the user manual)
 
-  Other softwares (optional):
+  Other software (optional):
   - DejaGnu (for running tests)
   - Rime IME core library: <https://github.com/rime/librime>
 
@@ -35,7 +35,9 @@ Build and Install
   - `--with-readline[=PKGCONFIGDIR]` (default), `--without-readline`
     * Whether to build the ARIF library with GNU Readline features.
   - `--enable-arify` (default), `--disable-arify`
-    * Whether to build the `arify` command-line tool.
+    * Whether to build the `arify` program.
+  - `--enable-rl-loop`, `--disable-rl-loop` (default)
+    * Whether to build the `rl-loop` program.
   - `--with-rime[=PKGCONFIGDIR]`, `--without-rime` (default)
     * Whether to build the example Rime IME integration.
 

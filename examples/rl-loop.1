@@ -1,10 +1,10 @@
 .TH RL-LOOP 1 "Apr 10, 2024" 0.1.0 "ARIF User Manual"
 .
 .SH NAME
-rl-loop - Readline loop
+rl\-loop - Readline loop
 .
 .SH SYNOPSIS
-.B rl-loop
+.B rl\-loop
 .RI [ options ]
 .I pathname
 .RI [ args ]
@@ -32,12 +32,12 @@ replaces the value of the nth (starting from 1) argument referred to by
 .I replace-idx
 with the line of text.
 .IP
-If this option is not provided, or has a value of 0, the line will be written
+If this option is not provided, or has a value of 0, the text will be written
 to standard input instead.
 .TP
 \fB\-n\fR \fIname\fR
 Readline application name.
-Default value is "rl-loop".
+Default value is "rl\-loop".
 .IP
 Allows application-specific settings in a Readline init file.
 See "Conditional Init Constructs" subsection of GNU Readline's user manual.
@@ -50,9 +50,9 @@ Default value is "% ".
 The program exits with status 0 if there are no errors, or 1 if otherwise.
 .
 .SH NOTES
-The functionalities provided by this program can be achived with a simple
+The functionalities provided by this program can be achieved with a simple
 Bash script
-.RB ( "read -e"
+.RB ( "read \-e"
 and friends).
 .PP
 However, Bash resets Readline state after each
@@ -68,7 +68,7 @@ Copy each line to the Wayland clipboard:
 .PP
 .in +4n
 .EX
-$ rl-loop -i4 -- wl-copy -t text/plain -- %
+.RB "$ " "rl\-loop \-i4 \-\- wl-copy \-t text/plain \-\- %"
 .EE
 .in
 .

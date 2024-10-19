@@ -34,10 +34,13 @@ configuration.
 .B ARIF_RIME_SHARED_DATA_DIR
 Path to the directory where Rime schema data files are stored.
 .IP
-Defaults to "/usr/share/rime-data".
+Defaults to "/usr/share/rime\-data".
 .TP
 .B ARIF_RIME_USER_DATA_DIR
 Path to the directory where user configuration files are stored.
+.IP
+User configuration can be initialized with
+.BR rime_deployer (1).
 .TP
 .B ARIF_RIME_LOG_DIR
 Path to the directory where Rime log files will be written to.
@@ -55,13 +58,13 @@ A whitespace-separated list of Rime modules to load before Rime initialization.
 .
 .SH BUGS
 This is only an example to shed light on how an ARIF engine can be implemented.
-It is not intended for everyday use.
 .PP
-Only part of Rime's features are supported, and may not work as expected
+It is not intended for everyday use (it could be, depending on the use cases),
+since only part of Rime's features are supported, and may not work as expected
 with certain configurations.
 .
 .SH COPYRIGHT
-Copyright (C) 2023  CismonX <admin@cismon.net>
+Copyright (C) 2023,2024  CismonX <admin@cismon.net>
 .PP
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
