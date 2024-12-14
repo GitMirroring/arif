@@ -392,7 +392,6 @@ arify_next_engine (
     struct arif_engine  *engine_impl = NULL;
     void                *engine_data = NULL;
     while (engine != NULL) {
-        ARIF_DEBUG_ASSERT(engine->impl == NULL);
         int result = load_engine(engine);
 
         engine_impl = engine->impl;

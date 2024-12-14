@@ -68,7 +68,6 @@ AM_CONDITIONAL([BUILD_RL_LOOP], [test x${enable_rl_loop} != xno])
 
 # -- Checks for compiler builtins and attributes --
 
-AX_GCC_BUILTIN([__builtin_unreachable])
 AX_GCC_FUNC_ATTRIBUTE([constructor])
 AX_GCC_FUNC_ATTRIBUTE([destructor])
 AX_GCC_VAR_ATTRIBUTE([unused])

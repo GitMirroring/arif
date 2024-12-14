@@ -20,12 +20,6 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE__BUILTIN_UNREACHABLE
-#  define ARIF_UNREACHABLE()  __builtin_unreachable()
-#else
-#  define ARIF_UNREACHABLE()
-#endif
-
 #ifdef HAVE_VAR_ATTRIBUTE_UNUSED
 #  define ARIF_UNUSED  __attribute__((unused))
 #else
@@ -39,12 +33,6 @@
 #  define ARIF_SHLIB_SUFFIX ".dll"
 #else
 #  define ARIF_SHLIB_SUFFIX ".so"
-#endif
-
-#ifdef ARIF_DEBUG
-#  define ARIF_DEBUG_ASSERT(expr)  assert(expr)
-#else
-#  define ARIF_DEBUG_ASSERT(expr)  if (!(expr)) { ARIF_UNREACHABLE(); }
 #endif
 
 #ifndef ARIF_LIBDIR
