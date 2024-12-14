@@ -26,8 +26,6 @@
 
 #include "arif_rl.h"
 
-#ifdef HAVE_READLINE
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,5 +160,3 @@ arif_rl_display(
 
     rl_forced_update_display();
 }
-
-#endif  // defined(HAVE_READLINE)

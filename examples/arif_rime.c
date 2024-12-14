@@ -26,8 +26,6 @@
 
 #include "arif_rime.h"
 
-#ifdef HAVE_RIME
-
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -472,5 +470,3 @@ get_modules (
     modules[idx] = NULL;
     return modules;
 }
-
-#endif  // defined(HAVE_RIME)

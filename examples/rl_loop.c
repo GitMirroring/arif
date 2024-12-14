@@ -24,8 +24,6 @@
 #  include "config.h"
 #endif
 
-#ifdef HAVE_READLINE
-
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -167,5 +165,3 @@ main (
     }
     exit(EXIT_SUCCESS);
 }
-
-#endif  // defined(HAVE_READLINE)

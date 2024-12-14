@@ -26,8 +26,6 @@
 
 #include "arify_rl.h"
 
-#ifdef HAVE_READLINE
-
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -365,5 +363,3 @@ rlprintf (
     rl_crlf();
     rl_forced_update_display();
 }
-
-#endif  // defined(HAVE_READLINE)
