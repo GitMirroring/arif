@@ -77,6 +77,7 @@ send_line (
                     fprintf(stderr, "write(): %s\n", strerror(errno));
                     break;
                 }
+                line     += nbytes;
                 line_len -= nbytes;
             }
         }
