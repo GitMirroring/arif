@@ -1,5 +1,5 @@
 /**
- * arif/include/arify_rl.h - Readline frontend for the ARIF preload library
+ * arif/src/arif_rl.h - ARIF Readline frontend
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,11 +20,25 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ARIFY_RL_H_
-#define ARIFY_RL_H_
+#ifndef ARIF_RL_H_
+#define ARIF_RL_H_
 
-#include "arify.h"
+#include "arif.h"
 
-extern struct arify_frontend const arify_frontend_readline;
+char **
+arif_rl_complete (
+    struct arif_ctx *ctx,
+    char const      *text,
+    int              start,
+    int              end
+);
 
-#endif  // !defined(ARIFY_RL_H_)
+void
+arif_rl_display (
+    struct arif_ctx  *ctx,
+    char            **matches,
+    int               num,
+    int               max_len
+);
+
+#endif  // !defined(ARIF_RL_H_)

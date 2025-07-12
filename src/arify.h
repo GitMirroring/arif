@@ -1,5 +1,5 @@
 /**
- * arif/include/arify.h - ARIF preload library
+ * arif/src/arify.h - ARIF preload library
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>

@@ -1,5 +1,5 @@
 /**
- * arif/examples/arif_rime_workaround.cc
+ * arif/src/arify_rl.h - Readline frontend for the ARIF preload library
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,29 +20,11 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_CONFIG_H
-#  include "config.h"
-#endif
+#ifndef ARIFY_RL_H_
+#define ARIFY_RL_H_
 
-#include "arif_rime_workaround.h"
+#include "arify.h"
 
-// It's better practice to just `#include <glog/logging.h>` here instead.
-// However, we don't want to make glog our dependency just for the sake of
-// this workaround.
+extern struct arify_frontend const arify_frontend_readline;
 
-namespace fLB {
-    bool FLAGS_alsologtostderr;
-}
-
-namespace fLI {
-    int FLAGS_stderrthreshold;
-}
-
-void
-arif_rime_workaround_glog_nostderr (void)
-{
-    // Rime sets this to true during init
-    fLB::FLAGS_alsologtostderr = false;
-    // default value is ERROR (2) instead of FATAL
-    fLI::FLAGS_stderrthreshold = 3;
-}
+#endif  // !defined(ARIFY_RL_H_)

@@ -1,5 +1,5 @@
 /**
- * arif/include/arif_defs.h - ARIF common macros
+ * arif/src/arif_rime_workaround.h
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,21 +20,18 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_VAR_ATTRIBUTE_UNUSED
-#  define ARIF_UNUSED  __attribute__((unused))
-#else
-#  define ARIF_UNUSED
-#endif
-#define ARIF_UNUSED_ARG(name)  name##_unused_ ARIF_UNUSED
+#ifndef ARIF_RIME_WORKAROUND_H_
+#define ARIF_RIME_WORKAROUND_H_
 
-#if defined(__APPLE__)
-#  define ARIF_SHLIB_SUFFIX ".dylib"
-#elif defined(__CYGWIN__) || defined(__MINGW32__)
-#  define ARIF_SHLIB_SUFFIX ".dll"
-#else
-#  define ARIF_SHLIB_SUFFIX ".so"
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#ifndef ARIF_LIBDIR
-#  define ARIF_LIBDIR  "/usr/local/lib"
+void
+arif_rime_workaround_glog_nostderr (void);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif  // !defined(ARIF_RIME_WORKAROUND_H_)

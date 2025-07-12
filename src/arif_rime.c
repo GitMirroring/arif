@@ -1,5 +1,5 @@
 /**
- * arif/examples/arif_rime.c - example Rime IME integration for ARIF
+ * arif/src/arif_rime.c - Rime IME integration for ARIF
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>

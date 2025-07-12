@@ -52,10 +52,7 @@ PKG_INSTALLDIR()
 AC_CONFIG_FILES([
     Makefile
     doc/Makefile
-    examples/Makefile
-    include/Makefile
-    src/Makefile
+    src/Makefile src/arif.pc
     tests/Makefile
-    arif.pc
 ])
 AC_OUTPUT

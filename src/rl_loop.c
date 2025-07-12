@@ -1,5 +1,5 @@
 /**
- * arif/examples/rl_loop.c
+ * arif/src/rl_loop.c
  * ----
  *
  * Copyright (C) 2024  CismonX <admin@cismon.net>

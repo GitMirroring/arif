@@ -1,5 +1,5 @@
 /**
- * arif/include/arif_rl.h - ARIF Readline frontend
+ * arif/src/arif_defs.h - ARIF common macros
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,25 +20,21 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ARIF_RL_H_
-#define ARIF_RL_H_
+#ifdef HAVE_VAR_ATTRIBUTE_UNUSED
+#  define ARIF_UNUSED  __attribute__((unused))
+#else
+#  define ARIF_UNUSED
+#endif
+#define ARIF_UNUSED_ARG(name)  name##_unused_ ARIF_UNUSED
 
-#include "arif.h"
+#if defined(__APPLE__)
+#  define ARIF_SHLIB_SUFFIX ".dylib"
+#elif defined(__CYGWIN__) || defined(__MINGW32__)
+#  define ARIF_SHLIB_SUFFIX ".dll"
+#else
+#  define ARIF_SHLIB_SUFFIX ".so"
+#endif
 
-char **
-arif_rl_complete (
-    struct arif_ctx *ctx,
-    char const      *text,
-    int              start,
-    int              end
-);
-
-void
-arif_rl_display (
-    struct arif_ctx  *ctx,
-    char            **matches,
-    int               num,
-    int               max_len
-);
-
-#endif  // !defined(ARIF_RL_H_)
+#ifndef ARIF_LIBDIR
+#  define ARIF_LIBDIR  "/usr/local/lib"
+#endif

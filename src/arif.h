@@ -1,5 +1,5 @@
 /**
- * arif/include/arif.h - ARIF base library
+ * arif/src/arif.h - ARIF base library
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>

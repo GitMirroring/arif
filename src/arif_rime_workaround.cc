@@ -1,5 +1,5 @@
 /**
- * arif/examples/arif_rime_workaround.h
+ * arif/src/arif_rime_workaround.cc
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,18 +20,29 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ARIF_RIME_WORKAROUND_H_
-#define ARIF_RIME_WORKAROUND_H_
-
-#ifdef __cplusplus
-extern "C" {
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
 #endif
+
+#include "arif_rime_workaround.h"
+
+// It's better practice to just `#include <glog/logging.h>` here instead.
+// However, we don't want to make glog our dependency just for the sake of
+// this workaround.
+
+namespace fLB {
+    bool FLAGS_alsologtostderr;
+}
+
+namespace fLI {
+    int FLAGS_stderrthreshold;
+}
 
 void
-arif_rime_workaround_glog_nostderr (void);
-
-#ifdef __cplusplus
+arif_rime_workaround_glog_nostderr (void)
+{
+    // Rime sets this to true during init
+    fLB::FLAGS_alsologtostderr = false;
+    // default value is ERROR (2) instead of FATAL
+    fLI::FLAGS_stderrthreshold = 3;
 }
-#endif
-
-#endif  // !defined(ARIF_RIME_WORKAROUND_H_)

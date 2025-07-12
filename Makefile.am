@@ -8,6 +8,4 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = doc examples include src tests
-
-pkgconfig_DATA = arif.pc
+SUBDIRS = doc src tests

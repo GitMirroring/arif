@@ -17,3 +17,11 @@ if ARIF_READLINE
   dist_man1_MANS += arify.1
   dist_man3_MANS += arif_rl_complete.3 arif_rl_display.3
 endif  # ARIF_READLINE
+
+if ARIF_RIME
+  dist_man3_MANS += arif_rime.3
+endif  # ARIF_RIME
+
+if RL_LOOP
+  dist_man1_MANS += rl-loop.1
+endif  # RL_LOOP

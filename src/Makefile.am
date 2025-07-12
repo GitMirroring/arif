@@ -6,16 +6,23 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
-bin_PROGRAMS    =
-lib_LTLIBRARIES = libarif.la
+noinst_HEADERS     = arif_defs.h arify.h
+include_HEADERS    = arif.h
+bin_PROGRAMS       =
+lib_LTLIBRARIES    = libarif.la
+pkglib_LTLIBRARIES =
+pkgconfig_DATA     = arif.pc
 
-ARIF_CPPFLAGS_ = -I$(top_srcdir)/include -DARIF_LIBDIR="\"$(libdir)\""
+ARIF_CPPFLAGS_ = -DARIF_LIBDIR="\"$(libdir)\""
 
 libarif_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)
 libarif_la_LIBADD   = $(READLINE_LIBS)
 libarif_la_SOURCES  = arif.c
 
 if ARIF_READLINE
+  noinst_HEADERS  += arify_rl.h
+  include_HEADERS += arif_rl.h
+
   libarif_la_SOURCES += arif_rl.c
 endif  # ARIF_READLINE
 
@@ -34,3 +41,22 @@ if ARIF_READLINE
   libarify_la_SOURCES += arify_rl.c
 endif  # ARIF_READLINE
 endif  # ARIFY
+
+if ARIF_RIME
+  include_HEADERS    += arif_rime.h
+  noinst_HEADERS     += arif_rime_workaround.h
+  pkglib_LTLIBRARIES += rime.la
+
+  rime_la_CPPFLAGS = $(RIME_CFLAGS)
+  rime_la_LDFLAGS  = -module
+  rime_la_LIBADD   = $(RIME_LIBS)
+  rime_la_SOURCES  = arif_rime.c arif_rime_workaround.cc
+endif  # ARIF_RIME
+
+if RL_LOOP
+  bin_PROGRAMS += rl-loop
+
+  rl_loop_CPPFLAGS = $(READLINE_CFLAGS)
+  rl_loop_LDADD    = $(READLINE_LIBS)
+  rl_loop_SOURCES  = rl_loop.c
+endif  # RL_LOOP
