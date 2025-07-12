@@ -43,7 +43,7 @@
 #include "arif.h"
 #include "arif_defs.h"
 
-#ifdef HAVE_READLINE
+#ifdef ENABLE_ARIF_READLINE
 #  include "arify_rl.h"
 #endif
 
@@ -150,12 +150,12 @@ static int
 config_frontend (void)
 {
     char const *frontend_str = get_env("ARIFY_FRONTEND", "readline");
-#ifdef HAVE_READLINE
+#ifdef ENABLE_ARIF_READLINE
     if (0 == strcmp("readline", frontend_str)) {
         ctx.frontend = &arify_frontend_readline;
         return 0;
     }
-#endif  // defined(HAVE_READLINE)
+#endif  // defined(ENABLE_ARIF_READLINE)
     arify_err_printf("unsupported frontend '%s'", frontend_str);
     return -1;
 }

@@ -15,15 +15,11 @@ libarif_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIF_CPPFLAGS_)
 libarif_la_LIBADD   = $(READLINE_LIBS)
 libarif_la_SOURCES  = arif.c
 
-
-if BUILD_ARIF_READLINE
-
+if ARIF_READLINE
   libarif_la_SOURCES += arif_rl.c
+endif  # ARIF_READLINE
 
-endif  # BUILD_ARIF_READLINE
-
-if BUILD_ARIFY
-
+if ARIFY
   bin_PROGRAMS    += arify
   lib_LTLIBRARIES += libarify.la
 
@@ -34,10 +30,7 @@ if BUILD_ARIFY
   libarify_la_LIBADD   = $(READLINE_LIBS) $(DL_LIBS) libarif.la
   libarify_la_SOURCES  = arify.c
 
-if BUILD_ARIF_READLINE
-
+if ARIF_READLINE
   libarify_la_SOURCES += arify_rl.c
-
-endif  # BUILD_ARIF_READLINE
-
-endif  # BUILD_ARIFY
+endif  # ARIF_READLINE
+endif  # ARIFY

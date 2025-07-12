@@ -15,7 +15,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 PKG_PROG_PKG_CONFIG([0.27])
 LT_PREREQ([2.4.2])
-LT_INIT([dlopen])
+LT_INIT([disable-static dlopen])
 
 # -- Checks for programs --
 
@@ -25,46 +25,20 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
-# -- Checks for libraries --
-
-AC_CHECK_LIB([dl], [dlopen], [
-    AS_VAR_SET([DL_LIBS], [-ldl])
-])
-
-ARIF_CHECK_PKG([readline], [>= 6.0], [GNU Readline], [], [
-    AC_DEFINE([HAVE_READLINE], [1], [Define to 1 if you have GNU Readline.])
-])
-AM_CONDITIONAL([BUILD_ARIF_READLINE], [test x${with_readline} != xno])
-
-ARIF_CHECK_PKG([rime], [>= 1.6], [Rime Input Method Engine], [
-    AS_VAR_SET([with_rime], [no])
-], [
-    AC_DEFINE([HAVE_RIME], [1],
-            [Define to 1 if you have the Rime Input Method Engine.])
-])
-AM_CONDITIONAL([BUILD_ARIF_RIME], [test x${with_rime} != xno])
-
 # -- Checks for features --
 
-ARIF_ARG_ENABLE([arif-debug], [no], [debugging features for ARIF], [], [
-    AC_DEFINE([ARIF_DEBUG], [1],
-            [Define to 1 if ARIF debugging is enabled])
-    AS_VAR_SET([enable_debug], [yes])
-])
-AM_CONDITIONAL([ENABLE_DEBUG], [test x${enable_debug} = xyes])
+EX_FEAT([arify],         [Y E], [the arify program])
+EX_FEAT([rl-loop],       [  E], [the rl-loop program])
+EX_FEAT([arif-readline], [YDE], [Readline features for ARIF])
+EX_FEAT([arif-rime],     [  E], [RIME integration for ARIF])
+EX_FEAT([arif-debug],    [ D ], [debugging features for ARIF])
 
-ARIF_ARG_ENABLE([arify], [yes], [the arify program])
-AM_CONDITIONAL([BUILD_ARIFY], [test x${enable_arify} != xno])
+# -- Checks for libraries --
 
-ARIF_ARG_ENABLE([rl-loop], [no], [the rl-loop program], [], [
-    AS_VAR_IF([with_readline], [no], [
-        AC_MSG_ERROR(m4_normalize([
-            The rl-loop program could not be built,
-            since mandatory dependency GNU Readline is not configured.
-        ]))
-    ])
-])
-AM_CONDITIONAL([BUILD_RL_LOOP], [test x${enable_rl_loop} != xno])
+EX_DEP([readline], [>= 6.0], [GNU Readline library],
+        [rl-loop], [arif-readline])
+
+EX_DEP([rime], [>= 1.6], [Rime Input Method Engine], [arif-rime])
 
 # -- Checks for compiler builtins and attributes --
 

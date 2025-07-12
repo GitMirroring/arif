@@ -8,20 +8,12 @@
 
 info_TEXINFOS  = arif.texi
 dist_man1_MANS =
-dist_man3_MANS = arif_ctx_create.3                                            \
-                 arif_ctx_destroy.3                                           \
-                 arif_fetch.3                                                 \
-                 arif_query.3                                                 \
-                 arif_select_page.3                                           \
-                 arif_set_engine.3
+dist_man3_MANS = arif_ctx_create.3 arif_ctx_destroy.3 arif_fetch.3  \
+                 arif_query.3 arif_select_page.3 arif_set_engine.3
 
 arif_TEXINFOS = fdl.texi
 
-
-if BUILD_ARIF_READLINE
-
+if ARIF_READLINE
   dist_man1_MANS += arify.1
-  dist_man3_MANS += arif_rl_complete.3                                        \
-                    arif_rl_display.3
-
-endif  # BUILD_ARIF_READLINE
+  dist_man3_MANS += arif_rl_complete.3 arif_rl_display.3
+endif  # ARIF_READLINE

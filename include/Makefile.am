@@ -9,10 +9,7 @@
 noinst_HEADERS  = arif_defs.h arify.h
 include_HEADERS = arif.h
 
-
-if BUILD_ARIF_READLINE
-
+if ARIF_READLINE
   noinst_HEADERS  += arify_rl.h
   include_HEADERS += arif_rl.h
-
-endif  # BUILD_ARIF_READLINE
+endif  # ARIF_READLINE

@@ -8,7 +8,6 @@
 
 AUTOMAKE_OPTIONS = dejagnu
 
-
 check_HEADERS     = arif_dummy_engine.h
 check_PROGRAMS    = arif-test
 check_LTLIBRARIES = libarifdummy.la
@@ -20,14 +19,6 @@ arif_test_SOURCES  = arif_test.c arif_dummy_engine.c
 libarifdummy_la_CPPFLAGS = -I$(top_srcdir)/include
 libarifdummy_la_SOURCES  = arif_dummy_engine.c
 
-EXTRA_DIST = lib/arif.exp                                                     \
-             arif/000-query.exp                                               \
-             arif/001-select-page.exp                                         \
+EXTRA_DIST = lib/arif.exp arif/000-query.exp arif/001-select-page.exp  \
              arif/002-fetch.exp
 RUNTESTFLAGS = ARIF_TEST_BIN=$(builddir)/arif-test
-
-if ENABLE_DEBUG
-
-  RUNTESTFLAGS += ARIF_ENABLE_DEBUG=1
-
-endif  # ENABLE_DEBUG

@@ -29,22 +29,44 @@ Prerequisites
 Build and Install
 -----------------
 
-  ARIF can be built and installed from source using the GNU build system.
+  Select a build directory and generate configuration scripts:
 
-  Notable build options:
-  - `--with-readline[=PKGCONFIGDIR]` (default), `--without-readline`
-    * Whether to build the ARIF library with GNU Readline features.
-  - `--enable-arify` (default), `--disable-arify`
-    * Whether to build the `arify` program.
-  - `--enable-rl-loop`, `--disable-rl-loop` (default)
-    * Whether to build the `rl-loop` program.
-  - `--with-rime[=PKGCONFIGDIR]`, `--without-rime` (default)
-    * Whether to build the example Rime IME integration.
+    $ mkdir build && cd build
+    $ autoreconf ..
 
-  Example shell script:
+  To list all available configuration options, run:
 
-    mkdir build && cd build
-    autoreconf -i ..
-    ../configure --prefix=${HOME}/.local
-    make
-    make install
+    $ ../configure --help
+
+  Notable options:
+  - `--disable-arify`
+    * Do not build the `arify` program.
+  - `--disable-arif-readline`
+    * Build the ARIF library without GNU Readline features.
+  - `--enable-rl-loop`
+    * Build the `rl-loop` program.
+  - `--enable-arif-rime`
+    * Build the example Rime IME integration.
+
+  If a dependency is installed in a custom location, it could be specified
+  with `--with-<lib>=<pkgconfdir>`, where `<lib>` is the library name,
+  and `<pkgconfdir>` is the directory holding its pkg-config file.
+
+  An example configuration:
+
+    $ ../configure --prefix="$HOME/.local"  \
+    >         --enable-arif-rime  \
+    >         --with-rime="$HOME/.local/lib/pkgconfig"  \
+    >         CFLAGS='-O2'
+
+  After configuration, Build the binaries:
+
+    $ make
+
+  Install:
+
+    $ make install
+
+  Uninstall:
+
+    $ make uninstall

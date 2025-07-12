@@ -25,7 +25,7 @@
 
 #include "arif.h"
 
-#ifdef ARIF_DEBUG
+#ifdef ENABLE_ARIF_DEBUG
 #  define arify_debug_printf(fmt, ...)  arify_log_printf(fmt, "D", __VA_ARGS__)
 #else
 #  define arify_debug_printf(fmt, ...)

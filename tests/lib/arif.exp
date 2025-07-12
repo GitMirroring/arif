@@ -6,7 +6,7 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
-if { [ info exists ARIF_ENABLE_DEBUG ] && $ARIF_ENABLE_DEBUG == 1 } {
+if { [ info exists ::env(ARIF_TEST_DEBUG) ] } {
     exp_internal 1
 }
 
