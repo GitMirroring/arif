@@ -43,7 +43,6 @@ EX_DEP([rime], [>= 1.6], [Rime Input Method Engine], [arif-rime])
 # -- Checks for compiler builtins and attributes --
 
 AX_GCC_FUNC_ATTRIBUTE([constructor])
-AX_GCC_FUNC_ATTRIBUTE([destructor])
 AX_GCC_VAR_ATTRIBUTE([unused])
 
 # -- Output --

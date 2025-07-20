@@ -53,12 +53,6 @@
 #  error "__attribute__((constructor)) not supported"
 #endif
 
-#ifdef HAVE_FUNC_ATTRIBUTE_DESTRUCTOR
-#  define ARIF_DTOR  __attribute__((destructor))
-#else
-#  error "__attribute__((destructor)) not supported"
-#endif
-
 #define ARIFY_ENGINE_LIB(engine)  \
         ARIF_LIBDIR "/arif/" engine ARIF_SHLIB_SUFFIX
 #define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
@@ -86,7 +80,7 @@ static int          config_frontend  (void);
 static int          config_log_file  (void);
 static int          config_page_size (void);
 static char const * current_time     (void);
-static void         finalize         (void) ARIF_DTOR;
+static void         finalize         (void);
 static void         finalize_engines (struct arify_engine *);
 static char const * get_env          (char const *, char const *);
 static int          init_config      (void);
@@ -141,6 +135,7 @@ config_engines (void)
     ctx.current_engine = ctx.engines = dummy_engine.next;
     if (ctx.engines == NULL) {
         arify_err_printf("%s", "at least one engine should be specified");
+        free(ctx.engines_str);
         return -1;
     }
     return 0;
@@ -217,17 +212,13 @@ current_time (void)
 static void
 finalize (void)
 {
-    if (ctx.frontend != NULL) {
-        ctx.frontend->finalize(ctx.frontend_data);
-    }
+    ctx.frontend->finalize(ctx.frontend_data);
     finalize_engines(ctx.engines);
     arif_ctx_destroy(ctx.ctx);
     free(ctx.engines_str);
 
     arify_debug_printf("%s", "finalized");
-    if (ctx.log_file != NULL) {
-        fclose(ctx.log_file);
-    }
+    fclose(ctx.log_file);
 }
 
 static void
@@ -281,8 +272,12 @@ static void
 initialize (void)
 {
     if (0 != init_config()) {
+        if (ctx.log_file != NULL) {
+            fclose(ctx.log_file);
+        }
         return;
     }
+    atexit(finalize);
 
     struct arif_opts opts = {
         .page_size = ctx.page_size,
