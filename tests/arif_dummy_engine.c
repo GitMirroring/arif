@@ -26,12 +26,11 @@
 
 #include "arif_dummy_engine.h"
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include "arif.h"
-#include "arif_defs.h"
+#include "arif_common.h"
 
 struct dummy_engine_ctx {
     char const *input;
@@ -92,8 +91,7 @@ dummy_engine_init (
 ) {
     struct arif_dummy_engine_opts const *opts = args;
 
-    struct dummy_engine_ctx *ctx = malloc(sizeof(struct dummy_engine_ctx));
-    assert(ctx != NULL);
+    struct dummy_engine_ctx *ctx = xmalloc(sizeof(struct dummy_engine_ctx));
     *ctx = (struct dummy_engine_ctx) {
         .gen_all_candidates = opts != NULL ? opts->gen_all_candidates : false,
     };
@@ -138,9 +136,8 @@ dummy_engine_query (
     }
     int new_candidates = old_candidates + num_candidates;
 
-    struct arif_cand *candidates = realloc(ctx->candidates,
+    struct arif_cand *candidates = xrealloc(ctx->candidates,
             sizeof(struct arif_cand) * new_candidates);
-    assert(candidates != NULL);
     ctx->candidates     = candidates;
     ctx->num_candidates = new_candidates;
 
@@ -172,8 +169,7 @@ generate_candidate (
     int               offset
 ) {
     int len = offset + 1;
-    char *text = malloc(sizeof(char) * len);
-    assert(text != NULL);
+    char *text = xmalloc(sizeof(char) * len);
 
     for (int i = 0; i < len; ++i) {
         text[i] = ch;

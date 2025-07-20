@@ -1,5 +1,5 @@
 /**
- * arif/src/arif_rime_workaround.h
+ * arif/src/arif_rime_quirks.h
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -20,18 +20,18 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ARIF_RIME_WORKAROUND_H_
-#define ARIF_RIME_WORKAROUND_H_
+#ifndef ARIF_RIME_QUIRKS_H_
+#define ARIF_RIME_QUIRKS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void
-arif_rime_workaround_glog_nostderr (void);
+arif_rime_glog_nostderr (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // !defined(ARIF_RIME_WORKAROUND_H_)
+#endif  // !defined(ARIF_RIME_QUIRKS_H_)

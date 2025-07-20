@@ -33,9 +33,7 @@
 #include <unistd.h>
 
 #include "arif.h"
-#include "arif_defs.h"
-
-#define ARIFY_PRELOAD_LIB  ARIF_LIBDIR "/libarify" ARIF_SHLIB_SUFFIX
+#include "arif_common.h"
 
 struct options {
     char *frontend;
@@ -64,8 +62,7 @@ append_str (
     size_t src_len  = strlen(src) + 1;
     size_t dest_len = dest == NULL ? 0 : strlen(dest);
 
-    *dest_ptr = dest = realloc(dest, src_len + dest_len + 1);
-    assert(dest != NULL);
+    *dest_ptr = dest = xrealloc(dest, src_len + dest_len + 1);
 
     dest[dest_len++] = sep;
     memcpy(dest + dest_len, src, src_len);
@@ -80,9 +77,7 @@ concat_str (
     size_t left_len  = strlen(left);
     size_t right_len = strlen(right) + 1;
 
-    char *dest = malloc(sizeof(char) * (left_len + right_len + 1));
-    assert(dest != NULL);
-
+    char *dest = xmalloc(sizeof(char) * (left_len + right_len + 1));
     memcpy(dest, left, left_len);
     dest[left_len++] = sep;
     memcpy(dest + left_len, right, right_len);
@@ -171,7 +166,7 @@ main (
     assert(program != NULL);
 
     struct options opts = {
-        .preload = ARIFY_PRELOAD_LIB,
+        .preload = ARIF_LIBDIR "/libarify" ARIF_SHLIB_SUFFIX,
     };
     argv += parse_options(argc, argv, &opts);
     set_envs(&opts);

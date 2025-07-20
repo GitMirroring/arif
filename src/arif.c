@@ -33,6 +33,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arif_common.h"
+
 struct cand_page {
     struct cand_page *prev;
     struct cand_page *next;
@@ -94,8 +96,7 @@ choose_candidate (
     struct arif_cand *cand = &page->values[idx - 1];
 
     int size = sizeof(struct cand_page) + sizeof(struct arif_cand);
-    struct cand_page *new_page = malloc(size);
-    assert(new_page != NULL);
+    struct cand_page *new_page = xmalloc(size);
     *new_page = (struct cand_page) {
         .size = 1,
     };
@@ -163,9 +164,7 @@ disp_cand_default (
     }
     assert(display_len >= 0);
 
-    char *disp = malloc(sizeof(char) * (display_len + 1));
-    assert(disp != NULL);
-
+    char *disp = xmalloc(sizeof(char) * (display_len + 1));
     if (comment == NULL) {
         sprintf(disp, fmt, idx, len, text);
     } else {
@@ -300,8 +299,7 @@ new_page (
     arif_cand_disp_func    *disp_cand
 ) {
     int size = sizeof(struct cand_page) + sizeof(struct arif_cand) * num;
-    struct cand_page *page = malloc(size);
-    assert(page != NULL);
+    struct cand_page *page = xmalloc(size);
 
     *page = (struct cand_page) {
         .size = num,
@@ -345,8 +343,7 @@ struct arif_ctx *
 arif_ctx_create (
     struct arif_opts const *options
 ) {
-    struct arif_ctx *ctx = malloc(sizeof(struct arif_ctx));
-    assert(ctx != NULL);
+    struct arif_ctx *ctx = xmalloc(sizeof(struct arif_ctx));
 
     arif_cand_disp_func *disp_cand = options->disp_cand;
     if (disp_cand == NULL) {
@@ -403,8 +400,7 @@ arif_query (
 
     if (0 != compare_text(old_input, ctx->old_len, input, input_len)) {
         // new text
-        char *saved_line = malloc(sizeof(char) * (offset + input_len));
-        assert(saved_line != NULL);
+        char *saved_line = xmalloc(sizeof(char) * (offset + input_len));
 
         memcpy(saved_line, line, offset + input_len);
         set_old_line(ctx, saved_line, offset, input_len);

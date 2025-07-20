@@ -27,10 +27,7 @@
 #include "arify.h"
 
 #include <assert.h>
-#include <errno.h>
-#include <limits.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +38,7 @@
 #include <unistd.h>
 
 #include "arif.h"
-#include "arif_defs.h"
+#include "arif_common.h"
 
 #ifdef ENABLE_ARIF_READLINE
 #  include "arify_rl.h"
@@ -57,10 +54,6 @@
 
 #ifndef ARIFY_MAX_PAGE_SIZE
 #  define ARIFY_MAX_PAGE_SIZE  99
-#endif
-
-#ifndef ARIFY_LOG_TIME_MAXLEN
-#  define ARIFY_LOG_TIME_MAXLEN  16
 #endif
 
 struct arify_engine {
@@ -106,8 +99,7 @@ config_engines (void)
 {
     char const *engines_str = get_env("ARIFY_ENGINES", "");
     size_t engines_len = strlen(engines_str) + 1;
-    char *names = malloc(sizeof(char) * engines_len);
-    assert(names != NULL);
+    char *names = xmalloc(sizeof(char) * engines_len);
     ctx.engines_str = memcpy(names, engines_str, engines_len);
 
     char const *delim = " \n\t\r\v\f";
@@ -117,8 +109,7 @@ config_engines (void)
     for (char *name = strtok(names, delim); name != NULL;
                name = strtok(NULL, delim)
     ) {
-        engine = engine->next = malloc(sizeof(struct arify_engine));
-        assert(engine != NULL);
+        engine = engine->next = xmalloc(sizeof(struct arify_engine));
 
         char *var_name = strchr(name, ':');
         if (var_name != NULL) {
@@ -132,7 +123,7 @@ config_engines (void)
 
     ctx.current_engine = ctx.engines = dummy_engine.next;
     if (ctx.engines == NULL) {
-        arify_err_printf("%s", "at least one engine should be specified");
+        arify_errf("%s", "at least one engine should be specified");
         free(ctx.engines_str);
         return -1;
     }
@@ -149,7 +140,7 @@ config_frontend (void)
         return 0;
     }
 #endif  // defined(ENABLE_ARIF_READLINE)
-    arify_err_printf("unsupported frontend '%s'", frontend_str);
+    arify_errf("unsupported frontend '%s'", frontend_str);
     return -1;
 }
 
@@ -177,15 +168,10 @@ static int
 config_page_size (void)
 {
     char const *page_size_str = get_env("ARIFY_PAGE_SIZE", "5");
-    errno = 0;
     long page_size = strtol(page_size_str, NULL, 10);
-    if (errno != 0) {
-        arify_err_printf("invalid page size '%s'", page_size_str);
-        return -1;
-    }
     if (page_size < 1 || page_size > ARIFY_MAX_PAGE_SIZE) {
-        arify_err_printf("bad page size %d, should be in range 1~%d",
-                page_size, ARIFY_MAX_PAGE_SIZE);
+        arify_errf("bad page size '%s', should be in range [1, %d]",
+                page_size_str, ARIFY_MAX_PAGE_SIZE);
         return -1;
     }
     ctx.page_size = page_size;
@@ -195,15 +181,12 @@ config_page_size (void)
 static char const *
 current_time (void)
 {
-    static char buf[ARIFY_LOG_TIME_MAXLEN];
-
     time_t ts = time(NULL);
-    assert(ts != ((time_t) -1));
-
     struct tm const *tm = localtime(&ts);
     assert(tm != NULL);
 
-    strftime(buf, ARIFY_LOG_TIME_MAXLEN, "%T", tm);
+    static char buf[16];
+    strftime(buf, sizeof(buf), "%T", tm);
     return buf;
 }
 
@@ -215,7 +198,7 @@ finalize (void)
     arif_ctx_destroy(ctx.ctx);
     free(ctx.engines_str);
 
-    arify_debug_printf("%s", "finalized");
+    arify_debugf("%s", "finalized");
     fclose(ctx.log_file);
 }
 
@@ -257,10 +240,10 @@ init_config (void)
     if (0 != config_frontend()) {
         return -1;
     }
-    if (0 != config_engines()) {
+    if (0 != config_page_size()) {
         return -1;
     }
-    if (0 != config_page_size()) {
+    if (0 != config_engines()) {
         return -1;
     }
     return 0;
@@ -282,17 +265,17 @@ initialize (void)
     };
     ctx.ctx = arif_ctx_create(&opts);
     if (ctx.ctx == NULL) {
-        arify_err_printf("%s", "failed to create input context");
+        arify_errf("%s", "failed to create input context");
         return;
     }
 
     int result = ctx.frontend->init(ctx.ctx, &ctx.frontend_data);
     if (result != 0) {
-        arify_err_printf("frontend init failed with return value %d", result);
+        arify_errf("frontend init failed with return value %d", result);
         return;
     }
 
-    arify_debug_printf("%s", "initialized");
+    arify_debugf("%s", "initialized");
 }
 
 static int
@@ -306,13 +289,11 @@ load_engine (
 
     if (var_name == NULL) {
         size_t lib_name_len = sizeof ARIFY_ENGINE_LIB("") + strlen(lib_name);
-        lib_tmp = malloc(sizeof(char) * lib_name_len);
-        assert(lib_tmp != NULL);
+        lib_tmp = xmalloc(sizeof(char) * lib_name_len);
         sprintf(lib_tmp, ARIFY_ENGINE_LIB("%s"), lib_name);
 
         size_t var_name_len = sizeof ARIFY_ENGINE_SYM("") + strlen(lib_name);
-        var_tmp = malloc(sizeof(char) * var_name_len);
-        assert(var_tmp != NULL);
+        var_tmp = xmalloc(sizeof(char) * var_name_len);
         sprintf(var_tmp, ARIFY_ENGINE_SYM("%s"), lib_name);
 
         lib_name = lib_tmp;
@@ -323,21 +304,21 @@ load_engine (
 
     void *handle = dlopen(lib_name, RTLD_NOW);
     if (handle == NULL) {
-        arify_err_printf("failed to load engine %s: %s", lib_name, dlerror());
+        arify_errf("failed to load engine %s: %s", lib_name, dlerror());
         goto finish;
     }
     engine->handle = handle;
 
     struct arif_engine *engine_impl = dlsym(handle, var_name);
     if (engine_impl == NULL) {
-        arify_err_printf("failed to find symbol %s for engine %s: %s",
+        arify_errf("failed to find symbol %s for engine %s: %s",
                 var_name, lib_name, dlerror());
         goto finish;
     }
 
     int init_status = engine_impl->init(NULL, &engine->data);
     if (init_status != 0) {
-        arify_err_printf("failed to initialize engine %s: %d",
+        arify_errf("failed to initialize engine %s: %d",
                 lib_name, init_status);
         goto finish;
     }
@@ -352,7 +333,7 @@ load_engine (
 }
 
 void
-arify_log_printf (
+arify_logf (
     char const *fmt,
     char const *level,
     ...
@@ -370,8 +351,6 @@ arify_log_printf (
     va_start(args, level);
     vfprintf(ctx.log_file, fmt, args);
     va_end(args);
-
-    fputc('\n', ctx.log_file);
 
     lock.l_type = F_UNLCK;
     fcntl(ctx.log_fd, F_SETLK, &lock);

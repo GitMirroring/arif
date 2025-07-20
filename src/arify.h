@@ -26,12 +26,11 @@
 #include "arif.h"
 
 #ifdef ENABLE_ARIF_DEBUG
-#  define arify_debug_printf(fmt, ...)  arify_log_printf(fmt, "D", __VA_ARGS__)
+#  define arify_debugf(fmt, ...)  arify_logf(fmt "\n", "D", __VA_ARGS__)
 #else
-#  define arify_debug_printf(fmt, ...)
+#  define arify_debugf(fmt, ...)
 #endif
-
-#define arify_err_printf(fmt, ...)  arify_log_printf(fmt, "E", __VA_ARGS__)
+#define arify_errf(fmt, ...)  arify_logf(fmt "\n", "E", __VA_ARGS__)
 
 typedef void (arify_frontend_finalize_func) (
     void *frontend_data
@@ -48,7 +47,7 @@ struct arify_frontend {
 };
 
 void
-arify_log_printf (
+arify_logf (
     char const *fmt,
     char const *level,
     ...

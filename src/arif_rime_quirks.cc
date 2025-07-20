@@ -1,5 +1,5 @@
 /**
- * arif/src/arif_rime_workaround.cc
+ * arif/src/arif_rime_quirks.cc
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -24,7 +24,7 @@
 #  include "config.h"
 #endif
 
-#include "arif_rime_workaround.h"
+#include "arif_rime_quirks.h"
 
 // It's better practice to just `#include <glog/logging.h>` here instead.
 // However, we don't want to make glog our dependency just for the sake of
@@ -39,7 +39,7 @@ namespace fLI {
 }
 
 void
-arif_rime_workaround_glog_nostderr (void)
+arif_rime_glog_nostderr (void)
 {
     // Rime sets this to true during init
     fLB::FLAGS_alsologtostderr = false;

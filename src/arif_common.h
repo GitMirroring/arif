@@ -1,5 +1,5 @@
 /**
- * arif/src/arif_defs.h - ARIF common macros
+ * arif/src/arif_common.h - ARIF common macros and helper functions
  * ----
  *
  * Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -19,6 +19,9 @@
  * You should have received a copy of the GNU General Public License
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#include <assert.h>
+#include <stdlib.h>
 
 #define ARIF_UNUSED
 #ifdef __has_attribute
@@ -43,3 +46,22 @@
 #ifndef ARIF_LIBDIR
 #  define ARIF_LIBDIR  "/usr/local/lib"
 #endif
+
+static inline void *
+xmalloc (
+    size_t n
+) {
+    char *p = malloc(n);
+    assert(p != NULL);
+    return p;
+}
+
+static inline void *
+xrealloc (
+    void   *p,
+    size_t  n
+) {
+    p = realloc(p, n);
+    assert(p != NULL);
+    return p;
+}

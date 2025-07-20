@@ -24,7 +24,6 @@
 #  include "config.h"
 #endif
 
-#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -34,6 +33,7 @@
 #include <unistd.h>
 
 #include "arif.h"
+#include "arif_common.h"
 #include "arif_dummy_engine.h"
 
 int
@@ -60,14 +60,9 @@ main (
         }
     }
 
-    char *buffer = malloc(sizeof(char) * buffer_size);
-    assert(buffer != NULL);
-
-    struct arif_opts opts = {
-        .page_size = page_size,
-    };
-    struct arif_ctx *ctx = arif_ctx_create(&opts);
-    assert(ctx != NULL);
+    if (0 != setvbuf(stdin, NULL, _IONBF, 0)) {
+        exit(EXIT_FAILURE);
+    }
 
     struct arif_engine const *engine = &arif_dummy_engine;
     struct arif_dummy_engine_opts engine_opts = {
@@ -77,15 +72,14 @@ main (
     if (0 != engine->init(&engine_opts, &engine_data)) {
         exit(EXIT_FAILURE);
     }
+
+    struct arif_opts opts = {
+        .page_size = page_size,
+    };
+    struct arif_ctx *ctx = arif_ctx_create(&opts);
     arif_set_engine(ctx, engine, engine_data);
 
-    int exit_status = EXIT_SUCCESS;
-
-    if (0 != setvbuf(stdin, NULL, _IONBF, 0)) {
-        exit_status = EXIT_FAILURE;
-        goto finish;
-    }
-
+    char *buffer = xmalloc(sizeof(char) * buffer_size);
     for (;;) {
         if (NULL == fgets(buffer, buffer_size, stdin)) {
             break;
@@ -126,9 +120,8 @@ main (
         }
     }
 
-  finish:
     arif_ctx_destroy(ctx);
     engine->finalize(engine_data);
     free(buffer);
-    exit(exit_status);
+    exit(EXIT_SUCCESS);
 }

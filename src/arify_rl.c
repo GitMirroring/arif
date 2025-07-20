@@ -26,7 +26,6 @@
 
 #include "arify_rl.h"
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -34,7 +33,7 @@
 
 #include <readline/readline.h>
 
-#include "arif_defs.h"
+#include "arif_common.h"
 #include "arif_rl.h"
 
 struct arify_rl_engine {
@@ -103,7 +102,7 @@ complete (
     int         start,
     int         end
 ) {
-    arify_debug_printf("%s", "complete");
+    arify_debugf("%s", "complete");
 
     return arif_rl_complete(rlctx.ctx, text, start, end);
 }
@@ -123,7 +122,7 @@ disable_arify (
     if (!suppress_message) {
         rlprintf("%s", "[arify] disabled");
     }
-    arify_debug_printf("%s", "disabled");
+    arify_debugf("%s", "disabled");
 }
 
 static void
@@ -132,7 +131,7 @@ display_hook (
     int    num,
     int    max_len
 ) {
-    arify_debug_printf("%s", "display hook");
+    arify_debugf("%s", "display hook");
 
     arif_rl_display(rlctx.ctx, matches, num, max_len);
 }
@@ -143,7 +142,7 @@ enable_arify (void)
     if (rlctx.current_engine == NULL) {
         struct arify_rl_engine *entry = get_next_engine();
         if (entry == NULL) {
-            arify_err_printf("%s", "no available engines");
+            arify_errf("%s", "no available engines");
             return;
         }
         rlctx.current_engine = rlctx.engines = entry;
@@ -160,7 +159,7 @@ enable_arify (void)
 
     // This is necessary, as rl_complete_internal() appends these characters
     // even with rl_completion_suppress_quote set to non-zero
-    rl_basic_quote_characters          = "";
+    rl_basic_quote_characters          = NULL;
     rl_completer_word_break_characters = " \t\n";
     rl_attempted_completion_function   = complete;
     rl_completion_display_matches_hook = display_hook;
@@ -173,7 +172,7 @@ enable_arify (void)
     rlprintf("[arify] enabled (engine: %s)", engine_name);
 
     rlctx.enabled = true;
-    arify_debug_printf("%s", "enabled");
+    arify_debugf("%s", "enabled");
 }
 
 static void
@@ -216,7 +215,7 @@ finalize (
         }
     }
 
-    arify_debug_printf("%s", "readline frontend finalized");
+    arify_debugf("%s", "readline frontend finalized");
 }
 
 static struct arify_rl_engine *
@@ -228,8 +227,7 @@ get_next_engine (void)
         return NULL;
     }
 
-    struct arify_rl_engine *entry = malloc(sizeof(struct arify_rl_engine));
-    assert(entry != NULL);
+    struct arify_rl_engine *entry = xmalloc(sizeof(struct arify_rl_engine));
     *entry = (struct arify_rl_engine) {
         .engine      = engine,
         .engine_data = engine_data,
@@ -252,7 +250,7 @@ initialize (
     rlctx.ctx = ctx;
     *frontend_data_ptr = &rlctx;
 
-    arify_debug_printf("%s", "readline frontend initialized");
+    arify_debugf("%s", "readline frontend initialized");
     return 0;
 }
 
@@ -269,7 +267,7 @@ rlfunc_engine_info (
     get_engine_info(rlctx.current_engine, &name, &description);
     rlprintf("[arify] engine: %s\n\n%s", name, description);
 
-    arify_debug_printf("%s", "print engine info");
+    arify_debugf("%s", "print engine info");
     return 0;
 }
 
@@ -296,7 +294,7 @@ rlfunc_next_engine (
     get_engine_info(entry, &engine_name, NULL);
     rlprintf("[arify] engine: %s", engine_name);
 
-    arify_debug_printf("next engine: %s", engine_name);
+    arify_debugf("next engine: %s", engine_name);
     return 0;
 }
 
@@ -315,7 +313,7 @@ rlfunc_page_down (
     if (page > 0) {
         rl_complete_internal('?');
     }
-    arify_debug_printf("page down: %d", page);
+    arify_debugf("page down: %d", page);
     return 0;
 }
 
@@ -334,7 +332,7 @@ rlfunc_page_up (
     if (page > 0) {
         rl_complete_internal('?');
     }
-    arify_debug_printf("page up: %d", page);
+    arify_debugf("page up: %d", page);
     return 0;
 }
 

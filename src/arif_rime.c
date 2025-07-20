@@ -27,7 +27,6 @@
 #include "arif_rime.h"
 
 #include <assert.h>
-#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,18 +36,8 @@
 
 #include <rime_api.h>
 
-#include "arif_defs.h"
-#include "arif_rime_workaround.h"
-
-#ifndef ARIF_RIME_APP_NAME
-#  define ARIF_RIME_APP_NAME  "rime.arif"
-#endif
-#ifndef ARIF_RIME_DIST_NAME
-#  define ARIF_RIME_DIST_NAME  "Rime"
-#endif
-#ifndef ARIF_RIME_DIST_CODE_NAME
-#  define ARIF_RIME_DIST_CODE_NAME  "arif-rime"
-#endif
+#include "arif_common.h"
+#include "arif_rime_quirks.h"
 
 #define VERSION_STR_(major, minor, patch)  #major "." #minor "." #patch
 #define VERSION_STR(major, minor, patch)   VERSION_STR_(major, minor, patch)
@@ -133,9 +122,7 @@ arif_rime_init (
         return status;
     }
 
-    struct engine_ctx *ctx = malloc(sizeof(struct engine_ctx));
-    assert(ctx != NULL);
-
+    struct engine_ctx *ctx = xmalloc(sizeof(struct engine_ctx));
     *ctx = (struct engine_ctx) {
         .session = 0,
     };
@@ -185,8 +172,7 @@ arif_rime_query (
                 continue;
             }
             int commit_len = strlen(rimecommit.text);
-            prefix = realloc(prefix, prefix_len + commit_len);
-            assert(prefix != NULL);
+            prefix = xrealloc(prefix, prefix_len + commit_len);
             memcpy(prefix + prefix_len, rimecommit.text, commit_len);
             prefix_len += commit_len;
             rime_api->free_commit(&rimecommit);
@@ -202,8 +188,7 @@ arif_rime_query (
 
     size_t candidates_size = sizeof(struct arif_cand) * num_candidates;
     struct cand_entry *entries
-            = malloc(sizeof(struct cand_entry) + candidates_size);
-    assert(entries != NULL);
+            = xmalloc(sizeof(struct cand_entry) + candidates_size);
     entries->next = ctx->candidates;
     ctx->candidates = entries;
 
@@ -282,9 +267,7 @@ copy_candidate (
     char const *line     = composition->preedit;
     int         line_len = composition->length;
 
-    char *buf = malloc(text_len + prefix_len + line_len + comment_len + 1);
-    assert(buf != NULL);
-
+    char *buf = xmalloc(text_len + prefix_len + line_len + comment_len + 1);
     memcpy(buf,                                    text,    text_len);
     memcpy(buf + text_len,                         prefix,  prefix_len);
     memcpy(buf + text_len + prefix_len,            line,    line_len);
@@ -341,9 +324,9 @@ init_rime (void)
     }
 
     RIME_STRUCT(RimeTraits, traits);
-    traits.app_name               = ARIF_RIME_APP_NAME;
-    traits.distribution_name      = ARIF_RIME_DIST_NAME;
-    traits.distribution_code_name = ARIF_RIME_DIST_CODE_NAME;
+    traits.app_name               = "rime.arif";
+    traits.distribution_name      = "Rime";
+    traits.distribution_code_name = "arif-rime";
     traits.distribution_version
             = VERSION_STR(ARIF_VER_MAJOR, ARIF_VER_MINOR, ARIF_VER_PATCH);
     traits.shared_data_dir
@@ -356,7 +339,7 @@ init_rime (void)
     rime_api->setup(&traits);
     // Prevent glog (used by Rime for logging) from writing to stderr,
     // since it may break Readline output.
-    arif_rime_workaround_glog_nostderr();
+    arif_rime_glog_nostderr();
     rime_api->initialize(&traits);
 
     // Rime uses static C++ variables to store its states, which get destroyed
@@ -399,8 +382,7 @@ gen_description (void)
     int desc_len = snprintf(NULL, 0, fmt, rime_version);
     assert(desc_len > 0);
 
-    rime_description = malloc(sizeof(char) * (desc_len + 1));
-    assert(rime_description != NULL);
+    rime_description = xmalloc(sizeof(char) * (desc_len + 1));
     sprintf(rime_description, fmt, rime_version);
 
     return rime_description;
@@ -449,8 +431,7 @@ get_modules (
     }
     size_t modules_len = strlen(modules_env) + 1;
 
-    char *modules_str = malloc(sizeof(char) * modules_len);
-    assert(modules_str != NULL);
+    char *modules_str = xmalloc(sizeof(char) * modules_len);
     memcpy(modules_str, modules_env, modules_len);
 
     size_t modules_size = 4, idx = 0;
@@ -462,8 +443,7 @@ get_modules (
     ) {
         if (modules == NULL || idx == modules_size - 1) {
             modules_size += modules_size / 2;
-            modules = realloc(modules, sizeof(char const *) * modules_size);
-            assert(modules != NULL);
+            modules = xrealloc(modules, sizeof(char const *) * modules_size);
         }
         modules[idx++] = module;
     }

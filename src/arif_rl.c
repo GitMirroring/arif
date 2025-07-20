@@ -33,7 +33,7 @@
 
 #include <readline/readline.h>
 
-#include "arif_defs.h"
+#include "arif_common.h"
 
 char **
 arif_rl_complete(
@@ -67,8 +67,7 @@ arif_rl_complete(
         return NULL;
     }
 
-    char **comp_list = malloc(sizeof(char *) * (num + 2));
-    assert(comp_list != NULL);
+    char **comp_list = xmalloc(sizeof(char *) * (num + 2));
 
     for (int idx = 1; idx <= num; ++idx, ++cand) {
         char const *line;
@@ -82,8 +81,7 @@ arif_rl_complete(
         }
 
         int len = line_len - cand->replace_len + cand->text_len + skip;
-        char *match = malloc(sizeof(char) * (len + 1));
-        assert(match != NULL);
+        char *match = xmalloc(sizeof(char) * (len + 1));
 
         match[len] = '\0';
         comp_list[idx] = memcpy(match, text, skip);
@@ -109,8 +107,7 @@ arif_rl_complete(
         comp_list[0] = comp_list[1];
         comp_list[1] = NULL;
     } else {
-        char *match = malloc(sizeof(char));
-        assert(match != NULL);
+        char *match = xmalloc(sizeof(char));
         match[0] = '\0';
         comp_list[0] = match;
 
@@ -131,8 +128,7 @@ arif_rl_display(
     int               num,
     int               max_len
 ) {
-    char **disp_list = malloc(sizeof(char *) * (num + 2));
-    assert(NULL != disp_list);
+    char **disp_list = xmalloc(sizeof(char *) * (num + 2));
 
     struct arif_cand const *cand;
     assert(num == arif_fetch(ctx, &cand));
@@ -144,8 +140,7 @@ arif_rl_display(
             max_len = disp_len;
         }
 
-        char *disp = malloc(sizeof(char) * (disp_len + 1));
-        assert(disp != NULL);
+        char *disp = xmalloc(sizeof(char) * (disp_len + 1));
         disp_list[idx] = memcpy(disp, cand->display, disp_len);
         disp[disp_len] = '\0';
     }
