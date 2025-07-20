@@ -74,6 +74,7 @@ struct arify_rl_ctx {
     struct arify_rl_engine *current_engine;
     bool                    enabled;
     char const             *old_basic_quote_chars;
+    char const             *old_word_break_chars;
     rl_completion_func_t   *old_comp_func;
     rl_compdisp_func_t     *old_disp_func;
     int                     old_ignore_duplicates;
@@ -150,6 +151,7 @@ enable_arify (void)
     }
 
     rlctx.old_basic_quote_chars = rl_basic_quote_characters;
+    rlctx.old_word_break_chars  = rl_completer_word_break_characters;
     rlctx.old_comp_func         = rl_attempted_completion_function;
     rlctx.old_disp_func         = rl_completion_display_matches_hook;
     rlctx.old_query_items       = rl_completion_query_items;
@@ -159,6 +161,7 @@ enable_arify (void)
     // This is necessary, as rl_complete_internal() appends these characters
     // even with rl_completion_suppress_quote set to non-zero
     rl_basic_quote_characters          = "";
+    rl_completer_word_break_characters = " \t\n";
     rl_attempted_completion_function   = complete;
     rl_completion_display_matches_hook = display_hook;
     rl_completion_query_items          = 0;
