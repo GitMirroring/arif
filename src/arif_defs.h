@@ -20,10 +20,15 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifdef HAVE_VAR_ATTRIBUTE_UNUSED
-#  define ARIF_UNUSED  __attribute__((unused))
-#else
-#  define ARIF_UNUSED
+#define ARIF_UNUSED
+#ifdef __has_attribute
+#  if __has_attribute(unused)
+#    undef  ARIF_UNUSED
+#    define ARIF_UNUSED  __attribute__((unused))
+#  endif
+#  if !defined(ARIF_CTOR) && __has_attribute(constructor)
+#    define ARIF_CTOR  __attribute__((constructor))
+#  endif
 #endif
 #define ARIF_UNUSED_ARG(name)  name##_unused_ ARIF_UNUSED
 

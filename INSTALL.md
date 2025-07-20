@@ -15,7 +15,7 @@ Prerequisites
   - GNU Readline (optional)
 
   Build tools:
-  - GNU Autotools (Autoconf, Automake, Libtool, Autoconf Archive)
+  - GNU Autotools (Autoconf, Automake, Libtool)
   - pkg-config
   - POSIX-compliant make
   - C compiler with ISO C99 support

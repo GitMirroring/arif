@@ -40,11 +40,6 @@ EX_DEP([readline], [>= 6.0], [GNU Readline library],
 
 EX_DEP([rime], [>= 1.6], [Rime Input Method Engine], [arif-rime])
 
-# -- Checks for compiler builtins and attributes --
-
-AX_GCC_FUNC_ATTRIBUTE([constructor])
-AX_GCC_VAR_ATTRIBUTE([unused])
-
 # -- Output --
 
 PKG_INSTALLDIR()

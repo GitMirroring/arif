@@ -47,9 +47,7 @@
 #  include "arify_rl.h"
 #endif
 
-#ifdef HAVE_FUNC_ATTRIBUTE_CONSTRUCTOR
-#  define ARIF_CTOR  __attribute__((constructor))
-#else
+#ifndef ARIF_CTOR
 #  error "__attribute__((constructor)) not supported"
 #endif
 

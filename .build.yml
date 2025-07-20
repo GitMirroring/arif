@@ -8,8 +8,10 @@
 
 image: debian/stable
 packages: [
-  autoconf, automake, libtool, autoconf-archive, pkgconf, make, gcc, g++,
-  texinfo, dejagnu, libreadline-dev, librime-dev,
+  # build
+  autoconf, automake, libtool, pkgconf, make, gcc, g++, texinfo, dejagnu,
+  # libs
+  libreadline-dev, librime-dev,
 ]
 sources:
   - https://git.sr.ht/~cismonx/arif
