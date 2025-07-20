@@ -70,7 +70,6 @@ static int          config_engines   (void);
 static int          config_frontend  (void);
 static int          config_log_file  (void);
 static int          config_page_size (void);
-static char const * current_time     (void);
 static void         finalize         (void);
 static void         finalize_engines (struct arify_engine *);
 static char const * get_env          (char const *, char const *);
@@ -86,13 +85,12 @@ struct arify_ctx {
     struct arify_frontend const *frontend;
     void                        *frontend_data;
     struct arif_ctx             *ctx;
-    FILE                        *log_file;
     int                          log_fd;
     int                          page_size;
-    long                         pid;
+    pid_t                        pid;
 };
 
-static struct arify_ctx ctx;
+static struct arify_ctx ctx = { .log_fd = -1 };
 
 static int
 config_engines (void)
@@ -147,20 +145,12 @@ config_frontend (void)
 static int
 config_log_file (void)
 {
-    char const *log_file_path = get_env("ARIFY_LOG_FILE", "/dev/null");
-    ctx.log_file = fopen(log_file_path, "a");
-    if (ctx.log_file == NULL) {
-        return -1;
+    char const *log_file_path = get_env("ARIFY_LOG_FILE", NULL);
+    if (log_file_path != NULL) {
+        ctx.log_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
     }
-    setvbuf(ctx.log_file, NULL, _IOLBF, 0);
 
-    int fd = fileno(ctx.log_file);
-    if (fd < 0) {
-        return -1;
-    }
-    ctx.log_fd = fd;
-
-    ctx.pid = (long) getpid();
+    ctx.pid = getpid();
     return 0;
 }
 
@@ -178,18 +168,6 @@ config_page_size (void)
     return 0;
 }
 
-static char const *
-current_time (void)
-{
-    time_t ts = time(NULL);
-    struct tm const *tm = localtime(&ts);
-    assert(tm != NULL);
-
-    static char buf[16];
-    strftime(buf, sizeof(buf), "%T", tm);
-    return buf;
-}
-
 static void
 finalize (void)
 {
@@ -199,7 +177,7 @@ finalize (void)
     free(ctx.engines_str);
 
     arify_debugf("%s", "finalized");
-    fclose(ctx.log_file);
+    close(ctx.log_fd);
 }
 
 static void
@@ -253,8 +231,8 @@ static void
 initialize (void)
 {
     if (0 != init_config()) {
-        if (ctx.log_file != NULL) {
-            fclose(ctx.log_file);
+        if (ctx.log_fd >= 0) {
+            close(ctx.log_fd);
         }
         return;
     }
@@ -338,22 +316,31 @@ arify_logf (
     char const *level,
     ...
 ) {
-    struct flock lock = {
-        .l_start = SEEK_SET,
-        .l_len   = 0,
-    };
-    lock.l_type = F_WRLCK;
-    fcntl(ctx.log_fd, F_SETLKW, &lock);
+    if (ctx.log_fd < 0) {
+        return;
+    }
+    char log_buf[1024];
+    char *buf = log_buf, *end = buf + sizeof(log_buf);
 
-    fprintf(ctx.log_file, "[%s %ld %s] ", current_time(), ctx.pid, level);
+    time_t ts = time(NULL);
+    struct tm const *tm = localtime(&ts);
+    if (tm == NULL) {
+        return;
+    }
+    buf += strftime(buf, end - buf, "[%T ", tm);
+    buf += sprintf(buf, "%ld %s] ", (long) ctx.pid, level);
 
     va_list args;
     va_start(args, level);
-    vfprintf(ctx.log_file, fmt, args);
+    int len = vsnprintf(buf, end - buf, fmt, args);
     va_end(args);
 
-    lock.l_type = F_UNLCK;
-    fcntl(ctx.log_fd, F_SETLK, &lock);
+    assert(len > 0);
+    if (len >= end - buf) {
+        len = end - buf;
+        buf[len - 1] = '\n';
+    }
+    write(ctx.log_fd, log_buf, buf + len - log_buf);
 }
 
 struct arif_engine const *
