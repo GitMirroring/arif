@@ -80,7 +80,6 @@ static int  load_engine      (struct arify_engine *);
 struct arify_ctx {
     struct arify_engine         *engines;
     struct arify_engine         *current_engine;
-    char                        *engines_str;
     struct arify_frontend const *frontend;
     void                        *frontend_data;
     struct arif_ctx             *ctx;
@@ -94,36 +93,34 @@ static struct arify_ctx ctx = { .log_fd = -1 };
 static int
 config_engines (void)
 {
-    char const *engines_str = xgetenv("ARIFY_ENGINES", "");
+    char const *engines_str = xgetenv("ARIFY_ENGINES", NULL);
+    if (engines_str == NULL) {
+        arify_errf("%s", "at least one engine should be specified");
+        return -1;
+    }
+
     size_t engines_len = strlen(engines_str) + 1;
     char *names = xmalloc(sizeof(char) * engines_len);
-    ctx.engines_str = memcpy(names, engines_str, engines_len);
+    memcpy(names, engines_str, engines_len);
 
-    char const *delim = " \n\t\r\v\f";
-
-    struct arify_engine  dummy_engine = { .next = NULL };
-    struct arify_engine *engine       = &dummy_engine;
-    for (char *name = strtok(names, delim); name != NULL;
-               name = strtok(NULL, delim)
-    ) {
-        engine = engine->next = xmalloc(sizeof(struct arify_engine));
-
-        char *var_name = strchr(name, ':');
+    struct arify_engine head;
+    for (struct arify_engine *engine = &head; ; *(names++) = '\0') {
+        char *var_name = strchr(names, ':');
         if (var_name != NULL) {
             *(var_name++) = '\0';
         }
+        engine = engine->next = xmalloc(sizeof(struct arify_engine));
         *engine = (struct arify_engine) {
-            .lib_name = name,
+            .lib_name = names,
             .var_name = var_name,
         };
-    }
 
-    ctx.current_engine = ctx.engines = dummy_engine.next;
-    if (ctx.engines == NULL) {
-        arify_errf("%s", "at least one engine should be specified");
-        free(ctx.engines_str);
-        return -1;
+        names = strchr(var_name == NULL ? names : var_name, ',');
+        if (names == NULL) {
+            break;
+        }
     }
+    ctx.current_engine = ctx.engines = head.next;
     return 0;
 }
 
@@ -171,9 +168,9 @@ static void
 finalize (void)
 {
     ctx.frontend->finalize(ctx.frontend_data);
+    free((char *) ctx.engines->lib_name);
     finalize_engines(ctx.engines);
     arif_ctx_destroy(ctx.ctx);
-    free(ctx.engines_str);
 
     arify_debugf("%s", "finalized");
     close(ctx.log_fd);

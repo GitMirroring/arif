@@ -64,7 +64,9 @@ append_str (
 
     *dest_ptr = dest = xrealloc(dest, src_len + dest_len + 1);
 
-    dest[dest_len++] = sep;
+    if (dest_len > 0) {
+        dest[dest_len++] = sep;
+    }
     memcpy(dest + dest_len, src, src_len);
 }
 
@@ -93,7 +95,7 @@ parse_options (
     while (1) {
         switch (getopt(argc, argv, "e:f:p:l:n:HV")) {
           case 'e':
-            append_str(optarg, &opts->engines, ' ');
+            append_str(optarg, &opts->engines, ',');
             break;
           case 'f':
             opts->frontend = optarg;

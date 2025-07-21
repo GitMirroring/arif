@@ -421,18 +421,19 @@ get_modules (
     char *modules_str = xmalloc(sizeof(char) * modules_len);
     memcpy(modules_str, modules_env, modules_len);
 
-    size_t modules_size = 4, idx = 0;
     char const **modules = NULL;
-
-    char const *delim = " \n\t\r\v\f";
-    for (char *module = strtok(modules_str, delim); module != NULL;
-               module = strtok(NULL, delim)
-    ) {
+    size_t idx = 0;
+    for (size_t modules_size = 4; ; *(modules_str++) = '\0') {
         if (modules == NULL || idx == modules_size - 1) {
             modules_size += modules_size / 2;
             modules = xrealloc(modules, sizeof(char const *) * modules_size);
         }
-        modules[idx++] = module;
+        modules[idx++] = modules_str;
+
+        modules_str = strchr(modules_str, ',');
+        if (modules_str == NULL) {
+            break;
+        }
     }
     modules[idx] = NULL;
     return modules;
