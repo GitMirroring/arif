@@ -9,34 +9,34 @@
 set tool arif
 set timeout 1
 
-set page_size [ random_int    5   10    ]
-set text_len  [ random_int    10  100   ]
-set text      [ random_string $text_len ]
+set page_size [random_int 5  10 ]
+set text_len  [random_int 10 100]
+set text      [random_string $text_len]
 
-arif_test_start $page_size [ expr { $text_len + 2 } ]
+arif_test_start $page_size [expr {$text_len + 2}]
 
 arif_query $text
 expect \n
 
-proc arif_gen_cands { str start len } {
-    for { set i 1 } { $i <= $len } { incr i } {
-        set ch [ string index $str [ expr { $start + $i - 1 } ] ]
-        if { $ch == "" } {
+proc arif_gen_cands {str start len} {
+    for {set i 1} {$i <= $len} {incr i} {
+        set ch [string index $str [expr {$start + $i - 1}]]
+        if {$ch == ""} {
             break
         }
-        set disp [ string repeat $ch [ expr { $start + $i } ] ]
+        set disp [string repeat $ch [expr {$start + $i}]]
         append result \[ $i \] " " $disp \n
     }
     return $result
 }
 
-set pages [ expr { $text_len / $page_size + ( $text_len % $page_size > 0 ) } ]
-for { set i 1 } { $i <= $pages } { incr i } {
+set pages [expr {$text_len / $page_size + ($text_len % $page_size > 0)}]
+for {set i 1} {$i <= $pages} {incr i} {
     arif_select_page $i
     expect $i\n
 
-    set start    [ expr { ($i - 1) * $page_size   } ]
-    set expected [ arif_gen_cands $text $start $page_size ]
+    set start    [expr {($i - 1) * $page_size}]
+    set expected [arif_gen_cands $text $start $page_size]
 
     arif_fetch
     expect {
@@ -46,7 +46,7 @@ for { set i 1 } { $i <= $pages } { incr i } {
         }
     }
 }
-if { $i > $pages } {
+if {$i > $pages} {
     pass "ok"
 } else {
     fail "fetch fail"

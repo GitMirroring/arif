@@ -9,8 +9,8 @@
 set tool arif
 set timeout 1
 
-set text_len [ random_int    1  16     ]
-set text     [ random_string $text_len ]
+set text_len [random_int 1 16]
+set text     [random_string $text_len]
 
 arif_test_start
 

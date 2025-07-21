@@ -6,22 +6,22 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
-if { [ info exists ::env(ARIF_TEST_DEBUG) ] } {
+if {[info exists ::env(ARIF_TEST_DEBUG)]} {
     exp_internal 1
 }
 
 proc arif_test_start {
-    { page_size 5   }
-    { buf_size  64  }
-    { gen_all   yes }
+    {page_size 5  }
+    {buf_size  64 }
+    {gen_all   yes}
 } {
     global ARIF_TEST_BIN
-    set run_cmd [ list $ARIF_TEST_BIN -p $page_size -b $buf_size ]
-    if { $gen_all } {
+    set run_cmd [list $ARIF_TEST_BIN -p $page_size -b $buf_size]
+    if {$gen_all} {
         lappend $run_cmd -a
     }
 
-    set stty_init { raw -echo }
+    set stty_init {raw -echo}
     global spawn_id
     spawn {*}$run_cmd
 }
@@ -31,23 +31,23 @@ proc arif_test_stop {} {
     send \x04
 }
 
-proc random_uint32_list { len } {
-    set nbytes [ expr { $len * 4 } ]
-    return [ exec od -An -tu4 -N$nbytes /dev/urandom ]
+proc random_uint32_list {len} {
+    set nbytes [expr {$len * 4}]
+    return [exec od -An -tu4 -N$nbytes /dev/urandom]
 }
 
-proc random_int { min max } {
-    set num [ random_uint32_list 1 ]
-    return [ expr { $num % ( $max - $min + 1 ) + $min } ]
+proc random_int {min max} {
+    set num [random_uint32_list 1]
+    return [expr {$num % ($max - $min + 1) + $min}]
 }
 
-proc random_string { len } {
-    set nums  [ random_uint32_list $len ]
-    set chars [ split abcdefghijklmnopqrstuvwxyz "" ]
+proc random_string {len} {
+    set nums  [random_uint32_list $len]
+    set chars [split abcdefghijklmnopqrstuvwxyz ""]
 
-    for { set i 0 } { $i < $len } { incr i } {
-        set offset [ expr { [ lindex $nums $i ] % 26 } ]
-        append str [ lindex $chars $offset ]
+    for {set i 0} {$i < $len} {incr i} {
+        set offset [expr {[lindex $nums $i] % 26}]
+        append str [lindex $chars $offset]
     }
     return $str
 }
@@ -57,12 +57,12 @@ proc arif_fetch {} {
     send <\n
 }
 
-proc arif_query { text } {
+proc arif_query {text} {
     global spawn_id
     send >$text\n
 }
 
-proc arif_select_page { page } {
+proc arif_select_page {page} {
     global spawn_id
     send :$page\n
 }
