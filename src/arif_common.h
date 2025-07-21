@@ -65,3 +65,15 @@ xrealloc (
     assert(p != NULL);
     return p;
 }
+
+static inline char const *
+xgetenv (
+    char const *name,
+    char const *default_val
+) {
+    char const *val = getenv(name);
+    if (val == NULL || val[0] == '\0') {
+        val = default_val;
+    }
+    return val;
+}

@@ -66,16 +66,15 @@ struct arify_engine {
 };
 
 // Forward declaration start
-static int          config_engines   (void);
-static int          config_frontend  (void);
-static int          config_log_file  (void);
-static int          config_page_size (void);
-static void         finalize         (void);
-static void         finalize_engines (struct arify_engine *);
-static char const * get_env          (char const *, char const *);
-static int          init_config      (void);
-static void         initialize       (void) ARIF_CTOR;
-static int          load_engine      (struct arify_engine *);
+static int  config_engines   (void);
+static int  config_frontend  (void);
+static int  config_log_file  (void);
+static int  config_page_size (void);
+static void finalize         (void);
+static void finalize_engines (struct arify_engine *);
+static int  init_config      (void);
+static void initialize       (void) ARIF_CTOR;
+static int  load_engine      (struct arify_engine *);
 // Forward declaration end
 
 struct arify_ctx {
@@ -95,7 +94,7 @@ static struct arify_ctx ctx = { .log_fd = -1 };
 static int
 config_engines (void)
 {
-    char const *engines_str = get_env("ARIFY_ENGINES", "");
+    char const *engines_str = xgetenv("ARIFY_ENGINES", "");
     size_t engines_len = strlen(engines_str) + 1;
     char *names = xmalloc(sizeof(char) * engines_len);
     ctx.engines_str = memcpy(names, engines_str, engines_len);
@@ -131,7 +130,7 @@ config_engines (void)
 static int
 config_frontend (void)
 {
-    char const *frontend_str = get_env("ARIFY_FRONTEND", "readline");
+    char const *frontend_str = xgetenv("ARIFY_FRONTEND", "readline");
 #ifdef ENABLE_ARIF_READLINE
     if (0 == strcmp("readline", frontend_str)) {
         ctx.frontend = &arify_frontend_readline;
@@ -145,7 +144,7 @@ config_frontend (void)
 static int
 config_log_file (void)
 {
-    char const *log_file_path = get_env("ARIFY_LOG_FILE", NULL);
+    char const *log_file_path = xgetenv("ARIFY_LOG_FILE", NULL);
     if (log_file_path != NULL) {
         ctx.log_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
     }
@@ -157,7 +156,7 @@ config_log_file (void)
 static int
 config_page_size (void)
 {
-    char const *page_size_str = get_env("ARIFY_PAGE_SIZE", "5");
+    char const *page_size_str = xgetenv("ARIFY_PAGE_SIZE", "5");
     long page_size = strtol(page_size_str, NULL, 10);
     if (page_size < 1 || page_size > ARIFY_MAX_PAGE_SIZE) {
         arify_errf("bad page size '%s', should be in range [1, %d]",
@@ -195,18 +194,6 @@ finalize_engines (
         next = engine->next;
         free(engine);
     }
-}
-
-static char const *
-get_env (
-    char const *name,
-    char const *default_val
-) {
-    char const *val = getenv(name);
-    if (val == NULL || val[0] == '\0') {
-        val = default_val;
-    }
-    return val;
 }
 
 static int

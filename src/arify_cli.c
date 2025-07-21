@@ -149,10 +149,7 @@ set_envs (
         setenv("ARIFY_PAGE_SIZE", opts->page_size, 1);
     }
 
-    char *old_preload = getenv("LD_PRELOAD");
-    if (old_preload == NULL) {
-        old_preload = "";
-    }
+    char const *old_preload = xgetenv("LD_PRELOAD", "");
     opts->preload = concat_str(old_preload, opts->preload, ':');
     setenv("LD_PRELOAD", opts->preload, 1);
 }

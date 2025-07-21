@@ -61,7 +61,6 @@ static int           init_rime          (void);
 static void          finalize_rime      (void);
 static void          free_candidates    (struct engine_ctx *);
 static char const *  gen_description    (void);
-static char const *  get_env            (char const *, char const *);
 static int           get_log_level      (char const *);
 static char const ** get_modules        (char const *);
 // Forward declaration end
@@ -330,9 +329,9 @@ init_rime (void)
     traits.distribution_version
             = VERSION_STR(ARIF_VER_MAJOR, ARIF_VER_MINOR, ARIF_VER_PATCH);
     traits.shared_data_dir
-            = get_env("ARIF_RIME_SHARED_DATA_DIR", "/usr/share/rime-data");
-    traits.user_data_dir = get_env("ARIF_RIME_USER_DATA_DIR", NULL);
-    traits.log_dir       = get_env("ARIF_RIME_LOG_DIR", "/tmp");
+            = xgetenv("ARIF_RIME_SHARED_DATA_DIR", "/usr/share/rime-data");
+    traits.user_data_dir = xgetenv("ARIF_RIME_USER_DATA_DIR", NULL);
+    traits.log_dir       = xgetenv("ARIF_RIME_LOG_DIR", "/tmp");
     traits.min_log_level = get_log_level("ARIF_RIME_LOG_LEVEL");
     traits.modules       = get_modules("ARIF_RIME_MODULES");
 
@@ -388,23 +387,11 @@ gen_description (void)
     return rime_description;
 }
 
-static char const *
-get_env (
-    char const *name,
-    char const *default_val
-) {
-    char const *val = getenv(name);
-    if (val == NULL || val[0] == '\0') {
-        val = default_val;
-    }
-    return val;
-}
-
 static int
 get_log_level (
     char const *env_name
 ) {
-    char const *log_level = get_env(env_name, "");
+    char const *log_level = xgetenv(env_name, "");
 
     if (0 == strcasecmp("INFO", log_level)) {
         return 0;
@@ -425,7 +412,7 @@ static char const **
 get_modules (
     char const *env_name
 ) {
-    char const *modules_env = get_env(env_name, NULL);
+    char const *modules_env = xgetenv(env_name, NULL);
     if (modules_env == NULL) {
         return NULL;
     }
