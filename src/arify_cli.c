@@ -110,8 +110,7 @@ parse_options (
             opts->page_size = optarg;
             break;
           case 'V':
-            fprintf(stderr, "arify (ARIF %d.%d.%d)\n",
-                    ARIF_VER_MAJOR, ARIF_VER_MINOR, ARIF_VER_PATCH);
+            fprintf(stderr, "arify (ARIF %s)\n", ARIF_VER_STR);
             exit(EXIT_SUCCESS);
           case -1:
             return optind;

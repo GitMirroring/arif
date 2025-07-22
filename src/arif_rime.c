@@ -39,9 +39,6 @@
 #include "arif_common.h"
 #include "arif_rime_quirks.h"
 
-#define VERSION_STR_(major, minor, patch)  #major "." #minor "." #patch
-#define VERSION_STR(major, minor, patch)   VERSION_STR_(major, minor, patch)
-
 #define XK_Down  0xff54  // #include <X11/keysym.h>
 
 struct engine_ctx {
@@ -326,8 +323,7 @@ init_rime (void)
     traits.app_name               = "rime.arif";
     traits.distribution_name      = "Rime";
     traits.distribution_code_name = "arif-rime";
-    traits.distribution_version
-            = VERSION_STR(ARIF_VER_MAJOR, ARIF_VER_MINOR, ARIF_VER_PATCH);
+    traits.distribution_version   = ARIF_VER_STR;
     traits.shared_data_dir
             = xgetenv("ARIF_RIME_SHARED_DATA_DIR", "/usr/share/rime-data");
     traits.user_data_dir = xgetenv("ARIF_RIME_USER_DATA_DIR", NULL);

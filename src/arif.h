@@ -26,6 +26,7 @@
 #define ARIF_VER_MAJOR  0
 #define ARIF_VER_MINOR  1
 #define ARIF_VER_PATCH  0
+#define ARIF_VER_STR    "0.1.0"
 
 struct arif_cand;
 struct arif_ctx;
