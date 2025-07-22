@@ -9,25 +9,24 @@
 image: debian/stable
 packages: [
   # build
-  autoconf, automake, libtool, pkgconf, make, gcc, g++, texinfo, dejagnu,
+  autoconf, automake, libtool, pkgconf, make, gcc, texinfo, dejagnu,
   # libs
   libreadline-dev, librime-dev,
 ]
 sources:
   - https://git.sr.ht/~cismonx/arif
 environment:
-  C_CXX_FLAGS: >-
-    -O0 -g -Wall -Wextra -Wpedantic -Wshadow
+  cflags: >-
+    -O0 -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow
     -fsanitize=address,undefined -fno-sanitize-recover
   # tinfo.pc (dependency of readline) defines these, but we don't need them.
-  UNDEF_FLAGS: -U_DEFAULT_SOURCE -U_XOPEN_SOURCE
+  undef_flags: -U_DEFAULT_SOURCE -U_XOPEN_SOURCE
 tasks:
   - setup: |
       mkdir arif/build && cd arif/build
       autoreconf -i ..
-      ../configure --enable-arif-debug --enable-arif-rime --enable-rl-loop   \
-          CFLAGS="-std=c99 $C_CXX_FLAGS" CXXFLAGS="-std=c++98 $C_CXX_FLAGS"  \
-          CPPFLAGS="$UNDEF_FLAGS -D_POSIX_C_SOURCE=200112L"
+      ../configure --enable-arif-debug --enable-arif-rime --enable-rl-loop  \
+          CFLAGS="$cflags" CPPFLAGS="$undef_flags -D_POSIX_C_SOURCE=200112L"
   - build: |
       cd arif/build
       make

@@ -44,13 +44,12 @@ endif  # ARIFY
 
 if ARIF_RIME
   include_HEADERS    += arif_rime.h
-  noinst_HEADERS     += arif_rime_quirks.h
   pkglib_LTLIBRARIES += rime.la
 
   rime_la_CPPFLAGS = $(RIME_CFLAGS)
   rime_la_LDFLAGS  = -module
   rime_la_LIBADD   = $(RIME_LIBS)
-  rime_la_SOURCES  = arif_rime.c arif_rime_quirks.cc
+  rime_la_SOURCES  = arif_rime.c
 endif  # ARIF_RIME
 
 if RL_LOOP

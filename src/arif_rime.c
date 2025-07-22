@@ -35,7 +35,6 @@
 #include <rime_api.h>
 
 #include "arif_common.h"
-#include "arif_rime_quirks.h"
 
 struct engine_ctx {
     RimeSessionId      session;
@@ -73,6 +72,19 @@ struct arif_engine const arif_rime_engine = {
 
 static RimeApi *rime_api;
 static char    *rime_description;
+
+// XXX: glog (used by Rime) may break Readline output by writing to stderr.
+//      This is a hack to override and disable the corresponding flags
+//      without adding glog and a C++ compiler as our dependency.
+#ifndef ARIF_RIME_GLOG_ALSOLOGTOSTDERR
+#  define ARIF_RIME_GLOG_ALSOLOGTOSTDERR  _ZN3fLB21FLAGS_alsologtostderrE
+#endif
+#ifndef ARIF_RIME_GLOG_STDERRTHRESHOLD
+#  define ARIF_RIME_GLOG_STDERRTHRESHOLD  _ZN3fLI21FLAGS_stderrthresholdE
+#endif
+
+int ARIF_RIME_GLOG_ALSOLOGTOSTDERR;  // fLB::FLAGS_alsologtostderr
+int ARIF_RIME_GLOG_STDERRTHRESHOLD;  // fLI::FLAGS_stderrthreshold
 
 static void
 arif_rime_finalize (
@@ -327,13 +339,14 @@ init_rime (void)
     traits.log_dir       = xgetenv("ARIF_RIME_LOG_DIR", "/tmp");
     traits.min_log_level = get_log_level();
     traits.modules       = get_modules();
-
     rime_api->setup(&traits);
-    // Prevent glog (used by Rime for logging) from writing to stderr,
-    // since it may break Readline output.
-    arif_rime_glog_nostderr();
-    rime_api->initialize(&traits);
 
+    // Rime sets this to true during init
+    ARIF_RIME_GLOG_ALSOLOGTOSTDERR = 0;
+    // default value is ERROR (2) instead of FATAL
+    ARIF_RIME_GLOG_STDERRTHRESHOLD = 3;
+
+    rime_api->initialize(&traits);
     // Rime uses static C++ variables to store its states, which get destroyed
     // on exit.  Make sure we finalize Rime API before that.
     atexit(finalize_rime);
