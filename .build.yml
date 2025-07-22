@@ -19,13 +19,15 @@ environment:
   C_CXX_FLAGS: >-
     -O0 -g -Wall -Wextra -Wpedantic -Wshadow
     -fsanitize=address,undefined -fno-sanitize-recover
+  # tinfo.pc (dependency of readline) defines these, but we don't need them.
+  UNDEF_FLAGS: -U_DEFAULT_SOURCE -U_XOPEN_SOURCE
 tasks:
   - setup: |
       mkdir arif/build && cd arif/build
       autoreconf -i ..
       ../configure --enable-arif-debug --enable-arif-rime --enable-rl-loop   \
           CFLAGS="-std=c99 $C_CXX_FLAGS" CXXFLAGS="-std=c++98 $C_CXX_FLAGS"  \
-          CPPFLAGS='-D_POSIX_C_SOURCE=200112L'
+          CPPFLAGS="$UNDEF_FLAGS -D_POSIX_C_SOURCE=200112L"
   - build: |
       cd arif/build
       make
