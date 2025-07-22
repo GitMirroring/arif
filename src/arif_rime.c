@@ -26,8 +26,6 @@
 
 #include "arif_rime.h"
 
-#include <assert.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,8 +36,6 @@
 
 #include "arif_common.h"
 #include "arif_rime_quirks.h"
-
-#define XK_Down  0xff54  // #include <X11/keysym.h>
 
 struct engine_ctx {
     RimeSessionId      session;
@@ -58,8 +54,8 @@ static int           init_rime          (void);
 static void          finalize_rime      (void);
 static void          free_candidates    (struct engine_ctx *);
 static char const *  gen_description    (void);
-static int           get_log_level      (char const *);
-static char const ** get_modules        (char const *);
+static int           get_log_level      (void);
+static char const ** get_modules        (void);
 // Forward declaration end
 
 struct cand_entry {
@@ -75,9 +71,8 @@ struct arif_engine const arif_rime_engine = {
     .query    = arif_rime_query,
 };
 
-static RimeApi     *rime_api;
-static char        *rime_description;
-static char const **rime_modules;
+static RimeApi *rime_api;
+static char    *rime_description;
 
 static void
 arif_rime_finalize (
@@ -86,11 +81,9 @@ arif_rime_finalize (
     struct engine_ctx *ctx = engine_data;
 
     free_candidates(ctx);
-
     if (rime_api != NULL) {
         rime_api->destroy_session(ctx->session);
     }
-
     free(ctx);
 }
 
@@ -113,9 +106,8 @@ arif_rime_init (
     void  *ARIF_UNUSED_ARG(args),
     void **engine_data_ptr
 ) {
-    int status = init_rime();
-    if (status != 0) {
-        return status;
+    if (0 != init_rime()) {
+        return -1;
     }
 
     struct engine_ctx *ctx = xmalloc(sizeof(struct engine_ctx));
@@ -147,15 +139,15 @@ arif_rime_query (
 
         char const *text = line + offset;
         for (int idx = 0; idx < len; ++idx) {
-            if (!rime_api->process_key(ctx->session, text[idx], 0)) {
+            RIME_STRUCT(RimeStatus, rimestatus);
+            if (!rime_api->process_key(ctx->session, text[idx], 0) ||
+                    !rime_api->get_status(ctx->session, &rimestatus)
+            ) {
+                free(prefix);
                 return 0;
             }
 
-            RIME_STRUCT(RimeStatus, rimestatus);
-            if (!rime_api->get_status(ctx->session, &rimestatus)) {
-                return 0;
-            }
-            bool is_composing = rimestatus.is_composing;
+            int is_composing = rimestatus.is_composing;
             rime_api->free_status(&rimestatus);
             if (is_composing) {
                 continue;
@@ -209,7 +201,8 @@ arif_rime_query (
             // last candidate
             break;
         }
-        if (!rime_api->process_key(ctx->session, XK_Down, 0)) {
+        // 0xff54 == XK_Down (see X11/keysyms.h)
+        if (!rime_api->process_key(ctx->session, 0xff54, 0)) {
             break;
         }
     }
@@ -253,6 +246,10 @@ copy_candidate (
         text = "";
     }
     int text_len = strlen(text);
+
+    if (prefix == NULL) {
+        prefix = "";
+    }
 
     char const *comment = candidate->comment;
     if (comment == NULL) {
@@ -328,8 +325,8 @@ init_rime (void)
             = xgetenv("ARIF_RIME_SHARED_DATA_DIR", "/usr/share/rime-data");
     traits.user_data_dir = xgetenv("ARIF_RIME_USER_DATA_DIR", NULL);
     traits.log_dir       = xgetenv("ARIF_RIME_LOG_DIR", "/tmp");
-    traits.min_log_level = get_log_level("ARIF_RIME_LOG_LEVEL");
-    traits.modules       = get_modules("ARIF_RIME_MODULES");
+    traits.min_log_level = get_log_level();
+    traits.modules       = get_modules();
 
     rime_api->setup(&traits);
     // Prevent glog (used by Rime for logging) from writing to stderr,
@@ -341,7 +338,10 @@ init_rime (void)
     // on exit.  Make sure we finalize Rime API before that.
     atexit(finalize_rime);
 
-    rime_modules = traits.modules;
+    if (traits.modules != NULL) {
+        free((char *) traits.modules[0]);
+        free(traits.modules);
+    }
     return 0;
 }
 
@@ -351,11 +351,6 @@ finalize_rime (void)
     if (rime_api != NULL) {
         rime_api->finalize();
         rime_api = NULL;
-    }
-    if (rime_modules != NULL) {
-        free((char *) rime_modules[0]);
-        free(rime_modules);
-        rime_modules = NULL;
     }
     free(rime_description);
 }
@@ -367,27 +362,23 @@ gen_description (void)
         return rime_description;
     }
 
-    char const *fmt = "Example Rime integration for ARIF\n"
-            "  Rime IME <https://rime.im/> version: %s\n";
     char const *rime_version = rime_api->get_version();
     if (rime_version == NULL) {
         rime_version = "N/A";
     }
 
+    char const *fmt = "RIME integration for ARIF\n"
+            "  Rime IME <https://rime.im/> version: %s\n";
     int desc_len = snprintf(NULL, 0, fmt, rime_version);
-    assert(desc_len > 0);
-
     rime_description = xmalloc(sizeof(char) * (desc_len + 1));
     sprintf(rime_description, fmt, rime_version);
-
     return rime_description;
 }
 
 static int
-get_log_level (
-    char const *env_name
-) {
-    char const *log_level = xgetenv(env_name, "");
+get_log_level (void)
+{
+    char const *log_level = xgetenv("ARIF_RIME_LOG_LEVEL", "");
 
     if (0 == strcasecmp("INFO", log_level)) {
         return 0;
@@ -405,10 +396,9 @@ get_log_level (
 }
 
 static char const **
-get_modules (
-    char const *env_name
-) {
-    char const *modules_env = xgetenv(env_name, NULL);
+get_modules (void)
+{
+    char const *modules_env = xgetenv("ARIF_RIME_MODULES", NULL);
     if (modules_env == NULL) {
         return NULL;
     }
