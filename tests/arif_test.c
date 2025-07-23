@@ -24,8 +24,6 @@
 #  include "config.h"
 #endif
 
-#include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,20 +39,23 @@ main (
     int   argc,
     char *argv[]
 ) {
-    int  buffer_size        = 64;
-    int  page_size          = 5;
-    bool gen_all_candidates = false;
+    int buffer_size        = 64;
+    int page_size          = 5;
+    int gen_all_candidates = 0;
     for (int opt; -1 != (opt = getopt(argc, argv, "ab:p:")); ) {
         switch (opt) {
           case 'a':
-            gen_all_candidates = true;
+            gen_all_candidates = 1;
             break;
+
           case 'b':
             buffer_size = atoi(optarg);
             break;
+
           case 'p':
             page_size = atoi(optarg);
             break;
+
           default:
             exit(EXIT_FAILURE);
         }
@@ -93,10 +94,12 @@ main (
           case '\0':
           case '\n':
             continue;
+
           case ':': ;
             int page_num = arif_select_page(ctx, atoi(buffer + 1));
             printf("%d\n", page_num);
             break;
+
           case '<': ;
             struct arif_cand const *candidates;
             int num = arif_fetch(ctx, &candidates);
@@ -110,10 +113,12 @@ main (
                 puts("");
             }
             break;
+
           case '>': ;
             int len = arif_query(ctx, buffer, 1, end - buffer - 1);
             printf("%d\n", len);
             break;
+
           default:
             puts("?");
             break;

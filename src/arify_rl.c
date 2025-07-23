@@ -27,7 +27,6 @@
 #include "arify_rl.h"
 
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -44,10 +43,9 @@ struct arify_rl_engine {
 
 // Forward declaration start
 static char ** complete           (char const *, int, int);
-static void    disable_arify      (bool);
+static void    disable_arify      (int);
 static void    display_hook       (char **, int, int);
 static void    enable_arify       (void);
-
 static void    get_engine_info    (struct arify_rl_engine const *,
                                    char const **, char const **);
 static void    finalize           (void *);
@@ -71,14 +69,17 @@ struct arify_rl_ctx {
     struct arif_ctx        *ctx;
     struct arify_rl_engine *engines;
     struct arify_rl_engine *current_engine;
-    bool                    enabled;
-    char const             *old_basic_quote_chars;
-    char const             *old_word_break_chars;
-    rl_completion_func_t   *old_comp_func;
-    rl_compdisp_func_t     *old_disp_func;
-    int                     old_ignore_duplicates;
-    int                     old_query_items;
-    int                     old_sort_matches;
+    int                     enabled;
+
+    struct {
+        char const           *basic_quote_chars;
+        char const           *word_break_chars;
+        rl_completion_func_t *comp_func;
+        rl_compdisp_func_t   *disp_func;
+        int                   ignore_duplicates;
+        int                   query_items;
+        int                   sort_matches;
+    } old;
 };
 
 ARIF_INTERNAL
@@ -103,23 +104,24 @@ complete (
     int         start,
     int         end
 ) {
-    arify_debugf("%s", "complete");
+    arify_debugf("complete: %d %d %s", start, end, text);
 
     return arif_rl_complete(rlctx.ctx, text, start, end);
 }
 
 static void
 disable_arify (
-    bool suppress_message
+    int suppress_message
 ) {
-    rl_basic_quote_characters          = rlctx.old_basic_quote_chars;
-    rl_attempted_completion_function   = rlctx.old_comp_func;
-    rl_completion_display_matches_hook = rlctx.old_disp_func;
-    rl_completion_query_items          = rlctx.old_query_items;
-    rl_ignore_completion_duplicates    = rlctx.old_ignore_duplicates;
-    rl_sort_completion_matches         = rlctx.old_sort_matches;
+    rl_basic_quote_characters          = rlctx.old.basic_quote_chars;
+    rl_completer_word_break_characters = rlctx.old.word_break_chars;
+    rl_attempted_completion_function   = rlctx.old.comp_func;
+    rl_completion_display_matches_hook = rlctx.old.disp_func;
+    rl_completion_query_items          = rlctx.old.query_items;
+    rl_ignore_completion_duplicates    = rlctx.old.ignore_duplicates;
+    rl_sort_completion_matches         = rlctx.old.sort_matches;
 
-    rlctx.enabled = false;
+    rlctx.enabled = 0;
     if (!suppress_message) {
         rlprintf("%s", "[arify] disabled");
     }
@@ -132,7 +134,7 @@ display_hook (
     int    num,
     int    max_len
 ) {
-    arify_debugf("%s", "display hook");
+    arify_debugf("display_hook: %d %d", num, max_len);
 
     arif_rl_display(rlctx.ctx, matches, num, max_len);
 }
@@ -150,13 +152,13 @@ enable_arify (void)
         arif_set_engine(rlctx.ctx, entry->engine, entry->engine_data);
     }
 
-    rlctx.old_basic_quote_chars = rl_basic_quote_characters;
-    rlctx.old_word_break_chars  = rl_completer_word_break_characters;
-    rlctx.old_comp_func         = rl_attempted_completion_function;
-    rlctx.old_disp_func         = rl_completion_display_matches_hook;
-    rlctx.old_query_items       = rl_completion_query_items;
-    rlctx.old_ignore_duplicates = rl_ignore_completion_duplicates;
-    rlctx.old_sort_matches      = rl_sort_completion_matches;
+    rlctx.old.basic_quote_chars = rl_basic_quote_characters;
+    rlctx.old.word_break_chars  = rl_completer_word_break_characters;
+    rlctx.old.comp_func         = rl_attempted_completion_function;
+    rlctx.old.disp_func         = rl_completion_display_matches_hook;
+    rlctx.old.query_items       = rl_completion_query_items;
+    rlctx.old.ignore_duplicates = rl_ignore_completion_duplicates;
+    rlctx.old.sort_matches      = rl_sort_completion_matches;
 
     // This is necessary, as rl_complete_internal() appends these characters
     // even with rl_completion_suppress_quote set to non-zero
@@ -172,7 +174,7 @@ enable_arify (void)
     get_engine_info(rlctx.current_engine, &engine_name, NULL);
     rlprintf("[arify] enabled (engine: %s)", engine_name);
 
-    rlctx.enabled = true;
+    rlctx.enabled = 1;
     arify_debugf("%s", "enabled");
 }
 
@@ -182,20 +184,16 @@ get_engine_info (
     char const                   **name_ptr,
     char const                   **description_ptr
 ) {
-    char const *name, *description;
-    if (name_ptr == NULL) {
-        name_ptr = &name;
-    }
-    if (description_ptr == NULL) {
-        description_ptr = &description;
-    }
-
     struct arif_engine const *engine = entry->engine;
     if (engine->info != NULL) {
         engine->info(entry->engine_data, name_ptr, description_ptr);
     } else {
-        *name_ptr        = "";
-        *description_ptr = "";
+        if (name_ptr != NULL) {
+            *name_ptr = "(no name)";
+        }
+        if (description_ptr != NULL) {
+            *description_ptr = "(no description)";
+        }
     }
 }
 
@@ -204,7 +202,7 @@ finalize (
     void *ARIF_UNUSED_ARG(frontend_data)
 ) {
     if (rlctx.enabled) {
-        disable_arify(true);
+        disable_arify(1);
     }
 
     struct arify_rl_engine *next, *entry;
@@ -216,7 +214,7 @@ finalize (
         }
     }
 
-    arify_debugf("%s", "readline frontend finalized");
+    arify_debugf("%s", "arify_rl: finalized");
 }
 
 static struct arify_rl_engine *
@@ -228,7 +226,7 @@ get_next_engine (void)
         return NULL;
     }
 
-    struct arify_rl_engine *entry = xmalloc(sizeof(struct arify_rl_engine));
+    struct arify_rl_engine *entry = xmalloc(sizeof(*entry));
     *entry = (struct arify_rl_engine) {
         .engine      = engine,
         .engine_data = engine_data,
@@ -251,7 +249,7 @@ initialize (
     rlctx.ctx = ctx;
     *frontend_data_ptr = &rlctx;
 
-    arify_debugf("%s", "readline frontend initialized");
+    arify_debugf("%s", "arify_rl: initialized");
     return 0;
 }
 
@@ -343,7 +341,7 @@ rlfunc_toggle (
     int ARIF_UNUSED_ARG(key)
 ) {
     if (rlctx.enabled) {
-        disable_arify(false);
+        disable_arify(0);
     } else {
         enable_arify();
     }

@@ -23,12 +23,10 @@
 #ifndef ARIF_DUMMY_ENGINE_H_
 #define ARIF_DUMMY_ENGINE_H_
 
-#include <stdbool.h>
-
 #include "arif.h"
 
 struct arif_dummy_engine_opts {
-    bool gen_all_candidates;
+    int gen_all_candidates;
 };
 
 extern struct arif_engine const arif_dummy_engine;

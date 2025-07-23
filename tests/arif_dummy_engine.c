@@ -26,7 +26,6 @@
 
 #include "arif_dummy_engine.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 
 #include "arif.h"
@@ -38,7 +37,7 @@ struct dummy_engine_ctx {
 
     struct arif_cand *candidates;
     int               num_candidates;
-    bool              gen_all_candidates;
+    int               gen_all_candidates;
 };
 
 // Forward declaration start
@@ -91,9 +90,9 @@ dummy_engine_init (
 ) {
     struct arif_dummy_engine_opts const *opts = args;
 
-    struct dummy_engine_ctx *ctx = xmalloc(sizeof(struct dummy_engine_ctx));
+    struct dummy_engine_ctx *ctx = xmalloc(sizeof(*ctx));
     *ctx = (struct dummy_engine_ctx) {
-        .gen_all_candidates = opts != NULL ? opts->gen_all_candidates : false,
+        .gen_all_candidates = opts != NULL ? opts->gen_all_candidates : 0,
     };
     *engine_data_ptr = ctx;
     return 0;

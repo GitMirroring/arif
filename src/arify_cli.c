@@ -25,7 +25,6 @@
 #endif
 
 #include <assert.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +46,6 @@ struct options {
 static void   append_str    (char const *, char **, char);
 static char * concat_str    (char const *, char const *, char);
 static int    parse_options (int, char *const [], struct options *);
-static void   print_usage   (char const *);
 static void   set_envs      (struct options *);
 // Forward declaration end
 
@@ -92,45 +90,37 @@ parse_options (
     char *const     argv[],
     struct options *opts
 ) {
-    while (1) {
-        switch (getopt(argc, argv, "e:f:p:l:n:HV")) {
+    for (int opt; -1 != (opt = getopt(argc, argv, "e:f:p:l:n:V")); ) {
+        switch (opt) {
           case 'e':
             append_str(optarg, &opts->engines, ',');
             break;
+
           case 'f':
             opts->frontend = optarg;
             break;
+
           case 'p':
             opts->preload = optarg;
             break;
+
           case 'l':
             opts->log_file = optarg;
             break;
+
           case 'n':
             opts->page_size = optarg;
             break;
+
           case 'V':
             fprintf(stderr, "arify (ARIF %s)\n", ARIF_VER_STR);
             exit(EXIT_SUCCESS);
-          case -1:
-            return optind;
-          case '?':
+
           default:
-            print_usage(argv[0]);
-            break;
+            exit(EXIT_FAILURE);
         }
     }
-}
-
-static void
-print_usage (
-    char const *program
-) {
-    fputs("Usage: ", stderr);
-    fputs(program, stderr);
-    fputs(" [options] filepath [args]\n\n", stderr);
-    fputs("See the arify(1) man page for details.\n", stderr);
-    exit(EXIT_FAILURE);
+    return optind;
 }
 
 static void
@@ -172,11 +162,12 @@ main (
     free(opts.preload);
 
     if (argv[0] == NULL) {
-        fprintf(stderr, "%s: no executable file specified\n", program);
-        print_usage(program);
+        fprintf(stderr, "Usage: %s [options] filepath [args]\n\n"
+                "See the arify(1) man page for details.\n", program);
+        exit(EXIT_FAILURE);
     }
     if (-1 == execvp(argv[0], argv)) {
-        fprintf(stderr, "%s: %s: %s\n", program, argv[0], strerror(errno));
+        perror("execvp()");
         exit(EXIT_FAILURE);
     }
 }

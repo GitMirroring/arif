@@ -26,7 +26,6 @@
 
 #include "arify.h"
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,7 +108,7 @@ config_engines (void)
         if (var_name != NULL) {
             *(var_name++) = '\0';
         }
-        engine = engine->next = xmalloc(sizeof(struct arify_engine));
+        engine = engine->next = xmalloc(sizeof(*engine));
         *engine = (struct arify_engine) {
             .lib_name = names,
             .var_name = var_name,
@@ -143,7 +142,7 @@ config_log_file (void)
 {
     char const *log_file_path = xgetenv("ARIFY_LOG_FILE", NULL);
     if (log_file_path != NULL) {
-        ctx.log_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        ctx.log_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0600);
     }
 
     ctx.pid = getpid();
@@ -154,7 +153,7 @@ static int
 config_page_size (void)
 {
     char const *page_size_str = xgetenv("ARIFY_PAGE_SIZE", "5");
-    long page_size = strtol(page_size_str, NULL, 10);
+    int page_size = atoi(page_size_str);
     if (page_size < 1 || page_size > ARIFY_MAX_PAGE_SIZE) {
         arify_errf("bad page size '%s', should be in range [1, %d]",
                 page_size_str, ARIFY_MAX_PAGE_SIZE);
@@ -250,18 +249,17 @@ load_engine (
     char *var_tmp = NULL;
 
     if (var_name == NULL) {
-        size_t lib_name_len = sizeof ARIFY_ENGINE_LIB("") + strlen(lib_name);
+        size_t lib_name_len = sizeof(ARIFY_ENGINE_LIB("")) + strlen(lib_name);
         lib_tmp = xmalloc(sizeof(char) * lib_name_len);
         sprintf(lib_tmp, ARIFY_ENGINE_LIB("%s"), lib_name);
 
-        size_t var_name_len = sizeof ARIFY_ENGINE_SYM("") + strlen(lib_name);
+        size_t var_name_len = sizeof(ARIFY_ENGINE_SYM("")) + strlen(lib_name);
         var_tmp = xmalloc(sizeof(char) * var_name_len);
         sprintf(var_tmp, ARIFY_ENGINE_SYM("%s"), lib_name);
 
         lib_name = lib_tmp;
         var_name = var_tmp;
     }
-
     int result = -1;
 
     void *handle = dlopen(lib_name, RTLD_NOW);
@@ -285,7 +283,6 @@ load_engine (
         goto finish;
     }
     engine->impl = engine_impl;
-
     result = 0;
 
   finish:
@@ -319,7 +316,6 @@ arify_logf (
     int len = vsnprintf(buf, end - buf, fmt, args);
     va_end(args);
 
-    assert(len > 0);
     if (len >= end - buf) {
         len = end - buf;
         buf[len - 1] = '\n';

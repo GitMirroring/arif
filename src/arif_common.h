@@ -20,6 +20,9 @@
  * along with ARIF.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef ARIF_COMMON_H_
+#define ARIF_COMMON_H_
+
 #include <assert.h>
 #include <stdlib.h>
 
@@ -56,7 +59,7 @@ static inline void *
 xmalloc (
     size_t n
 ) {
-    char *p = malloc(n);
+    void *p = malloc(n);
     assert(p != NULL);
     return p;
 }
@@ -82,3 +85,5 @@ xgetenv (
     }
     return val;
 }
+
+#endif  // !defined(ARIF_COMMON_H_)

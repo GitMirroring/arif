@@ -24,8 +24,6 @@
 #  include "config.h"
 #endif
 
-#include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,17 +36,8 @@
 #include <readline/readline.h>
 
 // Forward declaration start
-static void print_usage (char const *);
-static int  send_line   (char *, int, char *[]);
+static int send_line (char *, int, char *[]);
 // Forward declaration end
-
-static void
-print_usage (
-    char const *program
-) {
-    fprintf(stderr, "Usage: %s [options] pathname [args]\n\n", program);
-    fputs("See the rl-loop(1) man page for details.\n", stderr);
-}
 
 static int
 send_line (
@@ -58,13 +47,13 @@ send_line (
 ) {
     int pfds[2];
     if (0 != pipe(pfds)) {
-        fprintf(stderr, "pipe(): %s\n", strerror(errno));
+        perror("pipe()");
         return -1;
     }
 
     pid_t child = fork();
     if (child < 0) {
-        fprintf(stderr, "fork(): %s\n", strerror(errno));
+        perror("fork()");
         return -1;
     }
 
@@ -74,7 +63,7 @@ send_line (
             for (size_t line_len = rl_end; line_len > 0; ) {
                 ssize_t nbytes = write(pfds[1], line, line_len);
                 if (nbytes < 0) {
-                    fprintf(stderr, "write(): %s\n", strerror(errno));
+                    perror("write()");
                     break;
                 }
                 line     += nbytes;
@@ -84,13 +73,13 @@ send_line (
         close(pfds[1]);
 
         if (-1 == waitpid(child, NULL, 0)) {
-            fprintf(stderr, "waitpid(): %s\n", strerror(errno));
+            perror("waitpid()");
             return -1;
         }
     } else {
         close(pfds[1]);
         if (-1 == dup2(pfds[0], STDIN_FILENO)) {
-            fprintf(stderr, "dup2(): %s\n", strerror(errno));
+            perror("dup2()");
             return -1;
         }
         close(pfds[0]);
@@ -99,7 +88,7 @@ send_line (
             argv[replace_idx] = line;
         }
         if (0 != execvp(argv[0], argv)) {
-            fprintf(stderr, "execvp(): %s: %s\n", argv[0], strerror(errno));
+            perror("execvp()");
             return -1;
         }
     }
@@ -114,30 +103,33 @@ main (
     char const *name        = "rl-loop";
     char const *prompt      = "% ";
     int         replace_idx = 0;
-    bool        send_empty  = false;
+    int         send_empty  = 0;
     for (int opt; -1 != (opt = getopt(argc, argv, "ei:n:p:")); ) {
         switch (opt) {
           case 'e':
-            send_empty = true;
+            send_empty = 1;
             break;
+
           case 'i':
             replace_idx = atoi(optarg);
             break;
+
           case 'n':
             name = optarg;
             break;
+
           case 'p':
             prompt = optarg;
             break;
-          case '?':
+
           default:
-            print_usage(argv[0]);
             exit(EXIT_FAILURE);
         }
     }
     argc -= optind;
     if (argc == 0) {
-        print_usage(argv[0]);
+        fprintf(stderr, "Usage: %s [options] pathname [args]\n\n"
+                "See the rl-loop(1) man page for details.\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     if (replace_idx < 0 || replace_idx >= argc) {

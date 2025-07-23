@@ -36,7 +36,7 @@
 #include "arif_common.h"
 
 char **
-arif_rl_complete(
+arif_rl_complete (
     struct arif_ctx *ctx,
     char const      *text,
     int              start,
@@ -122,7 +122,7 @@ arif_rl_complete(
 }
 
 void
-arif_rl_display(
+arif_rl_display (
     struct arif_ctx  *ctx,
     char            **ARIF_UNUSED_ARG(matches),
     int               num,

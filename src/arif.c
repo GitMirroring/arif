@@ -26,9 +26,6 @@
 
 #include "arif.h"
 
-#include <assert.h>
-#include <ctype.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +48,7 @@ struct arif_ctx {
     struct cand_page *current_page;
     struct cand_page *last_page;
     int               page_num;
-    bool              no_more_pages;
+    int               no_more_pages;
 
     // input text from previous query
     char const *old_line;
@@ -95,19 +92,16 @@ choose_candidate (
     }
     struct arif_cand *cand = &page->values[idx - 1];
 
-    int size = sizeof(struct cand_page) + sizeof(struct arif_cand);
-    struct cand_page *new_page = xmalloc(size);
-    *new_page = (struct cand_page) {
-        .size = 1,
-    };
-    *new_page->values = *cand;
+    struct cand_page *new_page = xmalloc(sizeof(*new_page) + sizeof(*cand));
+    *new_page = (struct cand_page) { .size = 1 };
+    new_page->values[0] = *cand;
 
     cand->display = NULL;
     free_page_list(page);
     return new_page;
 }
 
-static inline int
+static int
 compare_text (
     char const *text1,
     int         len1,
@@ -162,7 +156,6 @@ disp_cand_default (
         display_len = snprintf(NULL, 0, fmt, idx, len, text,
                 comment_len, comment);
     }
-    assert(display_len >= 0);
 
     char *disp = xmalloc(sizeof(char) * (display_len + 1));
     if (comment == NULL) {
@@ -203,7 +196,7 @@ first_candidates (
 }
 
 static void
-free_page(
+free_page (
     struct cand_page *page
 ) {
     for (int i = 0; i < page->size; ++i) {
@@ -233,15 +226,13 @@ free_page_list (
     }
 }
 
-static inline int
+static int
 last_num_offset (
     char const *text,
     int         len
 ) {
-    while (--len >= 0) {
-        if (!isdigit((unsigned char) text[len])) {
-            break;
-        }
+    while (--len >= 0 && text[len] <= '9' && text[len] >= '0') {
+        // NOOP
     }
     return len + 1;
 }
@@ -270,7 +261,7 @@ more_candidates (
     int num_fetched = ctx->engine->query(ctx->engine_data, NULL, 0, 0,
             num_required, &candidates);
     if (num_fetched < num_required) {
-        ctx->no_more_pages = true;
+        ctx->no_more_pages = 1;
         if (num_fetched == 0) {
             return NULL;
         }
@@ -298,12 +289,10 @@ new_page (
     int                     num,
     arif_cand_disp_func    *disp_cand
 ) {
-    int size = sizeof(struct cand_page) + sizeof(struct arif_cand) * num;
-    struct cand_page *page = xmalloc(size);
+    struct cand_page *page
+            = xmalloc(sizeof(*page) + sizeof(struct arif_cand) * num);
+    *page = (struct cand_page) { .size = num };
 
-    *page = (struct cand_page) {
-        .size = num,
-    };
     for (int i = 0; i < num; ++i) {
         struct arif_cand const *src_cand  = candidates + i;
         struct arif_cand       *dest_cand = page->values + i;
@@ -343,7 +332,7 @@ struct arif_ctx *
 arif_ctx_create (
     struct arif_opts const *options
 ) {
-    struct arif_ctx *ctx = xmalloc(sizeof(struct arif_ctx));
+    struct arif_ctx *ctx = xmalloc(sizeof(*ctx));
 
     arif_cand_disp_func *disp_cand = options->disp_cand;
     if (disp_cand == NULL) {
@@ -425,7 +414,7 @@ arif_query (
         ctx->current_page  = page;
         ctx->last_page     = page;
         ctx->page_num      = 1;
-        ctx->no_more_pages = false;
+        ctx->no_more_pages = 0;
 
         set_old_line(ctx, NULL, 0, 0);
     }
@@ -481,12 +470,12 @@ arif_set_engine (
     ctx->current_page  = NULL;
     ctx->last_page     = NULL;
     ctx->page_num      = 0;
-    ctx->no_more_pages = false;
+    ctx->no_more_pages = 0;
 
     set_old_line(ctx, NULL, 0, 0);
 
-    ctx->engine        = engine;
-    ctx->engine_data   = engine_data;
+    ctx->engine      = engine;
+    ctx->engine_data = engine_data;
 }
 
 static inline void
