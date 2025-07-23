@@ -81,6 +81,7 @@ struct arify_rl_ctx {
     int                     old_sort_matches;
 };
 
+ARIF_INTERNAL
 struct arify_frontend const arify_frontend_readline = {
     .init     = initialize,
     .finalize = finalize,

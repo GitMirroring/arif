@@ -23,8 +23,13 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define ARIF_INTERNAL
 #define ARIF_UNUSED
 #ifdef __has_attribute
+#  if __has_attribute(visibility)
+#    undef  ARIF_INTERNAL
+#    define ARIF_INTERNAL  __attribute__((visibility("hidden")))
+#  endif
 #  if __has_attribute(unused)
 #    undef  ARIF_UNUSED
 #    define ARIF_UNUSED  __attribute__((unused))

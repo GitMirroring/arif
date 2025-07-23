@@ -24,6 +24,7 @@
 #define ARIFY_H_
 
 #include "arif.h"
+#include "arif_common.h"
 
 #ifdef ENABLE_ARIF_DEBUG
 #  define arify_debugf(fmt, ...)  arify_logf(fmt "\n", "D", __VA_ARGS__)
@@ -46,6 +47,7 @@ struct arify_frontend {
     arify_frontend_finalize_func *finalize;
 };
 
+ARIF_INTERNAL
 void
 arify_logf (
     char const *fmt,
@@ -53,6 +55,7 @@ arify_logf (
     ...
 );
 
+ARIF_INTERNAL
 struct arif_engine const *
 arify_next_engine (
     void **engine_data_ptr
