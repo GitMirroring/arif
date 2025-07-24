@@ -151,6 +151,11 @@ enable_arify (void)
         }
         rlctx.current_engine = rlctx.engines = entry;
         arif_set_engine(rlctx.ctx, entry->engine, entry->engine_data);
+
+        if (NULL == xgetenv("ARIFY_RL_NO_AUTO_UNSETENV", NULL)) {
+            unsetenv("ARIFY_LOG_FILE");
+            setenv("ARIFY_FRONTEND", "none", 1);
+        }
     }
 
     rlctx.old.basic_quote_chars = rl_basic_quote_characters;
