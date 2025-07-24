@@ -69,6 +69,7 @@ struct arify_rl_ctx {
     struct arif_ctx        *ctx;
     struct arify_rl_engine *engines;
     struct arify_rl_engine *current_engine;
+    char const             *word_break_chars;
     int                     enabled;
 
     struct {
@@ -163,7 +164,7 @@ enable_arify (void)
     // This is necessary, as rl_complete_internal() appends these characters
     // even with rl_completion_suppress_quote set to non-zero
     rl_basic_quote_characters          = NULL;
-    rl_completer_word_break_characters = " \t\n";
+    rl_completer_word_break_characters = rlctx.word_break_chars;
     rl_attempted_completion_function   = complete;
     rl_completion_display_matches_hook = display_hook;
     rl_completion_query_items          = 0;
@@ -246,9 +247,10 @@ initialize (
         rl_add_funmap_entry(entry->name, entry->func);
     }
 
-    rlctx.ctx = ctx;
-    *frontend_data_ptr = &rlctx;
+    rlctx.ctx              = ctx;
+    rlctx.word_break_chars = xgetenv("ARIFY_RL_WORD_BREAK_CHARS", " \t\n");
 
+    *frontend_data_ptr = &rlctx;
     arify_debugf("%s", "arify_rl: initialized");
     return 0;
 }
