@@ -22,6 +22,6 @@ if ARIF_RIME
   dist_man3_MANS += arif_rime.3
 endif  # ARIF_RIME
 
-if RL_LOOP
-  dist_man1_MANS += rl-loop.1
-endif  # RL_LOOP
+if RLEXEC
+  dist_man1_MANS += rlexec.1
+endif  # RLEXEC

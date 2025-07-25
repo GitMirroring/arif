@@ -43,8 +43,8 @@ Build and Install
     * Do not build the `arify` program.
   - `--disable-arif-readline`
     * Build the ARIF library without GNU Readline features.
-  - `--enable-rl-loop`
-    * Build the `rl-loop` program.
+  - `--enable-rlexec`
+    * Build the `rlexec` program.
   - `--enable-arif-rime`
     * Build the example Rime IME integration.
 

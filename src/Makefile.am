@@ -52,10 +52,10 @@ if ARIF_RIME
   rime_la_SOURCES  = arif_rime.c
 endif  # ARIF_RIME
 
-if RL_LOOP
-  bin_PROGRAMS += rl-loop
+if RLEXEC
+  bin_PROGRAMS += rlexec
 
-  rl_loop_CPPFLAGS = $(READLINE_CFLAGS)
-  rl_loop_LDADD    = $(READLINE_LIBS)
-  rl_loop_SOURCES  = rl_loop.c
-endif  # RL_LOOP
+  rlexec_CPPFLAGS = $(READLINE_CFLAGS)
+  rlexec_LDADD    = $(READLINE_LIBS)
+  rlexec_SOURCES  = rlexec.c
+endif  # RLEXEC

@@ -1,5 +1,5 @@
 /**
- * arif/src/rl_loop.c
+ * arif/src/rlexec.c
  * ----
  *
  * Copyright (C) 2024  CismonX <admin@cismon.net>
@@ -100,7 +100,7 @@ main (
     int   argc,
     char *argv[]
 ) {
-    char const *name        = "rl-loop";
+    char const *name        = "rlexec";
     char const *prompt      = "% ";
     int         replace_idx = 0;
     int         send_empty  = 0;
@@ -129,7 +129,7 @@ main (
     argc -= optind;
     if (argc == 0) {
         fprintf(stderr, "Usage: %s [options] pathname [args]\n\n"
-                "See the rl-loop(1) man page for details.\n", argv[0]);
+                "See the rlexec(1) man page for details.\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     if (replace_idx < 0 || replace_idx >= argc) {

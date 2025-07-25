@@ -1,10 +1,10 @@
-.TH RL-LOOP 1 "Apr 10, 2024" 0.1.0 "ARIF User Manual"
+.TH RLEXEC 1 "Apr 10, 2024" 0.1.0 "ARIF User Manual"
 .
 .SH NAME
-rl\-loop - Readline loop
+rlexec - read lines and execute program
 .
 .SH SYNOPSIS
-.B rl\-loop
+.B rlexec
 .RI [ options ]
 .I pathname
 .RI [ args ]
@@ -37,7 +37,7 @@ to standard input instead.
 .TP
 \fB\-n\fR \fIname\fR
 Readline application name.
-Default value is "rl\-loop".
+Default value is "rlexec".
 .IP
 Allows application-specific settings in a Readline init file.
 See "Conditional Init Constructs" subsection of GNU Readline's user manual.
@@ -68,7 +68,7 @@ Copy each line to the Wayland clipboard:
 .PP
 .in +4n
 .EX
-.RB "$ " "rl\-loop \-i4 \-\- wl-copy \-t text/plain \-\- %"
+.RB "$ " "rlexec \-i4 \-\- wl-copy \-t text/plain \-\- %"
 .EE
 .in
 .

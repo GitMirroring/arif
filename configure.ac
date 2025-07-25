@@ -27,7 +27,7 @@ AC_PROG_MAKE_SET
 # -- Checks for features --
 
 EX_FEAT([arify],         [Y E], [the arify program])
-EX_FEAT([rl-loop],       [  E], [the rl-loop program])
+EX_FEAT([rlexec],        [  E], [the rlexec program])
 EX_FEAT([arif-readline], [YDE], [Readline features for ARIF])
 EX_FEAT([arif-rime],     [  E], [RIME integration for ARIF])
 EX_FEAT([arif-debug],    [ D ], [debugging features for ARIF])
@@ -35,7 +35,7 @@ EX_FEAT([arif-debug],    [ D ], [debugging features for ARIF])
 # -- Checks for libraries --
 
 EX_DEP([readline], [>= 6.0], [GNU Readline library],
-        [rl-loop], [arif-readline])
+        [rlexec], [arif-readline])
 
 EX_DEP([rime], [>= 1.6], [Rime Input Method Engine], [arif-rime])
 
