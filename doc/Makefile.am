@@ -14,9 +14,12 @@ dist_man3_MANS = arif_ctx_create.3 arif_ctx_destroy.3 arif_fetch.3  \
 arif_TEXINFOS = fdl.texi
 
 if ARIF_READLINE
-  dist_man1_MANS += arify.1
   dist_man3_MANS += arif_rl_complete.3 arif_rl_display.3
 endif  # ARIF_READLINE
+
+if ARIFY
+  dist_man1_MANS += arify.1
+endif  # ARIFY
 
 if ARIF_RIME
   dist_man3_MANS += arif_rime.3

@@ -6,7 +6,7 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 #
 
-noinst_HEADERS     = arif_common.h arify.h
+noinst_HEADERS     = arif_common.h arify.h arify_rl.h
 include_HEADERS    = arif.h
 bin_PROGRAMS       =
 lib_LTLIBRARIES    = libarif.la
@@ -18,7 +18,6 @@ libarif_la_LIBADD   = $(READLINE_LIBS)
 libarif_la_SOURCES  = arif.c
 
 if ARIF_READLINE
-  noinst_HEADERS  += arify_rl.h
   include_HEADERS += arif_rl.h
 
   libarif_la_SOURCES += arif_rl.c
@@ -34,7 +33,7 @@ if ARIFY
   arify_SOURCES  = arify_cli.c
 
   libarify_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIFY_CPPFLAGS_)
-  libarify_la_LIBADD   = $(READLINE_LIBS) $(DL_LIBS) libarif.la
+  libarify_la_LIBADD   = $(READLINE_LIBS) libarif.la
   libarify_la_SOURCES  = arify.c
 
 if ARIF_READLINE
