@@ -52,7 +52,7 @@
 #define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
 
 #ifndef ARIFY_MAX_PAGE_SIZE
-#  define ARIFY_MAX_PAGE_SIZE  99
+#  define ARIFY_MAX_PAGE_SIZE  20
 #endif
 
 struct arify_engine {
@@ -154,8 +154,8 @@ config_page_size (void)
 {
     char const *page_size_str = xgetenv("ARIFY_PAGE_SIZE", "5");
     int page_size = atoi(page_size_str);
-    if (page_size < 1 || page_size > ARIFY_MAX_PAGE_SIZE) {
-        arify_errf("bad page size '%s', should be in range [1, %d]",
+    if (page_size < 5 || page_size > ARIFY_MAX_PAGE_SIZE) {
+        arify_errf("bad page size '%s', should be in range [5, %d]",
                 page_size_str, ARIFY_MAX_PAGE_SIZE);
         return -1;
     }
