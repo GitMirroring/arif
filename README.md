@@ -22,6 +22,6 @@ Getting Started
 
   See 'INSTALL.md' for instructions on how to build and install ARIF.
 
-  See the files under 'doc/' for documentation.
+  See the files under 'doc/' for the user manual.
 
-  For more information, visit the project homepage: <https://nongnu.org/arif>.
+  Project homepage: <https://www.nongnu.org/arif/>.

@@ -17,7 +17,7 @@ Prerequisites
   Build tools:
   - GNU Autotools (Autoconf, Automake, Libtool)
   - pkg-config
-  - POSIX-compliant make
+  - POSIX-compliant `make`
   - C compiler with ISO C99 support
 
   Other software (optional):
