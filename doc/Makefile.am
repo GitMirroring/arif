@@ -10,6 +10,7 @@ info_TEXINFOS  = arif.texi
 dist_man1_MANS =
 dist_man3_MANS = arif_ctx_create.3 arif_ctx_destroy.3 arif_fetch.3  \
                  arif_query.3 arif_select_page.3 arif_set_engine.3
+dist_man7_MANS = arif.7
 
 arif_TEXINFOS = fdl.texi
 

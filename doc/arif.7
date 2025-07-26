@@ -1,0 +1,120 @@
+.TH ARIF 7 "Jul 26, 2025" 0.1.0 "ARIF User Manual"
+.
+.SH NAME
+arif - Another Readline Input Framework
+.
+.SH DESCRIPTION
+ARIF (Another Readline Input Framework) is an input method framework
+for GNU Readline.
+.PP
+.SS The ARIF library
+The ARIF library API is separated into three parts: the base, frontend and
+engine API.
+.PP
+The base API manages input contexts and candidate pages, and acts as a bridge
+between the frontend and the engine.
+See the manual pages
+.BR arif_ctx_create (3),
+.BR arif_ctx_destroy (3),
+.BR arif_set_engine (3),
+.BR arif_query (3),
+.BR arif_fetch (3)
+and
+.BR arif_select_page (3)
+for details.
+.PP
+See below for the frontend and engine API.
+.SS Frontends
+An ARIF frontend determines how to fetch and interpret user input,
+and how to present candidates to the user.
+.PP
+Currently, the only supported frontend is based on the completion API of
+GNU Readline.
+See the manual pages
+.BR arif_rl_complete (3)
+and
+.BR arif_rl_display (3)
+for details.
+.PP
+ARIF is designed to (hopefully) cope with any line editor,
+not Readline in particular.
+You can implement your own frontend if Readline is not your cup of tea.
+.PP
+More frontends (e.g., tecla, ZLE) may be supported in the future.
+.SS Engines
+An ARIF engine generates candidates from a given input text,
+presumably by communicating with an actual input method engine.
+The manual page for
+.BR arif_set_engine (3)
+contains a detailed description on how to implement an ARIF engine.
+.PP
+An example engine implementation, powered by the Rime IME core library,
+is provided as a reference.
+See the manual page
+.BR arif_rime (3)
+for details.
+.PP
+.SS Command-line tools
+The
+.BR arify (1)
+command-line tool, implemented on top of the ARIF library,
+can be used to make ARIF features available to existing programs,
+without the need to modify, rebuild or write plugins for those programs.
+.PP
+There's also
+.BR rlexec (1),
+which reads user input using Readline, and executes another program
+for each line of input.
+This program is meant to be used with
+.BR arify (1),
+but could also be useful in other scenarios.
+.SH NOTES
+.SS Why use ARIF
+ARIF is not meant to be an alternative of modern input method frameworks
+like IBus and Fcitx, which are more feature-rich, and more suitable for
+general users.
+.PP
+Instead, ARIF aims to provide a lightweight, portable and minimalist solution
+that can serve as a last resort.
+Particularly, ARIF does not depend on GUI toolkits like GTK or Qt
+(whereas most input method frameworks choose so), but instead focuses on
+line editors like GNU Readline, which has stable API and good portability.
+.PP
+Let us suppose that you're SSH-ing to your PC from a friend's
+to get some urgent work done, but unfortunately there isn't any IME
+that you're familiar with installed on their PC.
+In situations like that, ARIF may appear to be useful.
+.PP
+Also, if you prefer a "uniform user experience" when using Readline programs,
+you may choose ARIF over GUI-based input method frameworks
+(just like why Emacs users may choose pyim).
+.
+.SH COPYRIGHT
+Copyright (C) 2025  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see
+.UR https://www.gnu.org/licenses/fdl-1.3.html
+.UE .
+.
+.SH SEE ALSO
+.BR arify (1),
+.BR rlexec (1),
+.BR arif_ctx_create (3),
+.BR arif_ctx_destroy (3),
+.BR arif_fetch (3),
+.BR arif_rl_complete (3),
+.BR arif_rl_display (3),
+.BR arif_query (3),
+.BR arif_set_engine (3),
+.BR arif_select_page (3),
+.BR readline (3)
+.PP
+ARIF project homepage:
+.UR https://www.nongnu.org/arif/
+.UE .
