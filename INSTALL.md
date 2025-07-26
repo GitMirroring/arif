@@ -19,7 +19,6 @@ Prerequisites
   - pkg-config
   - POSIX-compliant make
   - C compiler with ISO C99 support
-  - GNU Texinfo (optional, for building the user manual)
 
   Other software (optional):
   - DejaGnu (for running tests)

@@ -9,7 +9,7 @@
 image: debian/stable
 packages: [
   # build
-  autoconf, automake, libtool, pkgconf, make, gcc, texinfo, dejagnu,
+  autoconf, automake, libtool, pkgconf, make, gcc, dejagnu,
   # libs
   libreadline-dev, librime-dev,
 ]
