@@ -64,10 +64,15 @@ Otherwise, the exit status equals to that program's exit status.
 The frontend program to use.
 .IP
 If the variable is unset or empty, value \%"readline" will be used.
+.IP
+To use the Readline frontend, key bindings should be configured.
+See the "Readline key bindings" subsection in NOTES for details.
 .TP
 .B ARIFY_ENGINES
 Comma-separated list of input method engines to use.
 At least one engine should be specified.
+.IP
+See the "Engine names" subsection in NOTES for engine name format.
 .TP
 .B ARIFY_LOG_FILE
 Path to the file where error logs (and debug logs, if enabled)
@@ -79,12 +84,128 @@ If the variable is unset or empty, logs will not be printed.
 Maximum number of candidates per page (at most 20).
 .IP
 If the variable is unset or empty, value 5 will be used.
+.SS
+Readline-only environments:
+.TP
+.B ARIFY_RL_NO_AUTO_UNSETENV
+By default, when arify is enabled for the first time
+(by invoking the
+.B arify\-toggle
+Readline command),
+environment variables related to arify are unset, so that it won't be
+initialized in child processes.
+.IP
+This behavior can be disabled by setting this variable to any non-empty value.
+.TP
+.B ARIFY_RL_WORD_BREAK_CHARS
+List of characters that are supposed to signal a word break.
+Overrides
+.I rl_completer_word_break_characters
+when arify is enabled.
+.IP
+If the variable is unset or empty, value " \\t\\n" will be used.
+.IP
+Note that the list should contain the actual characters
+(i.e., escape sequences would not work).
 .
 .SH NOTES
-This manual page only contains part of
-.BR arify 's
-usage.
-For anything not covered here, please refer to ARIF's Info entry.
+.SS Engine names
+Each engine name in the
+.B ARIFY_ENGINES
+list should comply with the following format:
+.PP
+.in +4n
+.EX
+.IR $var_name : $symbol_name
+.EE
+.in
+.PP
+The
+.I $var_name
+is the path to the shared library file containing the engine implementation.
+This name is used as the first argument to pass to
+.BR dlopen (3).
+.PP
+The
+.I $symbol_name
+is the name of the
+.B struct arif_engine
+where the engine is implemented (see
+.BR arif_set_engine (3)).
+This name is used as the second argument to pass to
+.BR dlsym (3).
+.PP
+If the two names match the following pattern, a
+.I short_name
+can be used instead of the full name:
+.PP
+.in +4n
+.EX
+.IR $libdir /arif/ $short_name$shlib_suffix :arif_ $short_name _engine
+.EE
+.in
+.PP
+Where
+.IR $shlib_suffix
+is the common name suffix for shared library files on the current platform
+(e.g., ".so" on GNU/Linux).
+.SS Readline key bindings
+If using the Readline frontend, extra key bindings need to be configured in
+.IR \[ti]/.inputrc :
+.TP
+.B arify\-toggle
+Turn on/off input method engine.
+.IP
+When turned on, Readline's completion functions will be replaced by those
+provided by ARIF.
+When turned off, the previously saved completion functions will be restored.
+.TP
+.B arify\-engine\-info
+Prints information regarding the currently active engine.
+.TP
+.B arify\-next\-engine
+Switch to the next loaded engine.
+If there are no more available engines, switch back to the first engine.
+.TP
+.B arify\-page\-up
+.TQ
+.B arify\-page\-down
+Switch to previous/next page of candidates, and display them.
+.PP
+See EXAMPLES for an example configuration.
+.
+.SH EXAMPLES
+.SS Example Readline configuration
+The following is a simple
+.IR \[ti]/.inputrc
+snippet which configures key bindings for arify
+when working with
+.BR rlexec (1).
+.PP
+.in +4n
+.EX
+$if rlexec
+    "\\e ":     arify\-toggle
+    "\\e\\b":    arify\-next\-engine
+    "\\e[5;3\[ti]": arify\-page\-up      # M\-PgUp
+    "\\e[6;3\[ti]": arify\-page\-down    # M\-PgDn
+$endif
+.EE
+.in
+.SH BUGS
+Theoretically arify should work with most programs with a supported frontend.
+However, there are situations where it may not work as expected:
+.IP (1) 5
+When
+.B LD_PRELOAD
+is not functioning, arify does not work.
+.IP (2)
+When a Readline program does fancy things with the Readline API (e.g.,
+change handler functions during user input), arify may also fail to work,
+since it may break the internal states arify maintains.
+.PP
+Meanwhile, adding support for more frontends may not be as simple
+(or even possible) as with Readline, due to the way how arify works.
 .
 .SH COPYRIGHT
 Copyright (C) 2023  CismonX <admin@cismon.net>
@@ -100,7 +221,9 @@ If not, see
 .UE .
 .
 .SH SEE ALSO
+.BR rlexec (1),
 .BR arif_set_engine (3),
-.BR readline (3)
-.PP
-The Info entry for ARIF
+.BR dlopen (3),
+.BR dlsym (3),
+.BR readline (3),
+.BR ld.so (8)
