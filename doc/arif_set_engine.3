@@ -21,9 +21,9 @@ The
 function changes the input context
 .IR ctx 's
 current input method engine and its associated data pointer to
-.I \%engine
+.I engine
 and
-.IR \%engine_data .
+.IR engine_data .
 It also resets the internal state of
 .IR ctx .
 .PP
@@ -157,7 +157,7 @@ The
 and
 .I len
 arguments correspond to the arguments of function
-.BR arif_query ()
+.BR arif_query (3)
 with the same name.
 If
 .I line
@@ -192,7 +192,7 @@ through the
 and
 .I comment_len
 arguments (see
-.BR \%arif_ctx_create ()).
+.BR arif_ctx_create (3)).
 .PP
 Both
 .I line
@@ -201,7 +201,7 @@ and
 can be NULL, in which case the caller is indicating that a candidate at
 .I offset
 is selected with inlined candidate selection (see
-.BR \%arif_query ()),
+.BR arif_query (3)),
 and the return value is ignored.
 The engine may make use of this information for purposes like analytics.
 .
@@ -216,7 +216,7 @@ argument, the input context does not have an associated input method engine.
 In such input contexts, functions other than
 .BR arif_set_engine ()
 or
-.BR arif_ctx_destroy ()
+.BR arif_ctx_destroy (3)
 must not be called.
 .
 .SH COPYRIGHT

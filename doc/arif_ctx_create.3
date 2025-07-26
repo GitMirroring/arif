@@ -21,7 +21,7 @@ function creates an input context with
 Operations on separate input contexts do not affect each other.
 .PP
 If the input context is no longer in use, it should be destroyed with
-.BR \%arif_ctx_destroy ().
+.BR arif_ctx_destroy (3).
 .SS Options
 The
 .B struct arif_opts
@@ -81,14 +81,14 @@ Argument
 is the candidate's index for the current page, starting at 1.
 .PP
 The function should return a
-.BR malloc ()'ed
+.BR malloc (3)'ed
 pointer to the text to display for the candidate, and store
 its length (in bytes) to
 .IR display_len_ptr .
 .
 .SH RETURN VALUES
 Returns an opaque pointer to the new input context.
-On failure, returns NULL.
+It is guaranteed not to be NULL.
 .
 .SH COPYRIGHT
 Copyright (C) 2023  CismonX <admin@cismon.net>

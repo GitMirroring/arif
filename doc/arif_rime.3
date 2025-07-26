@@ -1,7 +1,7 @@
 .TH ARIF_RIME 3 "Jan 02, 2023" 0.1.0 "ARIF User Manual"
 .
 .SH NAME
-arif_rime - example Rime IME integration for ARIF
+arif_rime - Rime IME integration for ARIF
 .
 .SH SYNOPSIS
 .EX
@@ -11,10 +11,10 @@ arif_rime - example Rime IME integration for ARIF
 .EE
 .
 .SH DESCRIPTION
-An example implementation of ARIF engine, powered by the Rime IME core library.
+Example implementation of an ARIF engine, powered by the Rime IME core library.
 .PP
 See the manual page of
-.BR arif_set_engine ()
+.BR arif_set_engine (3)
 for how to use this engine.
 .SS Initialization
 The
@@ -31,19 +31,19 @@ configuration.
 .
 .SH ENVIRONMENT
 .TP
+.B ARIF_RIME_USER_DATA_DIR
+Path to the directory where Rime user data files are stored.
+.IP
+User data can be initialized with
+.BR rime_deployer (1).
+.TP
 .B ARIF_RIME_SHARED_DATA_DIR
 Path to the directory where Rime schema data files are stored.
 .IP
 Defaults to "/usr/share/rime\-data".
 .TP
-.B ARIF_RIME_USER_DATA_DIR
-Path to the directory where user configuration files are stored.
-.IP
-User configuration can be initialized with
-.BR rime_deployer (1).
-.TP
 .B ARIF_RIME_LOG_DIR
-Path to the directory where Rime log files will be written to.
+Path to the directory where Rime log files are written to.
 .IP
 Defaults to "/tmp".
 .TP

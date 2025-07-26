@@ -24,7 +24,7 @@ function queries the input method engine associated with input context
 for candidates to replace the given input text
 .IR line .
 Candidates can be later obtained using the
-.BR \%arif_fetch ()
+.BR arif_fetch (3)
 function.
 .PP
 The actual text to query for candidates starts at
@@ -34,13 +34,13 @@ byte offset, and has a length of
 bytes.
 The IME may look at the text before
 .IR offset ,
-so it should be valid (instead of garbage data).
+so it should not contain garbage data.
 .PP
 The caller is free to modify or deallocate
 .I line
 after the
 .BR arif_query ()
-call, as the function keeps its copy inside
+call, since the function keeps its copy inside
 .IR ctx .
 .PP
 If the text referred to by
