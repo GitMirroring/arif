@@ -36,13 +36,12 @@
 #include <readline/readline.h>
 
 // Forward declaration start
-static int send_line (char *, int, int, char *[]);
+static int send_line (char *, int, char *[]);
 // Forward declaration end
 
 static int
 send_line (
     char *line,
-    int   line_len,
     int   replace_idx,
     char *argv[]
 ) {
@@ -61,7 +60,7 @@ send_line (
     if (child != 0) {
         close(pfds[0]);
         if (replace_idx == 0) {
-            while (line_len > 0) {
+            for (size_t line_len = strlen(line); line_len > 0; ) {
                 ssize_t nbytes = write(pfds[1], line, line_len);
                 if (nbytes < 0) {
                     perror("write()");
@@ -146,14 +145,14 @@ main (
         if (line == NULL) {
             break;
         }
-        if (rl_end > 0) {
+        if (line[0] != '\0') {
             add_history(line);
         } else {
             if (!send_empty) {
                 continue;
             }
         }
-        if (0 != send_line(line, rl_end, replace_idx, argv)) {
+        if (0 != send_line(line, replace_idx, argv)) {
             exit(EXIT_FAILURE);
         }
     }
