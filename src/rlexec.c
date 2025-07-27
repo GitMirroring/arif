@@ -140,6 +140,7 @@ main (
     argv += optind;
     rl_readline_name = name;
 
+    stifle_history(1024);
     for (char *line; ; free(line)) {
         line = readline(prompt);
         if (line == NULL) {
