@@ -17,6 +17,6 @@ includedir=@includedir@
 Name: ${package}
 Description: Another Readline Input Framework
 Version: ${version}
-URL: https://nongnu.org/arif
+URL: https://www.nongnu.org/arif/
 Libs: -L${libdir} -larif
 Cflags: -I${includedir}
