@@ -121,20 +121,9 @@ copy_candidate (
     int                     idx,
     arif_cand_disp_func    *disp_cand
 ) {
-    int display_len;
-    char *display = disp_cand(src->text, src->text_len,
-            src->display, src->display_len, idx + 1, &display_len);
-
-    *dest = (struct arif_cand) {
-        .text          = src->text,
-        .text_len      = src->text_len,
-        .replace_start = src->replace_start,
-        .replace_len   = src->replace_len,
-        .transform     = src->transform,
-        .transform_len = src->transform_len,
-        .display       = display,
-        .display_len   = display_len,
-    };
+    *dest = *src;
+    dest->display = disp_cand(src->text, src->text_len, src->display,
+            src->display_len, idx + 1, &dest->display_len);
 }
 
 static char *
@@ -268,7 +257,6 @@ more_candidates (
     }
 
     arif_cand_disp_func *disp_cand = ctx->opts.disp_cand;
-
     while (num_fetched > 0 && last_page_size < page_size) {
         copy_candidate(last_page->values + last_page_size, candidates++,
                 last_page_size, disp_cand);
@@ -328,17 +316,29 @@ new_pages (
     *last_ptr  = curr;
 }
 
+static inline void
+set_old_line (
+    struct arif_ctx *ctx,
+    char const      *old_line,
+    int              old_offset,
+    int              old_len
+) {
+    free((char *) ctx->old_line);
+    ctx->old_line   = old_line;
+    ctx->old_offset = old_offset;
+    ctx->old_len    = old_len;
+}
+
 struct arif_ctx *
 arif_ctx_create (
     struct arif_opts const *options
 ) {
-    struct arif_ctx *ctx = xmalloc(sizeof(*ctx));
-
     arif_cand_disp_func *disp_cand = options->disp_cand;
     if (disp_cand == NULL) {
         disp_cand = disp_cand_default;
     }
 
+    struct arif_ctx *ctx = xmalloc(sizeof(*ctx));
     *ctx = (struct arif_ctx) {
         .opts = {
             .disp_cand = disp_cand,
@@ -390,7 +390,6 @@ arif_query (
     if (0 != compare_text(old_input, ctx->old_len, input, input_len)) {
         // new text
         char *saved_line = xmalloc(sizeof(char) * (offset + input_len));
-
         memcpy(saved_line, line, offset + input_len);
         set_old_line(ctx, saved_line, offset, input_len);
         first_candidates(ctx, saved_line, offset, input_len);
@@ -476,17 +475,4 @@ arif_set_engine (
 
     ctx->engine      = engine;
     ctx->engine_data = engine_data;
-}
-
-static inline void
-set_old_line (
-    struct arif_ctx *ctx,
-    char const      *old_line,
-    int              old_offset,
-    int              old_len
-) {
-    free((char *) ctx->old_line);
-    ctx->old_line   = old_line;
-    ctx->old_offset = old_offset;
-    ctx->old_len    = old_len;
 }
