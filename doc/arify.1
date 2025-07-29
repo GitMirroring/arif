@@ -23,7 +23,9 @@ The exact behaviour depends on the frontend specified.
 .SH OPTIONS
 .TP
 \fB\-e\fR \fIengines\fR
-Overrides the ARIFY_ENGINES environment variable with
+Overrides the
+.B ARIFY_ENGINES
+environment variable with
 .IR engines .
 .IP
 If multiple
@@ -33,15 +35,21 @@ options are provided, the resulting value is a concatenation of each
 with an ASCII Space character as separator.
 .TP
 \fB\-f\fR \fIfrontend\fR
-Overrides the ARIFY_FRONTEND environment variable with
+Overrides the
+.B ARIFY_FRONTEND
+environment variable with
 .IR frontend .
 .TP
 \fB\-l\fR \fIlog-file\fR
-Overrides the ARIFY_LOG_FILE environment variable with
+Overrides the
+.B ARIFY_LOG_FILE
+environment variable with
 .IR log-file .
 .TP
 \fB\-n\fR \fIpage-size\fR
-Overrides the ARIFY_PAGE_SIZE environment variable with
+Overrides the
+.B ARIFY_PAGE_SIZE
+environment variable with
 .IR page-size .
 .TP
 \fB\-p\fR \fIpreload-library\fR
@@ -195,11 +203,11 @@ $endif
 .SH BUGS
 Theoretically arify should work with most programs with a supported frontend.
 However, there are situations where it may not work as expected:
-.IP (1) 5
+.IP \[bu] 3
 When
 .B LD_PRELOAD
 is not functioning, arify does not work.
-.IP (2)
+.IP \[bu]
 When a Readline program does fancy things with the Readline API (e.g.,
 change handler functions during user input), arify may also fail to work,
 since it may break the internal states arify maintains.
