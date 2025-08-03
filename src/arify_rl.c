@@ -30,8 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <readline/readline.h>
-
 #include "arif_common.h"
 #include "arif_rl.h"
 
@@ -71,16 +69,6 @@ struct arify_rl_ctx {
     struct arify_rl_engine *current_engine;
     char const             *word_break_chars;
     int                     enabled;
-
-    struct {
-        char const           *basic_quote_chars;
-        char const           *word_break_chars;
-        rl_completion_func_t *comp_func;
-        rl_compdisp_func_t   *disp_func;
-        int                   ignore_duplicates;
-        int                   query_items;
-        int                   sort_matches;
-    } old;
 };
 
 ARIF_INTERNAL
@@ -114,13 +102,7 @@ static void
 disable_arify (
     int suppress_message
 ) {
-    rl_basic_quote_characters          = rlctx.old.basic_quote_chars;
-    rl_completer_word_break_characters = rlctx.old.word_break_chars;
-    rl_attempted_completion_function   = rlctx.old.comp_func;
-    rl_completion_display_matches_hook = rlctx.old.disp_func;
-    rl_completion_query_items          = rlctx.old.query_items;
-    rl_ignore_completion_duplicates    = rlctx.old.ignore_duplicates;
-    rl_sort_completion_matches         = rlctx.old.sort_matches;
+    arif_rl_disable();
 
     rlctx.enabled = 0;
     if (!suppress_message) {
@@ -158,23 +140,7 @@ enable_arify (void)
         }
     }
 
-    rlctx.old.basic_quote_chars = rl_basic_quote_characters;
-    rlctx.old.word_break_chars  = rl_completer_word_break_characters;
-    rlctx.old.comp_func         = rl_attempted_completion_function;
-    rlctx.old.disp_func         = rl_completion_display_matches_hook;
-    rlctx.old.query_items       = rl_completion_query_items;
-    rlctx.old.ignore_duplicates = rl_ignore_completion_duplicates;
-    rlctx.old.sort_matches      = rl_sort_completion_matches;
-
-    // This is necessary, as rl_complete_internal() appends these characters
-    // even with rl_completion_suppress_quote set to non-zero
-    rl_basic_quote_characters          = NULL;
-    rl_completer_word_break_characters = rlctx.word_break_chars;
-    rl_attempted_completion_function   = complete;
-    rl_completion_display_matches_hook = display_hook;
-    rl_completion_query_items          = 0;
-    rl_ignore_completion_duplicates    = 0;
-    rl_sort_completion_matches         = 0;
+    arif_rl_enable(complete, display_hook, rlctx.word_break_chars);
 
     char const *engine_name;
     get_engine_info(rlctx.current_engine, &engine_name, NULL);

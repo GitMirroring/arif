@@ -12,7 +12,8 @@ dist_man3_MANS = arif_ctx_create.3 arif_ctx_destroy.3 arif_fetch.3  \
 dist_man7_MANS = arif.7
 
 if ARIF_READLINE
-  dist_man3_MANS += arif_rl_complete.3 arif_rl_display.3
+  dist_man3_MANS += arif_rl_complete.3 arif_rl_disable.3 arif_rl_display.3  \
+                    arif_rl_enable.3
 endif  # ARIF_READLINE
 
 if ARIFY

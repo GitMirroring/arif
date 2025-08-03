@@ -27,13 +27,20 @@
 #include "arif_rl.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <readline/readline.h>
-
 #include "arif_common.h"
+
+static struct {
+    char const           *basic_quote_chars;
+    char const           *word_break_chars;
+    rl_completion_func_t *comp_func;
+    rl_compdisp_func_t   *disp_func;
+    int                   ignore_duplicates;
+    int                   query_items;
+    int                   sort_matches;
+} old_rl_vars;
 
 char **
 arif_rl_complete (
@@ -122,6 +129,18 @@ arif_rl_complete (
 }
 
 void
+arif_rl_disable (void)
+{
+    rl_basic_quote_characters          = old_rl_vars.basic_quote_chars;
+    rl_completer_word_break_characters = old_rl_vars.word_break_chars;
+    rl_attempted_completion_function   = old_rl_vars.comp_func;
+    rl_completion_display_matches_hook = old_rl_vars.disp_func;
+    rl_completion_query_items          = old_rl_vars.query_items;
+    rl_ignore_completion_duplicates    = old_rl_vars.ignore_duplicates;
+    rl_sort_completion_matches         = old_rl_vars.sort_matches;
+}
+
+void
 arif_rl_display (
     struct arif_ctx  *ctx,
     char            **ARIF_UNUSED_ARG(matches),
@@ -154,4 +173,29 @@ arif_rl_display (
     free(disp_list);
 
     rl_forced_update_display();
+}
+
+void
+arif_rl_enable (
+    rl_completion_func_t *complete_func,
+    rl_compdisp_func_t   *display_func,
+    char const           *word_break_chars
+) {
+    old_rl_vars.basic_quote_chars = rl_basic_quote_characters;
+    old_rl_vars.word_break_chars  = rl_completer_word_break_characters;
+    old_rl_vars.comp_func         = rl_attempted_completion_function;
+    old_rl_vars.disp_func         = rl_completion_display_matches_hook;
+    old_rl_vars.query_items       = rl_completion_query_items;
+    old_rl_vars.ignore_duplicates = rl_ignore_completion_duplicates;
+    old_rl_vars.sort_matches      = rl_sort_completion_matches;
+
+    // This is necessary, since rl_complete_internal() appends these characters
+    // even with rl_completion_suppress_quote set to non-zero
+    rl_basic_quote_characters          = NULL;
+    rl_completer_word_break_characters = word_break_chars;
+    rl_attempted_completion_function   = complete_func;
+    rl_completion_display_matches_hook = display_func;
+    rl_completion_query_items          = 0;
+    rl_ignore_completion_duplicates    = 0;
+    rl_sort_completion_matches         = 0;
 }

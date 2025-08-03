@@ -23,6 +23,9 @@
 #ifndef ARIF_RL_H_
 #define ARIF_RL_H_
 
+#include <stdio.h>
+#include <readline/readline.h>
+
 #include "arif.h"
 
 char **
@@ -34,11 +37,21 @@ arif_rl_complete (
 );
 
 void
+arif_rl_disable (void);
+
+void
 arif_rl_display (
     struct arif_ctx  *ctx,
     char            **matches,
     int               num,
     int               max_len
+);
+
+void
+arif_rl_enable (
+    rl_completion_func_t *complete_func,
+    rl_compdisp_func_t   *display_func,
+    char const           *word_break_chars
 );
 
 #endif  // !defined(ARIF_RL_H_)
