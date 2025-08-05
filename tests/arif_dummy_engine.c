@@ -148,7 +148,8 @@ dummy_engine_query (
     return num_candidates;
 }
 
-static void free_candidates (
+static void
+free_candidates (
     struct arif_cand *cand,
     int               num
 ) {

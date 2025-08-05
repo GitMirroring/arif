@@ -60,7 +60,6 @@ main (
             exit(EXIT_FAILURE);
         }
     }
-
     if (0 != setvbuf(stdin, NULL, _IONBF, 0)) {
         exit(EXIT_FAILURE);
     }
@@ -74,30 +73,21 @@ main (
         exit(EXIT_FAILURE);
     }
 
-    struct arif_opts opts = {
+    struct arif_opts const opts = {
         .page_size = page_size,
     };
     struct arif_ctx *ctx = arif_ctx_create(&opts);
     arif_set_engine(ctx, engine, engine_data);
 
     char *buffer = xmalloc(sizeof(char) * buffer_size);
-    for (;;) {
-        if (NULL == fgets(buffer, buffer_size, stdin)) {
-            break;
-        }
-        char const *end = memchr(buffer, '\n', buffer_size);
-        if (end == NULL) {
-            end = memchr(buffer, '\0', buffer_size);
-        }
-
+    while (NULL != fgets(buffer, buffer_size, stdin)) {
         switch (buffer[0]) {
           case '\0':
           case '\n':
             continue;
 
-          case ':': ;
-            int page_num = arif_select_page(ctx, atoi(buffer + 1));
-            printf("%d\n", page_num);
+          case ':':
+            printf("%d\n", arif_select_page(ctx, atoi(buffer + 1)));
             break;
 
           case '<': ;
@@ -109,14 +99,16 @@ main (
             }
             for (int i = 0; i < num; ++i) {
                 struct arif_cand const *cand = candidates + i;
-                fwrite(cand->display, 1, cand->display_len, stdout);
-                puts("");
+                printf("%.*s\n", cand->display_len, cand->display);
             }
             break;
 
           case '>': ;
-            int len = arif_query(ctx, buffer, 1, end - buffer - 1);
-            printf("%d\n", len);
+            char const *end = memchr(buffer, '\n', buffer_size);
+            if (end == NULL) {
+                end = memchr(buffer, '\0', buffer_size);
+            }
+            printf("%d\n", arif_query(ctx, buffer, 1, end - buffer - 1));
             break;
 
           default:
