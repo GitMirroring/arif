@@ -47,21 +47,17 @@
 #  error "__attribute__((constructor)) not supported"
 #endif
 
-#define ARIFY_ENGINE_LIB(engine)  \
-        ARIF_LIBDIR "/arif/" engine ARIF_SHLIB_SUFFIX
-#define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
-
 #ifndef ARIFY_MAX_PAGE_SIZE
 #  define ARIFY_MAX_PAGE_SIZE  20
 #endif
 
 struct arify_engine {
-    char const          *lib_name;
-    char const          *var_name;
-    void                *handle;
-    struct arif_engine  *impl;
-    void                *data;
-    struct arify_engine *next;
+    char const               *lib_name;
+    char const               *var_name;
+    void                     *handle;
+    struct arif_engine const *impl;
+    void                     *data;
+    struct arify_engine      *next;
 };
 
 // Forward declaration start
@@ -76,7 +72,7 @@ static void initialize       (void) ARIF_CTOR;
 static int  load_engine      (struct arify_engine *);
 // Forward declaration end
 
-struct arify_ctx {
+static struct arify_ctx {
     struct arify_engine         *engines;
     struct arify_engine         *current_engine;
     struct arify_frontend const *frontend;
@@ -85,16 +81,14 @@ struct arify_ctx {
     int                          log_fd;
     int                          page_size;
     pid_t                        pid;
-};
-
-static struct arify_ctx ctx = { .log_fd = -1 };
+} ctx = { .log_fd = -1 };
 
 static int
 config_engines (void)
 {
     char const *engines_str = xgetenv("ARIFY_ENGINES", NULL);
     if (engines_str == NULL) {
-        arify_errf("%s", "at least one engine should be specified");
+        arify_errf("%s", "no engine specified");
         return -1;
     }
 
@@ -143,9 +137,8 @@ config_log_file (void)
     char const *log_file_path = xgetenv("ARIFY_LOG_FILE", NULL);
     if (log_file_path != NULL) {
         ctx.log_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND, 0600);
+        ctx.pid    = getpid();
     }
-
-    ctx.pid = getpid();
     return 0;
 }
 
@@ -155,8 +148,8 @@ config_page_size (void)
     char const *page_size_str = xgetenv("ARIFY_PAGE_SIZE", "5");
     int page_size = atoi(page_size_str);
     if (page_size < 5 || page_size > ARIFY_MAX_PAGE_SIZE) {
-        arify_errf("bad page size '%s', should be in range [5, %d]",
-                page_size_str, ARIFY_MAX_PAGE_SIZE);
+        arify_errf("bad page size, expected [5, %d], got '%s'",
+                ARIFY_MAX_PAGE_SIZE, page_size_str);
         return -1;
     }
     ctx.page_size = page_size;
@@ -221,14 +214,10 @@ initialize (void)
     }
     atexit(finalize);
 
-    struct arif_opts opts = {
+    struct arif_opts const opts = {
         .page_size = ctx.page_size,
     };
     ctx.ctx = arif_ctx_create(&opts);
-    if (ctx.ctx == NULL) {
-        arify_errf("%s", "failed to create input context");
-        return;
-    }
 
     int result = ctx.frontend->init(ctx.ctx, &ctx.frontend_data);
     if (result != 0) {
@@ -247,6 +236,10 @@ load_engine (
     char const *var_name = engine->var_name;
     char *lib_tmp = NULL;
     char *var_tmp = NULL;
+
+#define ARIFY_ENGINE_LIB(engine)  \
+        ARIF_LIBDIR "/arif/" engine ARIF_SHLIB_SUFFIX
+#define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
 
     if (var_name == NULL) {
         size_t lib_name_len = sizeof(ARIFY_ENGINE_LIB("")) + strlen(lib_name);
@@ -269,7 +262,7 @@ load_engine (
     }
     engine->handle = handle;
 
-    struct arif_engine *engine_impl = dlsym(handle, var_name);
+    struct arif_engine const *engine_impl = dlsym(handle, var_name);
     if (engine_impl == NULL) {
         arify_errf("failed to find symbol %s for engine %s: %s",
                 var_name, lib_name, dlerror());
@@ -278,7 +271,7 @@ load_engine (
 
     int init_status = engine_impl->init(NULL, &engine->data);
     if (init_status != 0) {
-        arify_errf("failed to initialize engine %s: %d",
+        arify_errf("engine %s init failed with return value %d",
                 lib_name, init_status);
         goto finish;
     }
@@ -327,9 +320,9 @@ struct arif_engine const *
 arify_next_engine (
     void **engine_data_ptr
 ) {
-    struct arify_engine *engine      = ctx.current_engine;
-    struct arif_engine  *engine_impl = NULL;
-    void                *engine_data = NULL;
+    struct arify_engine      *engine      = ctx.current_engine;
+    struct arif_engine const *engine_impl = NULL;
+    void                     *engine_data = NULL;
     while (engine != NULL) {
         int result = load_engine(engine);
 

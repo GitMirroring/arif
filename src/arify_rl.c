@@ -34,8 +34,10 @@
 #include "arif_rl.h"
 
 struct arify_rl_engine {
-    struct arif_engine const *engine;
-    void                     *engine_data;
+    struct arif_engine const *impl;
+    void                     *data;
+    char const               *name;
+    char const               *description;
     struct arify_rl_engine   *next;
 };
 
@@ -44,8 +46,6 @@ static char ** complete           (char const *, int, int);
 static void    disable_arify      (int);
 static void    display_hook       (char **, int, int);
 static void    enable_arify       (void);
-static void    get_engine_info    (struct arify_rl_engine const *,
-                                   char const **, char const **);
 static void    finalize           (void *);
 static struct arify_rl_engine *
                get_next_engine    (void);
@@ -58,34 +58,30 @@ static int     rlfunc_toggle      (int, int);
 static void    rlprintf           (char const *, ...);
 // Forward declaration end
 
-struct arify_funmap_entry {
-    char const        *name;
-    rl_command_func_t *func;
-};
-
-struct arify_rl_ctx {
-    struct arif_ctx        *ctx;
-    struct arify_rl_engine *engines;
-    struct arify_rl_engine *current_engine;
-    char const             *word_break_chars;
-    int                     enabled;
-};
-
 ARIF_INTERNAL
 struct arify_frontend const arify_frontend_readline = {
     .init     = initialize,
     .finalize = finalize,
 };
 
-static struct arify_funmap_entry const funmap_entries[] = {
-    { "arify-toggle",      rlfunc_toggle       },
-    { "arify-next-engine", rlfunc_next_engine  },
-    { "arify-page-up",     rlfunc_page_up      },
-    { "arify-page-down",   rlfunc_page_down    },
-    { "arify-engine-info", rlfunc_engine_info  },
+static struct arify_funmap_entry {
+    char const        *name;
+    rl_command_func_t *func;
+} const funmap_entries[] = {
+    { "arify-toggle",      rlfunc_toggle      },
+    { "arify-next-engine", rlfunc_next_engine },
+    { "arify-page-up",     rlfunc_page_up     },
+    { "arify-page-down",   rlfunc_page_down   },
+    { "arify-engine-info", rlfunc_engine_info },
 };
 
-static struct arify_rl_ctx rlctx;
+static struct arify_rl_ctx {
+    struct arif_ctx        *ctx;
+    struct arify_rl_engine *engines;
+    struct arify_rl_engine *current_engine;
+    char const             *word_break_chars;
+    int                     enabled;
+} rlctx;
 
 static char **
 complete (
@@ -103,11 +99,11 @@ disable_arify (
     int suppress_message
 ) {
     arif_rl_disable();
-
     rlctx.enabled = 0;
     if (!suppress_message) {
         rlprintf("%s", "[arify] disabled");
     }
+
     arify_debugf("%s", "disabled");
 }
 
@@ -126,13 +122,13 @@ static void
 enable_arify (void)
 {
     if (rlctx.current_engine == NULL) {
-        struct arify_rl_engine *entry = get_next_engine();
-        if (entry == NULL) {
+        struct arify_rl_engine *engine = get_next_engine();
+        if (engine == NULL) {
             arify_errf("%s", "no available engines");
             return;
         }
-        rlctx.current_engine = rlctx.engines = entry;
-        arif_set_engine(rlctx.ctx, entry->engine, entry->engine_data);
+        rlctx.current_engine = rlctx.engines = engine;
+        arif_set_engine(rlctx.ctx, engine->impl, engine->data);
 
         if (NULL == xgetenv("ARIFY_RL_NO_AUTO_UNSETENV", NULL)) {
             unsetenv("ARIFY_LOG_FILE");
@@ -141,32 +137,10 @@ enable_arify (void)
     }
 
     arif_rl_enable(complete, display_hook, rlctx.word_break_chars);
-
-    char const *engine_name;
-    get_engine_info(rlctx.current_engine, &engine_name, NULL);
-    rlprintf("[arify] enabled (engine: %s)", engine_name);
-
     rlctx.enabled = 1;
-    arify_debugf("%s", "enabled");
-}
+    rlprintf("[arify] enabled (engine: %s)", rlctx.current_engine->name);
 
-static void
-get_engine_info (
-    struct arify_rl_engine const  *entry,
-    char const                   **name_ptr,
-    char const                   **description_ptr
-) {
-    struct arif_engine const *engine = entry->engine;
-    if (engine->info != NULL) {
-        engine->info(entry->engine_data, name_ptr, description_ptr);
-    } else {
-        if (name_ptr != NULL) {
-            *name_ptr = "(no name)";
-        }
-        if (description_ptr != NULL) {
-            *description_ptr = "(no description)";
-        }
-    }
+    arify_debugf("%s", "enabled");
 }
 
 static void
@@ -177,10 +151,10 @@ finalize (
         disable_arify(1);
     }
 
-    struct arify_rl_engine *next, *entry;
-    for (entry = rlctx.engines; entry != NULL; entry = next) {
-        next = entry->next;
-        free(entry);
+    struct arify_rl_engine *next, *engine;
+    for (engine = rlctx.engines; engine != NULL; engine = next) {
+        next = engine->next;
+        free(engine);
         if (next == rlctx.engines) {
             break;
         }
@@ -193,17 +167,24 @@ static struct arify_rl_engine *
 get_next_engine (void)
 {
     void *engine_data;
-    struct arif_engine const *engine = arify_next_engine(&engine_data);
-    if (engine == NULL) {
+    struct arif_engine const *engine_impl = arify_next_engine(&engine_data);
+    if (engine_impl == NULL) {
         return NULL;
     }
+    char const *name        = "(no name)";
+    char const *description = "(no description)";
+    if (engine_impl->info != NULL) {
+        engine_impl->info(engine_data, &name, &description);
+    }
 
-    struct arify_rl_engine *entry = xmalloc(sizeof(*entry));
-    *entry = (struct arify_rl_engine) {
-        .engine      = engine,
-        .engine_data = engine_data,
+    struct arify_rl_engine *engine = xmalloc(sizeof(*engine));
+    *engine = (struct arify_rl_engine) {
+        .impl        = engine_impl,
+        .data        = engine_data,
+        .name        = name,
+        .description = description,
     };
-    return entry;
+    return engine;
 }
 
 static int
@@ -235,11 +216,10 @@ rlfunc_engine_info (
         return 0;
     }
 
-    char const *name, *description;
-    get_engine_info(rlctx.current_engine, &name, &description);
-    rlprintf("[arify] engine: %s\n\n%s", name, description);
+    struct arify_rl_engine const *engine = rlctx.current_engine;
+    rlprintf("[arify] engine: %s\n\n%s", engine->name, engine->description);
 
-    arify_debugf("%s", "print engine info");
+    arify_debugf("print engine info: %s", engine->name);
     return 0;
 }
 
@@ -252,21 +232,20 @@ rlfunc_next_engine (
         return 0;
     }
 
-    struct arify_rl_engine *entry = rlctx.current_engine;
-    if (entry->next == NULL) {
-        entry->next = get_next_engine();
-        if (entry->next == NULL) {
-            entry->next = rlctx.engines;
+    struct arify_rl_engine *engine = rlctx.current_engine;
+    if (engine->next == NULL) {
+        engine->next = get_next_engine();
+        if (engine->next == NULL) {
+            engine->next = rlctx.engines;
         }
     }
-    rlctx.current_engine = entry = entry->next;
-    arif_set_engine(rlctx.ctx, entry->engine, entry->engine_data);
+    rlctx.current_engine = engine = engine->next;
+    arif_set_engine(rlctx.ctx, engine->impl, engine->data);
 
-    char const *engine_name;
-    get_engine_info(entry, &engine_name, NULL);
-    rlprintf("[arify] engine: %s", engine_name);
+    char const *name = rlctx.current_engine->name;
+    rlprintf("[arify] engine: %s", name);
 
-    arify_debugf("next engine: %s", engine_name);
+    arify_debugf("next engine: %s", name);
     return 0;
 }
 
@@ -275,16 +254,14 @@ rlfunc_page_down (
     int ARIF_UNUSED_ARG(arg),
     int ARIF_UNUSED_ARG(key)
 ) {
-    if (!rlctx.enabled) {
-        return 0;
-    }
-    if (rl_inhibit_completion) {
+    if (!rlctx.enabled || rl_inhibit_completion) {
         return 0;
     }
     int page = arif_select_page(rlctx.ctx, 0);
     if (page > 0) {
         rl_complete_internal('?');
     }
+
     arify_debugf("page down: %d", page);
     return 0;
 }
@@ -294,16 +271,14 @@ rlfunc_page_up (
     int ARIF_UNUSED_ARG(arg),
     int ARIF_UNUSED_ARG(key)
 ) {
-    if (!rlctx.enabled) {
-        return 0;
-    }
-    if (rl_inhibit_completion) {
+    if (!rlctx.enabled || rl_inhibit_completion) {
         return 0;
     }
     int page = arif_select_page(rlctx.ctx, -1);
     if (page > 0) {
         rl_complete_internal('?');
     }
+
     arify_debugf("page up: %d", page);
     return 0;
 }
