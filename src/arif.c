@@ -428,6 +428,9 @@ arif_select_page (
     int              idx
 ) {
     struct cand_page *page = ctx->current_page;
+    if (page == NULL) {
+        return -1;
+    }
     if (idx > 0) {
         idx -= ctx->page_num;
     } else {
