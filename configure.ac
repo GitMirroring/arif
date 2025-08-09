@@ -8,7 +8,7 @@ dnl  This file is offered as-is, without any warranty.
 dnl
 
 AC_PREREQ([2.69])
-AC_INIT([arif], [0.2.0], [arif-devel@nongnu.org])
+AC_INIT([arif], [0.3.0], [arif-devel@nongnu.org])
 AC_CONFIG_SRCDIR([src/arif.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
