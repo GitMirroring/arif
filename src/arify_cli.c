@@ -162,7 +162,7 @@ main (
     free(opts.preload);
 
     if (argv[0] == NULL) {
-        fprintf(stderr, "Usage: %s [options] filepath [args]\n\n"
+        fprintf(stderr, "Usage: %s [options] pathname [args]\n\n"
                 "See the arify(1) man page for details.\n", program);
         exit(EXIT_FAILURE);
     }
