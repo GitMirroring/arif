@@ -10,7 +10,6 @@ noinst_HEADERS     = arif_common.h arify.h arify_rl.h
 include_HEADERS    = arif.h
 bin_PROGRAMS       =
 lib_LTLIBRARIES    = libarif.la
-pkglib_LTLIBRARIES =
 pkgconfig_DATA     = arif.pc
 
 libarif_la_CPPFLAGS = $(READLINE_CFLAGS)
@@ -42,13 +41,13 @@ endif  # ARIF_READLINE
 endif  # ARIFY
 
 if ARIF_RIME
-  include_HEADERS    += arif_rime.h
-  pkglib_LTLIBRARIES += rime.la
+  include_HEADERS += arif_rime.h
+  lib_LTLIBRARIES += libarif_rime.la
 
-  rime_la_CPPFLAGS = $(RIME_CFLAGS)
-  rime_la_LDFLAGS  = -module
-  rime_la_LIBADD   = $(RIME_LIBS)
-  rime_la_SOURCES  = arif_rime.c
+  libarif_rime_la_CPPFLAGS = $(RIME_CFLAGS)
+  libarif_rime_la_LDFLAGS  = -module
+  libarif_rime_la_LIBADD   = $(RIME_LIBS)
+  libarif_rime_la_SOURCES  = arif_rime.c
 endif  # ARIF_RIME
 
 if RLEXEC

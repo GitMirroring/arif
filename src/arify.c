@@ -238,7 +238,7 @@ load_engine (
     char *var_tmp = NULL;
 
 #define ARIFY_ENGINE_LIB(engine)  \
-        ARIF_LIBDIR "/arif/" engine ARIF_SHLIB_SUFFIX
+        ARIF_LIBDIR "/libarif_" engine ARIF_SHLIB_SUFFIX
 #define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
 
     if (var_name == NULL) {
