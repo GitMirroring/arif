@@ -124,18 +124,18 @@ list should comply with the following format:
 .PP
 .in +4n
 .EX
-.IR $var_name : $symbol_name
+.IR <lib_name> : <symbol_name>
 .EE
 .in
 .PP
 The
-.I $var_name
+.I <lib_name>
 is the path to the shared library file containing the engine implementation.
 This name is used as the first argument to pass to
 .BR dlopen (3).
 .PP
 The
-.I $symbol_name
+.I <symbol_name>
 is the name of the
 .B struct arif_engine
 where the engine is implemented (see
@@ -144,17 +144,17 @@ This name is used as the second argument to pass to
 .BR dlsym (3).
 .PP
 If the two names match the following pattern, a
-.I short_name
+.I <short_name>
 can be used instead of the full name:
 .PP
 .in +4n
 .EX
-.IR $libdir /libarif_ $short_name$shlib_suffix :arif_ $short_name _engine
+.IR <libdir> /libarif_ <short_name><shlib_suffix> :arif_ <short_name> _engine
 .EE
 .in
 .PP
 Where
-.IR $shlib_suffix
+.IR <shlib_suffix>
 is the common name suffix for shared library files on the current platform
 (e.g., ".so" on GNU/Linux).
 .SS Readline key bindings
