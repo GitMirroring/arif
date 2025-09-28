@@ -13,6 +13,7 @@ lib_LTLIBRARIES    = libarif.la
 pkgconfig_DATA     = arif.pc
 
 libarif_la_CPPFLAGS = $(READLINE_CFLAGS)
+libarif_la_LDFLAGS  = $(EXTRA_LDFLAGS_)
 libarif_la_LIBADD   = $(READLINE_LIBS)
 libarif_la_SOURCES  = arif.c
 
@@ -32,6 +33,7 @@ if ARIFY
   arify_SOURCES  = arify_cli.c
 
   libarify_la_CPPFLAGS = $(READLINE_CFLAGS) $(ARIFY_CPPFLAGS_)
+  libarify_la_LDFLAGS  = $(EXTRA_LDFLAGS_)
   libarify_la_LIBADD   = $(READLINE_LIBS) libarif.la
   libarify_la_SOURCES  = arify.c
 
@@ -45,7 +47,7 @@ if ARIF_RIME
   lib_LTLIBRARIES += libarif_rime.la
 
   libarif_rime_la_CPPFLAGS = $(RIME_CFLAGS)
-  libarif_rime_la_LDFLAGS  = -module
+  libarif_rime_la_LDFLAGS  = $(EXTRA_LDFLAGS_) -module
   libarif_rime_la_LIBADD   = $(RIME_LIBS)
   libarif_rime_la_SOURCES  = arif_rime.c
 endif  # ARIF_RIME

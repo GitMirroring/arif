@@ -17,6 +17,13 @@ PKG_PROG_PKG_CONFIG([0.27])
 LT_PREREQ([2.4.2])
 LT_INIT([disable-static dlopen])
 
+# -- Checks for operating system --
+
+AC_CANONICAL_HOST
+AS_CASE(["${host_os}"], [*cygwin*], [
+    AC_SUBST([EXTRA_LDFLAGS_], [-no-undefined])
+])
+
 # -- Checks for programs --
 
 AC_PROG_CC
