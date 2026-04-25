@@ -31,7 +31,7 @@ Build and Install
   Select a build directory and generate configuration scripts:
 
     $ mkdir build && cd build
-    $ autoreconf ..
+    $ autoreconf -i ..
 
   To list all available configuration options, run:
 
