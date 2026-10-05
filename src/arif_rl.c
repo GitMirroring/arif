@@ -51,7 +51,7 @@ arif_rl_complete (
 ) {
     // skip right next to the last non-ASCII character
     int skip;
-    for (skip = end - start; skip >= 0; --skip) {
+    for (skip = end - start - 1; skip >= 0; --skip) {
         unsigned char ch = text[skip];
         if (0 != ch >> 7) {
             break;
