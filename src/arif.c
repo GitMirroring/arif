@@ -57,6 +57,7 @@ struct arif_ctx {
 };
 
 // Forward declaration start
+static int    candidate_index   (char const *, int, int);
 static struct cand_page *
               choose_candidate  (struct cand_page *, int);
 static int    compare_text      (char const *, int, char const *, int);
@@ -78,6 +79,21 @@ static void   new_pages         (struct arif_cand const *, int, int,
                                  struct cand_page **);
 static void   set_old_line      (struct arif_ctx *, char const *, int, int);
 // Forward declaration end
+
+static int
+candidate_index (
+    char const *input,
+    int         input_len,
+    int         len
+) {
+    char buf[4] = { 0 };
+    if (len - input_len > 3) {
+        // too large to be a candidate index
+        return -1;
+    }
+    memcpy(buf, input + input_len, len - input_len);
+    return atoi(buf);
+}
 
 static struct cand_page *
 choose_candidate (
@@ -400,7 +416,7 @@ arif_query (
             goto finish;
         }
         // select candidate
-        int idx = atoi(input + input_len);
+        int idx = candidate_index(input, input_len, len);
         struct cand_page *page = choose_candidate(ctx->current_page, idx);
         if (page == NULL) {
             // bad candidate index
