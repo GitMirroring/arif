@@ -1,0 +1,83 @@
+.TH ARIF_PINYIN 3 "Nov 03, 2026" 0.5.0 "ARIF User Manual"
+.
+.SH NAME
+arif_pinyin - libpinyin integration for ARIF
+.
+.SH SYNOPSIS
+.EX
+.B #include <arif_pinyin.h>
+.PP
+.BI "extern struct arif_engine const " arif_pinyin_engine ;
+.EE
+.
+.SH DESCRIPTION
+Example implementation of an ARIF engine, powered by libpinyin.
+.PP
+See the manual page of
+.BR arif_set_engine (3)
+for how to use this engine.
+.SS Initialization
+The
+.IR init ()
+function of
+.I arif_pinyin_engine
+ignores the first argument.
+Engine configuration is instead read from environment variables.
+.PP
+Note that the variables are only read during the first
+.IR init ()
+call, initialization of subsequent engine instances share the same
+configuration.
+.
+.SH ENVIRONMENT
+.TP
+.B ARIF_PINYIN_USER_DATA_DIR
+Path to the libpinyin user data directory.
+.IP
+You may specify an empty directory, and libpinyin will initialize it for you.
+Error message like "open user.conf failed" can be ignored.
+.TP
+.B ARIF_PINYIN_SYSTEM_DATA_DIR
+Path to the libpinyin system-wide data directory.
+.IP
+Defaults to "/usr/lib/libpinyin/data".
+.TP
+.B ARIF_PINYIN_INPUT_MODE
+Input mode for libpinyin.
+Should be one of "full_pinyin", "double_pinyin" or "chewing" (case sensitive).
+.IP
+Defaults to "full_pinyin".
+.TP
+.B ARIF_PINYIN_INPUT_SCHEME
+Input scheme for the specified input mode of libpinyin.
+Value should be a decimal integer.
+.IP
+See libpinyin's "pinyin_custom2.h" header file for available input schemes
+and default values.
+.TP
+.B ARIF_PINYIN_ADDON_LIBS
+Addon phrase libraries of libpinyin to be loaded.
+Value should be a comma-separated list of decimal integers.
+.IP
+See file "table.conf" under libpinyin's data directory for indices of
+available addon phrase libraries.
+.
+.SH COPYRIGHT
+Copyright (C) 2026  CismonX <admin@cismon.net>
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.PP
+You should have received a copy of the license along with this document.
+If not, see
+.UR https://www.gnu.org/licenses/fdl-1.3.html
+.UE .
+.
+.SH SEE ALSO
+.BR arif_set_engine (3)
+.PP
+libpinyin homepage:
+.UR https://github.com/libpinyin/libpinyin
+.UE

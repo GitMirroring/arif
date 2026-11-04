@@ -37,6 +37,7 @@ EX_FEAT([arify],         [Y E], [the arify program])
 EX_FEAT([rlexec],        [  E], [the rlexec program])
 EX_FEAT([arif-readline], [YDE], [Readline features for ARIF])
 EX_FEAT([arif-rime],     [  E], [RIME integration for ARIF])
+EX_FEAT([arif-pinyin],   [  E], [libpinyin integration for ARIF])
 EX_FEAT([arif-debug],    [ D ], [debugging features for ARIF])
 
 # -- Checks for libraries --
@@ -44,7 +45,8 @@ EX_FEAT([arif-debug],    [ D ], [debugging features for ARIF])
 EX_DEP([readline], [>= 6.0], [GNU Readline library],
         [rlexec], [arif-readline])
 
-EX_DEP([rime], [>= 1.6], [Rime Input Method Engine], [arif-rime])
+EX_DEP([rime],      [>= 1.6], [RIME core library], [arif-rime])
+EX_DEP([libpinyin], [>= 2.8], [libpinyin library], [arif-pinyin])
 
 # -- Output --
 

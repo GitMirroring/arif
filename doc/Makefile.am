@@ -24,6 +24,10 @@ if ARIF_RIME
   dist_man3_MANS += arif_rime.3
 endif  # ARIF_RIME
 
+if ARIF_PINYIN
+  dist_man3_MANS += arif_pinyin.3
+endif  # ARIF_PINYIN
+
 if RLEXEC
   dist_man1_MANS += rlexec.1
 endif  # RLEXEC

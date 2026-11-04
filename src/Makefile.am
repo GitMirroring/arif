@@ -52,6 +52,16 @@ if ARIF_RIME
   libarif_rime_la_SOURCES  = arif_rime.c
 endif  # ARIF_RIME
 
+if ARIF_PINYIN
+  include_HEADERS += arif_pinyin.h
+  lib_LTLIBRARIES += libarif_pinyin.la
+
+  libarif_pinyin_la_CPPFLAGS = $(LIBPINYIN_CFLAGS)
+  libarif_pinyin_la_LDFLAGS  = $(EXTRA_LDFLAGS_) -module
+  libarif_pinyin_la_LIBADD   = $(LIBPINYIN_LIBS)
+  libarif_pinyin_la_SOURCES  = arif_pinyin.c
+endif  # ARIF_PINYIN
+
 if RLEXEC
   bin_PROGRAMS += rlexec
 
