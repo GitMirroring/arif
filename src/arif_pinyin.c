@@ -80,7 +80,8 @@ cand_replace_len (
     //      This hack may no longer work if the upstream changes struct layout.
     struct cand_internal const *cand_i = (struct cand_internal const *) cand;
 
-    if (cand_i->nbest_index >= 0) {
+    lookup_candidate_type_t cand_type = cand_i->candidate_type;
+    if (cand_type == NBEST_MATCH_CANDIDATE || cand_type == LONGER_CANDIDATE) {
         // full-sentence candidate
         return len;
     }
