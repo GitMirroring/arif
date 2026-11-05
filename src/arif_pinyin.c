@@ -35,6 +35,7 @@
 
 struct engine_ctx {
     pinyin_instance_t *inst;
+    size_t             parsed_len;
 
     struct arif_cand  *cands_page;
     guint              cands_total;
@@ -62,7 +63,7 @@ static arif_pinyin_parse_func *parse_pinyin;
 static int
 cand_replace_len (
     lookup_candidate_t const *cand,
-    int                       len
+    int                       max_len
 ) {
     struct cand_internal {
         lookup_candidate_type_t candidate_type;
@@ -83,7 +84,7 @@ cand_replace_len (
     lookup_candidate_type_t cand_type = cand_i->candidate_type;
     if (cand_type == NBEST_MATCH_CANDIDATE || cand_type == LONGER_CANDIDATE) {
         // full-sentence candidate
-        return len;
+        return max_len;
     }
     return cand_i->end - cand_i->begin;
 }
@@ -96,6 +97,7 @@ cands_free (
     ctx->cands_page    = NULL;
     ctx->cands_total   = 0;
     ctx->cands_fetched = 0;
+    ctx->parsed_len    = 0;
 }
 
 static void
@@ -273,7 +275,7 @@ arif_pinyin_query (
         memcpy(buf + offset + 1, line + offset, len);
         buf[offset + 1 + len] = '\0';
 
-        parse_pinyin(inst, buf + offset + 1);
+        ctx->parsed_len = parse_pinyin(inst, buf + offset + 1);
         pinyin_guess_sentence_with_prefix(inst, buf);
         pinyin_guess_candidates(inst, 0,
                 SORT_BY_PHRASE_LENGTH | SORT_BY_FREQUENCY);
@@ -326,7 +328,7 @@ arif_pinyin_query (
         page[i] = (struct arif_cand) {
             .text        = cand_str,
             .text_len    = strlen(cand_str),
-            .replace_len = cand_replace_len(cand, len),
+            .replace_len = cand_replace_len(cand, ctx->parsed_len),
         };
     }
     ctx->cands_fetched += i;
