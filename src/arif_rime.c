@@ -247,7 +247,7 @@ arif_rime_init (
 
     struct engine_ctx *ctx = xmalloc(sizeof(struct engine_ctx));
     *ctx = (struct engine_ctx) {
-        .session = 0,
+        .session = rime_api->create_session(),
     };
     *engine_data_ptr = ctx;
     return 0;
@@ -269,8 +269,12 @@ arif_rime_query (
 
     if (line != NULL) {
         cands_free(ctx);
-        rime_api->destroy_session(ctx->session);
-        ctx->session = rime_api->create_session();
+        rime_api->clear_composition(ctx->session);
+
+        RIME_STRUCT(RimeCommit, commit);
+        if (rime_api->get_commit(ctx->session, &commit)) {
+            rime_api->free_commit(&commit);
+        }
 
         char const *text = line + offset;
         for (int idx = 0; idx < len; ++idx) {
@@ -290,7 +294,6 @@ arif_rime_query (
 
             // When `is_composing == false`, it means that
             // the previous input has triggered a commit.
-            RIME_STRUCT(RimeCommit, commit);
             if (!rime_api->get_commit(ctx->session, &commit)) {
                 continue;
             }
@@ -303,10 +306,6 @@ arif_rime_query (
     } else if (cands_ptr == NULL) {
         rime_api->select_candidate(ctx->session, offset);
         return 0;
-    } else {
-        if (!rime_api->find_session(ctx->session)) {
-            return 0;
-        }
     }
 
     struct cand_page *page = xmalloc(sizeof(struct cand_page) +
