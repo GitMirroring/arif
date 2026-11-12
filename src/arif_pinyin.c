@@ -41,7 +41,12 @@ struct engine_ctx {
     guint              cands_total;
     guint              cands_fetched;
 
-    struct arif_cand punct_cand;
+    struct {
+        struct arif_cand cand;
+
+        unsigned single_quote : 1;
+        unsigned double_quote : 1;
+    } punct;
 };
 
 // Forward declaration start
@@ -49,7 +54,7 @@ static int  cand_replace_len (lookup_candidate_t const *, int);
 static void cands_free       (struct engine_ctx *);
 static void finalize_pinyin  (void);
 static int  init_pinyin      (void);
-static int  query_punct      (unsigned char, struct arif_cand *);
+static int  query_punct      (struct engine_ctx *, unsigned char);
 // Forward declaration end
 
 typedef size_t (arif_pinyin_parse_func) (
@@ -170,15 +175,15 @@ init_pinyin (void)
 
 static int
 query_punct (
-    unsigned char     ch,
-    struct arif_cand *buf
+    struct engine_ctx *ctx,
+    unsigned char      ch
 ) {
     static char const *punct_table[128] = {
         ['~'] = "～", ['`'] = "·", ['!'] = "！", ['$'] = "￥",
         ['^'] = "……", ['('] = "（", [')'] = "）", ['_'] = "——",
         ['['] = "「", [']'] = "」", ['{'] = "『", ['}'] = "』",
         ['\\'] = "、", [';'] = "；", [':'] = "：",
-        ['\''] = "‘’", ['"'] = "“”", ['<'] = "《", ['>'] = "》",
+        ['\''] = "‘\0’", ['"'] = "“\0”", ['<'] = "《", ['>'] = "》",
         [','] = "，", ['.'] = "。", ['?'] = "？",
     };
 
@@ -189,8 +194,13 @@ query_punct (
     if (punct == NULL) {
         return -1;
     }
+    if (ch == '\'') {
+        punct += sizeof("‘") * ctx->punct.single_quote++;
+    } else if (ch == '"') {
+        punct += sizeof("“") * ctx->punct.double_quote++;
+    }
 
-    *buf = (struct arif_cand) {
+    ctx->punct.cand = (struct arif_cand) {
         .text        = punct,
         .text_len    = strlen(punct),
         .replace_len = 1,
@@ -263,8 +273,8 @@ arif_pinyin_query (
 
         if (len == 1) {
             // libpinyin does not provide a built-in punctuation table.
-            if (0 == query_punct(line[offset], &ctx->punct_cand)) {
-                *cands_ptr = &ctx->punct_cand;
+            if (0 == query_punct(ctx, line[offset])) {
+                *cands_ptr = &ctx->punct.cand;
                 return 1;
             }
         }
