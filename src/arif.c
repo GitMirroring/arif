@@ -65,7 +65,7 @@ static void   copy_candidate    (struct arif_cand *, struct arif_cand const *,
                                  int, arif_cand_disp_func *);
 static char * disp_cand_default (char const *, int, char const *, int,
                                  int, int *);
-static void   first_candidates  (struct arif_ctx *, char const *, int, int);
+static int    first_candidates  (struct arif_ctx *, char const *, int, int);
 static void   free_page         (struct cand_page *);
 static void   free_page_list    (struct cand_page *);
 static int    last_num_offset   (char const *, int);
@@ -173,7 +173,7 @@ disp_cand_default (
     return disp;
 }
 
-static void
+static int
 first_candidates (
     struct arif_ctx *ctx,
     char const      *line,
@@ -188,16 +188,18 @@ first_candidates (
     int num_fetched = ctx->engine->query(ctx->engine_data, line, offset, len,
             num_required, &candidates);
 
-    ctx->no_more_pages = num_fetched < num_required;
     if (num_fetched > 0) {
         new_pages(candidates, num_fetched, num_required, ctx->opts.disp_cand,
                 &current_page, &last_page);
     }
 
     free_page_list(ctx->current_page);
-    ctx->current_page = current_page;
-    ctx->last_page    = last_page;
-    ctx->page_num     = 1;
+    ctx->current_page  = current_page;
+    ctx->last_page     = last_page;
+    ctx->page_num      = 1;
+    ctx->no_more_pages = num_fetched < num_required;
+
+    return num_fetched;
 }
 
 static void
@@ -407,8 +409,15 @@ arif_query (
         // new text
         char *saved_line = xmalloc(sizeof(char) * (offset + input_len));
         memcpy(saved_line, line, offset + input_len);
-        set_old_line(ctx, saved_line, offset, input_len);
-        first_candidates(ctx, saved_line, offset, input_len);
+
+        if (1 == first_candidates(ctx, saved_line, offset, input_len)) {
+            // If there's only one candidate, we won't be selecting it using
+            // inlined candidate selection.  Select it here instead.
+            ctx->engine->query(ctx->engine_data, NULL, 0, 0, 0, NULL);
+            set_old_line(ctx, NULL, 0, 0);
+        } else {
+            set_old_line(ctx, saved_line, offset, input_len);
+        }
     } else {
         // same text as old query
         if (input_len == len) {
