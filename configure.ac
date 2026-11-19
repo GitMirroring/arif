@@ -48,6 +48,21 @@ EX_DEP([readline], [>= 6.0], [GNU Readline library],
 EX_DEP([rime],      [>= 1.6], [RIME core library], [arif-rime])
 EX_DEP([libpinyin], [>= 2.8], [libpinyin library], [arif-pinyin])
 
+# -- Checks for macros and typedefs --
+
+AC_MSG_CHECKING([for __FILE_NAME__])
+AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[char const *name = __FILE_NAME__;]])
+], [
+    AC_MSG_RESULT([yes])
+], [
+    AC_MSG_RESULT([no])
+    AS_IF([test . -ef "${srcdir}"], , [
+        AS_VAR_SET([no_file_name], [yes])
+    ])
+])
+AM_CONDITIONAL([NO_FILE_NAME], [test x${no_file_name} = xyes])
+
 # -- Output --
 
 PKG_INSTALLDIR()

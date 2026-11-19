@@ -286,8 +286,8 @@ load_engine (
 
 void
 arify_logf (
-    char const *fmt,
     char const *level,
+    char const *fmt,
     ...
 ) {
     if (ctx.log_fd < 0) {
@@ -305,7 +305,7 @@ arify_logf (
     buf += sprintf(buf, "%ld %s] ", (long) ctx.pid, level);
 
     va_list args;
-    va_start(args, level);
+    va_start(args, fmt);
     int len = vsnprintf(buf, end - buf, fmt, args);
     va_end(args);
 

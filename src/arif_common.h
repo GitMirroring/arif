@@ -55,13 +55,26 @@
 #  define ARIF_LIBDIR  "/usr/local/lib"
 #endif
 
-#define xassert(e)  if (!(e)) xabort_(#e)
+#ifdef __FILE_NAME__
+#  define FILE_NAME_  __FILE_NAME__
+#else
+#  ifdef ARIF_SRCDIR
+#    define FILE_NAME_OFFSET_  sizeof(ARIF_SRCDIR)
+#  else
+#    define FILE_NAME_OFFSET_  0
+#  endif
+#  define FILE_NAME_  ( __FILE__ + FILE_NAME_OFFSET_ )
+#endif
+
+#define xassert(e)  if (!(e)) xabort_(FILE_NAME_, __LINE__, #e)
 
 static inline void
 xabort_ (
+    char const *name,
+    int         line,
     char const *assertion
 ) {
-    fprintf(stderr, "assertion (%s) failed\n", assertion);
+    fprintf(stderr, "%s:%d: assertion (%s) failed\n", name, line, assertion);
     abort();
 }
 

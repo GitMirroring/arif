@@ -94,7 +94,7 @@ arify_rl_display (
     int    num,
     int    max_len
 ) {
-    arify_debugf("display_hook: %d %d", num, max_len);
+    arify_debugf("display: %d %d", num, max_len);
 
     arif_rl_display(rlctx.ctx, matches, num, max_len);
 }
@@ -160,7 +160,7 @@ rlfunc_engine_info (
     struct arify_rl_engine const *engine = rlctx.current_engine;
     rlprintf("[arify] engine: %s\n\n%s", engine->name, engine->description);
 
-    arify_debugf("print engine info: %s", engine->name);
+    arify_debugf("engine info: %s", engine->name);
     return 0;
 }
 
@@ -280,7 +280,7 @@ arify_rl_init (
     rlctx.word_break_chars = xgetenv("ARIFY_RL_WORD_BREAK_CHARS", " \t\n");
 
     *frontend_data_ptr = &rlctx;
-    arify_debugf("%s", "arify_rl: initialized");
+    arify_debugf("%s", "initialized");
     return 0;
 }
 
@@ -301,7 +301,7 @@ arify_rl_finalize (
         }
     }
 
-    arify_debugf("%s", "arify_rl: finalized");
+    arify_debugf("%s", "finalized");
 }
 
 ARIF_INTERNAL

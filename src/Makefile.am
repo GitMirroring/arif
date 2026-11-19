@@ -12,7 +12,12 @@ bin_PROGRAMS       =
 lib_LTLIBRARIES    = libarif.la
 pkgconfig_DATA     = arif.pc
 
-libarif_la_CPPFLAGS = $(READLINE_CFLAGS)
+BASE_CPPFLAGS_ =
+if NO_FILE_NAME
+  BASE_CPPFLAGS_ += -DARIF_SRCDIR=\"$(srcdir)\"
+endif  # NO_FILE_NAME
+
+libarif_la_CPPFLAGS = $(BASE_CPPFLAGS_) $(READLINE_CFLAGS)
 libarif_la_LDFLAGS  = $(EXTRA_LDFLAGS_)
 libarif_la_LIBADD   = $(READLINE_LIBS)
 libarif_la_SOURCES  = arif.c
@@ -24,7 +29,7 @@ if ARIF_READLINE
 endif  # ARIF_READLINE
 
 if ARIFY
-  ARIFY_CPPFLAGS_ = -DARIF_LIBDIR="\"$(libdir)\""
+  ARIFY_CPPFLAGS_ = $(BASE_CPPFLAGS_) -DARIF_LIBDIR="\"$(libdir)\""
 
   bin_PROGRAMS    += arify
   lib_LTLIBRARIES += libarify.la
@@ -46,7 +51,7 @@ if ARIF_RIME
   include_HEADERS += arif_rime.h
   lib_LTLIBRARIES += libarif_rime.la
 
-  libarif_rime_la_CPPFLAGS = $(RIME_CFLAGS)
+  libarif_rime_la_CPPFLAGS = $(BASE_CPPFLAGS_) $(RIME_CFLAGS)
   libarif_rime_la_LDFLAGS  = $(EXTRA_LDFLAGS_) -module
   libarif_rime_la_LIBADD   = $(RIME_LIBS)
   libarif_rime_la_SOURCES  = arif_rime.c
@@ -56,7 +61,7 @@ if ARIF_PINYIN
   include_HEADERS += arif_pinyin.h
   lib_LTLIBRARIES += libarif_pinyin.la
 
-  libarif_pinyin_la_CPPFLAGS = $(LIBPINYIN_CFLAGS)
+  libarif_pinyin_la_CPPFLAGS = $(BASE_CPPFLAGS_) $(LIBPINYIN_CFLAGS)
   libarif_pinyin_la_LDFLAGS  = $(EXTRA_LDFLAGS_) -module
   libarif_pinyin_la_LIBADD   = $(LIBPINYIN_LIBS)
   libarif_pinyin_la_SOURCES  = arif_pinyin.c
@@ -65,7 +70,7 @@ endif  # ARIF_PINYIN
 if RLEXEC
   bin_PROGRAMS += rlexec
 
-  rlexec_CPPFLAGS = $(READLINE_CFLAGS)
+  rlexec_CPPFLAGS = $(BASE_CPPFLAGS_) $(READLINE_CFLAGS)
   rlexec_LDADD    = $(READLINE_LIBS)
   rlexec_SOURCES  = rlexec.c
 endif  # RLEXEC
