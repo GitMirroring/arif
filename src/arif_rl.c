@@ -26,7 +26,6 @@
 
 #include "arif_rl.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -150,7 +149,7 @@ arif_rl_display (
     char **disp_list = xmalloc(sizeof(char *) * (num + 2));
 
     struct arif_cand const *cand;
-    assert(num == arif_fetch(ctx, &cand));
+    xassert(num == arif_fetch(ctx, &cand));
 
     disp_list[0] = "";
     for (int idx = 1; idx <= num; ++idx, ++cand) {

@@ -23,7 +23,7 @@
 #ifndef ARIF_COMMON_H_
 #define ARIF_COMMON_H_
 
-#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define ARIF_INTERNAL
@@ -55,12 +55,22 @@
 #  define ARIF_LIBDIR  "/usr/local/lib"
 #endif
 
+#define xassert(e)  if (!(e)) xabort_(#e)
+
+static inline void
+xabort_ (
+    char const *assertion
+) {
+    fprintf(stderr, "assertion (%s) failed\n", assertion);
+    abort();
+}
+
 static inline void *
 xmalloc (
     size_t n
 ) {
     void *p = malloc(n);
-    assert(p != NULL);
+    xassert(p != NULL);
     return p;
 }
 
@@ -70,7 +80,7 @@ xrealloc (
     size_t  n
 ) {
     p = realloc(p, n);
-    assert(p != NULL);
+    xassert(p != NULL);
     return p;
 }
 

@@ -24,7 +24,6 @@
 #  include "config.h"
 #endif
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -151,7 +150,7 @@ main (
     char *argv[]
 ) {
     char const *program = argv[0];
-    assert(program != NULL);
+    xassert(program != NULL);
 
     struct options opts = {
         .preload = ARIF_LIBDIR "/libarify" ARIF_SHLIB_SUFFIX,
