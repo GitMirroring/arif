@@ -33,23 +33,13 @@
 #include "arif_common.h"
 #include "arif_rl.h"
 
-struct arify_rl_engine {
-    struct arif_engine const *impl;
-    void                     *data;
-    char const               *name;
-    char const               *description;
-    struct arify_rl_engine   *next;
-};
-
 // Forward declaration start
-static char ** complete           (char const *, int, int);
-static void    disable_arify      (int);
-static void    display_hook       (char **, int, int);
-static void    enable_arify       (void);
-static void    finalize           (void *);
+static char ** arify_rl_complete  (char const *, int, int);
+static void    arify_rl_disable   (int);
+static void    arify_rl_display   (char **, int, int);
+static void    arify_rl_enable    (void);
 static struct arify_rl_engine *
                get_next_engine    (void);
-static int     initialize         (struct arif_ctx *, void **);
 static int     rlfunc_engine_info (int, int);
 static int     rlfunc_next_engine (int, int);
 static int     rlfunc_page_down   (int, int);
@@ -58,21 +48,12 @@ static int     rlfunc_toggle      (int, int);
 static void    rlprintf           (char const *, ...);
 // Forward declaration end
 
-ARIF_INTERNAL
-struct arify_frontend const arify_frontend_readline = {
-    .init     = initialize,
-    .finalize = finalize,
-};
-
-static struct arify_funmap_entry {
-    char const        *name;
-    rl_command_func_t *func;
-} const funmap_entries[] = {
-    { "arify-toggle",      rlfunc_toggle      },
-    { "arify-next-engine", rlfunc_next_engine },
-    { "arify-page-up",     rlfunc_page_up     },
-    { "arify-page-down",   rlfunc_page_down   },
-    { "arify-engine-info", rlfunc_engine_info },
+struct arify_rl_engine {
+    struct arif_engine const *impl;
+    void                     *data;
+    char const               *name;
+    char const               *description;
+    struct arify_rl_engine   *next;
 };
 
 static struct arify_rl_ctx {
@@ -84,7 +65,7 @@ static struct arify_rl_ctx {
 } rlctx;
 
 static char **
-complete (
+arify_rl_complete (
     char const *text,
     int         start,
     int         end
@@ -95,7 +76,7 @@ complete (
 }
 
 static void
-disable_arify (
+arify_rl_disable (
     int suppress_message
 ) {
     arif_rl_disable();
@@ -108,7 +89,7 @@ disable_arify (
 }
 
 static void
-display_hook (
+arify_rl_display (
     char **matches,
     int    num,
     int    max_len
@@ -119,7 +100,7 @@ display_hook (
 }
 
 static void
-enable_arify (void)
+arify_rl_enable (void)
 {
     if (rlctx.current_engine == NULL) {
         struct arify_rl_engine *engine = get_next_engine();
@@ -136,31 +117,11 @@ enable_arify (void)
         }
     }
 
-    arif_rl_enable(complete, display_hook, rlctx.word_break_chars);
+    arif_rl_enable(arify_rl_complete, arify_rl_display, rlctx.word_break_chars);
     rlctx.enabled = 1;
     rlprintf("[arify] enabled (engine: %s)", rlctx.current_engine->name);
 
     arify_debugf("%s", "enabled");
-}
-
-static void
-finalize (
-    void *ARIF_UNUSED_ARG(frontend_data)
-) {
-    if (rlctx.enabled) {
-        disable_arify(1);
-    }
-
-    struct arify_rl_engine *next, *engine;
-    for (engine = rlctx.engines; engine != NULL; engine = next) {
-        next = engine->next;
-        free(engine);
-        if (next == rlctx.engines) {
-            break;
-        }
-    }
-
-    arify_debugf("%s", "arify_rl: finalized");
 }
 
 static struct arify_rl_engine *
@@ -185,26 +146,6 @@ get_next_engine (void)
         .description = description,
     };
     return engine;
-}
-
-static int
-initialize (
-    struct arif_ctx  *ctx,
-    void            **frontend_data_ptr
-) {
-    // We must not call rl_initialize() here
-    int entries = sizeof(funmap_entries) / sizeof(funmap_entries[0]);
-    for (int idx = 0; idx < entries; ++idx) {
-        struct arify_funmap_entry const *entry = funmap_entries + idx;
-        rl_add_funmap_entry(entry->name, entry->func);
-    }
-
-    rlctx.ctx              = ctx;
-    rlctx.word_break_chars = xgetenv("ARIFY_RL_WORD_BREAK_CHARS", " \t\n");
-
-    *frontend_data_ptr = &rlctx;
-    arify_debugf("%s", "arify_rl: initialized");
-    return 0;
 }
 
 static int
@@ -289,9 +230,9 @@ rlfunc_toggle (
     int ARIF_UNUSED_ARG(key)
 ) {
     if (rlctx.enabled) {
-        disable_arify(0);
+        arify_rl_disable(0);
     } else {
-        enable_arify();
+        arify_rl_enable();
     }
     return 0;
 }
@@ -311,3 +252,60 @@ rlprintf (
     rl_crlf();
     rl_forced_update_display();
 }
+
+static int
+arify_rl_init (
+    struct arif_ctx  *ctx,
+    void            **frontend_data_ptr
+) {
+    static struct arify_funmap_entry {
+        char const        *name;
+        rl_command_func_t *func;
+    } const funmap_entries[] = {
+        { "arify-toggle",      rlfunc_toggle      },
+        { "arify-next-engine", rlfunc_next_engine },
+        { "arify-page-up",     rlfunc_page_up     },
+        { "arify-page-down",   rlfunc_page_down   },
+        { "arify-engine-info", rlfunc_engine_info },
+    };
+
+    // We must not call rl_initialize() here
+    int entries = sizeof(funmap_entries) / sizeof(funmap_entries[0]);
+    for (int idx = 0; idx < entries; ++idx) {
+        struct arify_funmap_entry const *entry = funmap_entries + idx;
+        rl_add_funmap_entry(entry->name, entry->func);
+    }
+
+    rlctx.ctx              = ctx;
+    rlctx.word_break_chars = xgetenv("ARIFY_RL_WORD_BREAK_CHARS", " \t\n");
+
+    *frontend_data_ptr = &rlctx;
+    arify_debugf("%s", "arify_rl: initialized");
+    return 0;
+}
+
+static void
+arify_rl_finalize (
+    void *ARIF_UNUSED_ARG(frontend_data)
+) {
+    if (rlctx.enabled) {
+        arify_rl_disable(1);
+    }
+
+    struct arify_rl_engine *next, *engine;
+    for (engine = rlctx.engines; engine != NULL; engine = next) {
+        next = engine->next;
+        free(engine);
+        if (next == rlctx.engines) {
+            break;
+        }
+    }
+
+    arify_debugf("%s", "arify_rl: finalized");
+}
+
+ARIF_INTERNAL
+struct arify_frontend const arify_frontend_readline = {
+    .init     = arify_rl_init,
+    .finalize = arify_rl_finalize,
+};
