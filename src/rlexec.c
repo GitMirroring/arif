@@ -24,6 +24,9 @@
 #  include "config.h"
 #endif
 
+#include <errno.h>
+#include <setjmp.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,9 +38,29 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 
+#include "arif_common.h"
+
 // Forward declaration start
-static int send_line (char *, int, char *[]);
+static void on_signal (int);
+static int  send_line (char *, int, char *[]);
 // Forward declaration end
+
+static volatile sig_atomic_t caught_signum;
+static volatile sig_atomic_t in_readline;
+
+static sigjmp_buf jmpbuf;
+
+static void
+on_signal (
+    int s
+) {
+    caught_signum = s;
+
+    if (in_readline) {
+        in_readline = 0;
+        siglongjmp(jmpbuf, 1);
+    }
+}
 
 static int
 send_line (
@@ -54,7 +77,7 @@ send_line (
     pid_t child = fork();
     if (child < 0) {
         perror("fork()");
-        return -1;
+        goto err1;
     }
 
     if (child != 0) {
@@ -72,15 +95,18 @@ send_line (
         }
         close(pfds[1]);
 
-        if (-1 == waitpid(child, NULL, 0)) {
-            perror("waitpid()");
-            return -1;
+        while (-1 == waitpid(child, NULL, 0)) {
+            if (errno != EINTR) {
+                perror("waitpid()");
+                return -1;
+            }
+            kill(child, caught_signum);
         }
     } else {
         close(pfds[1]);
         if (-1 == dup2(pfds[0], STDIN_FILENO)) {
             perror("dup2()");
-            return -1;
+            goto err0;
         }
         close(pfds[0]);
 
@@ -93,6 +119,13 @@ send_line (
         }
     }
     return 0;
+
+  err1:
+    close(pfds[1]);
+
+  err0:
+    close(pfds[0]);
+    return -1;
 }
 
 int
@@ -142,11 +175,52 @@ main (
 
     using_history();
     stifle_history(1024);
-    for (char *line; ; free(line)) {
+
+    sigset_t mask_old;
+    xassert(0 == sigprocmask(SIG_SETMASK, NULL, &mask_old));
+
+    sigset_t mask_new = mask_old;
+    sigaddset(&mask_new, SIGINT);
+    sigaddset(&mask_new, SIGTERM);
+    sigaddset(&mask_new, SIGHUP);
+    xassert(0 == sigprocmask(SIG_SETMASK, &mask_new, NULL));
+
+    struct sigaction sact = {
+        .sa_handler = on_signal,
+        .sa_mask    = mask_new,
+    };
+    sigaction(SIGINT, &sact, NULL);
+    sigaction(SIGTERM, &sact, NULL);
+    sigaction(SIGHUP, &sact, NULL);
+
+    rl_catch_signals = 0;
+    char *line = NULL;
+    if (0 != sigsetjmp(jmpbuf, 1)) {
+        if (line != NULL) {
+            goto handle_line;
+        }
+
+        rl_free_line_state();
+        rl_cleanup_after_signal();
+        rl_crlf();
+        rl_clear_visible_line();
+
+        if (caught_signum != SIGINT || rl_end == 0) {
+            exit(EXIT_FAILURE);
+        }
+        caught_signum = 0;
+    }
+    xassert(0 == sigprocmask(SIG_SETMASK, &mask_old, NULL));
+
+    for (; caught_signum == 0; free(line), line = NULL) {
+        in_readline = 1;
         line = readline(prompt);
+        in_readline = 0;
         if (line == NULL) {
             break;
         }
+
+      handle_line:
         if (line[0] != '\0') {
             add_history(line);
         } else {
@@ -154,9 +228,7 @@ main (
                 continue;
             }
         }
-        if (0 != send_line(line, replace_idx, argv)) {
-            exit(EXIT_FAILURE);
-        }
+        send_line(line, replace_idx, argv);
     }
-    exit(EXIT_SUCCESS);
+    exit(caught_signum == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
