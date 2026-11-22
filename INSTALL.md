@@ -23,6 +23,7 @@ Prerequisites
   Other software (optional):
   - DejaGnu (for running tests)
   - Rime IME core library: <https://github.com/rime/librime>
+  - libpinyin: <https://github.com/libpinyin/libpinyin>
 
 
 Build and Install
@@ -46,6 +47,8 @@ Build and Install
     * Build the `rlexec` program.
   - `--enable-arif-rime`
     * Build the example Rime IME integration.
+  - `--enable-arif-pinyin`
+    * Build the example libpinyin integration.
 
   If a dependency is installed in a custom location, it could be specified
   with `--with-<lib>=<pkgconfdir>`, where `<lib>` is the library name,
