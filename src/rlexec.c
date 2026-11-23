@@ -200,7 +200,6 @@ main (
         rl_free_line_state();
         rl_cleanup_after_signal();
         rl_crlf();
-        rl_clear_visible_line();
 
         if (caught_signum != SIGINT || rl_end == 0) {
             exit(EXIT_FAILURE);
