@@ -66,17 +66,15 @@
 #  define FILE_NAME_  ( __FILE__ + FILE_NAME_OFFSET_ )
 #endif
 
-#define xassert(e)  if (!(e)) xabort_(FILE_NAME_, __LINE__, #e)
+#define ARIF_LOGF_(fmt, ...)  \
+    "%s:%d: " fmt "\n", FILE_NAME_, __LINE__, __VA_ARGS__
+#define arif_logf(fmt, ...)  fprintf(stderr, ARIF_LOGF_(fmt, __VA_ARGS__))
 
-static inline void
-xabort_ (
-    char const *name,
-    int         line,
-    char const *assertion
-) {
-    fprintf(stderr, "%s:%d: assertion (%s) failed\n", name, line, assertion);
-    abort();
-}
+#define xassert(e)  \
+    if (!(e)) {     \
+        arif_logf("assertion (%s) failed", #e);  \
+        abort();    \
+    }
 
 static inline void *
 xmalloc (

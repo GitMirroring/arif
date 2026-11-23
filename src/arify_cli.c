@@ -24,6 +24,7 @@
 #  include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -166,7 +167,7 @@ main (
         exit(EXIT_FAILURE);
     }
     if (-1 == execvp(argv[0], argv)) {
-        perror("execvp()");
+        arif_logf("execvp(): %s", strerror(errno));
         exit(EXIT_FAILURE);
     }
 }

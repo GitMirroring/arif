@@ -70,13 +70,13 @@ send_line (
 ) {
     int pfds[2];
     if (0 != pipe(pfds)) {
-        perror("pipe()");
+        arif_logf("pipe(): %s", strerror(errno));
         return -1;
     }
 
     pid_t child = fork();
     if (child < 0) {
-        perror("fork()");
+        arif_logf("fork(): %s", strerror(errno));
         goto err1;
     }
 
@@ -86,7 +86,7 @@ send_line (
             for (size_t line_len = strlen(line); line_len > 0; ) {
                 ssize_t nbytes = write(pfds[1], line, line_len);
                 if (nbytes < 0) {
-                    perror("write()");
+                    arif_logf("write(): %s", strerror(errno));
                     break;
                 }
                 line     += nbytes;
@@ -97,7 +97,7 @@ send_line (
 
         while (-1 == waitpid(child, NULL, 0)) {
             if (errno != EINTR) {
-                perror("waitpid()");
+                arif_logf("waitpid(): %s", strerror(errno));
                 return -1;
             }
             kill(child, caught_signum);
@@ -105,7 +105,7 @@ send_line (
     } else {
         close(pfds[1]);
         if (-1 == dup2(pfds[0], STDIN_FILENO)) {
-            perror("dup2()");
+            arif_logf("dup2(): %s", strerror(errno));
             goto err0;
         }
         close(pfds[0]);
@@ -114,7 +114,7 @@ send_line (
             argv[replace_idx] = line;
         }
         if (0 != execvp(argv[0], argv)) {
-            perror("execvp()");
+            arif_logf("execvp(): %s", strerror(errno));
             return -1;
         }
     }

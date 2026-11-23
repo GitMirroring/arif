@@ -285,7 +285,7 @@ load_engine (
 }
 
 void
-arify_logf (
+arify_logf_ (
     char const *level,
     char const *fmt,
     ...
