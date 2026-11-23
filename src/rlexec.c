@@ -176,18 +176,15 @@ main (
     using_history();
     stifle_history(1024);
 
-    sigset_t mask_old;
-    xassert(0 == sigprocmask(SIG_SETMASK, NULL, &mask_old));
-
-    sigset_t mask_new = mask_old;
-    sigaddset(&mask_new, SIGINT);
-    sigaddset(&mask_new, SIGTERM);
-    sigaddset(&mask_new, SIGHUP);
-    xassert(0 == sigprocmask(SIG_SETMASK, &mask_new, NULL));
+    sigset_t mask;
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);
+    sigaddset(&mask, SIGTERM);
+    sigaddset(&mask, SIGHUP);
 
     struct sigaction sact = {
         .sa_handler = on_signal,
-        .sa_mask    = mask_new,
+        .sa_mask    = mask,
     };
     sigaction(SIGINT, &sact, NULL);
     sigaction(SIGTERM, &sact, NULL);
@@ -210,7 +207,6 @@ main (
         }
         caught_signum = 0;
     }
-    xassert(0 == sigprocmask(SIG_SETMASK, &mask_old, NULL));
 
     for (; caught_signum == 0; free(line), line = NULL) {
         in_readline = 1;
