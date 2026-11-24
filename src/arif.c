@@ -60,7 +60,6 @@ struct arif_ctx {
 static int    candidate_index   (char const *, int, int);
 static struct cand_page *
               choose_candidate  (struct cand_page *, int);
-static int    compare_text      (char const *, int, char const *, int);
 static void   copy_candidate    (struct arif_cand *, struct arif_cand const *,
                                  int, arif_cand_disp_func *);
 static char * disp_cand_default (char const *, int, char const *, int,
@@ -69,14 +68,12 @@ static int    first_candidates  (struct arif_ctx *, char const *, int, int);
 static void   free_page         (struct cand_page *);
 static void   free_page_list    (struct cand_page *);
 static int    last_num_offset   (char const *, int);
+static struct cand_page * more_candidates (struct arif_ctx *, int);
 static struct cand_page *
-              more_candidates   (struct arif_ctx *, int);
-static struct cand_page *
-              new_page          (struct arif_cand const *, int,
-                                 arif_cand_disp_func *);
-static void   new_pages         (struct arif_cand const *, int, int,
-                                 arif_cand_disp_func *, struct cand_page **,
-                                 struct cand_page **);
+        new_page  (struct arif_cand const *, int, arif_cand_disp_func *);
+static void
+        new_pages (struct arif_cand const *, int, int, arif_cand_disp_func *,
+                   struct cand_page **, struct cand_page **);
 static void   set_old_line      (struct arif_ctx *, char const *, int, int);
 // Forward declaration end
 
@@ -115,19 +112,6 @@ choose_candidate (
     cand->display = NULL;
     free_page_list(page);
     return new_page;
-}
-
-static int
-compare_text (
-    char const *text1,
-    int         len1,
-    char const *text2,
-    int         len2
-) {
-    if (len1 != len2) {
-        return -1;
-    }
-    return memcmp(text1, text2, len1);
 }
 
 static inline void
@@ -405,7 +389,7 @@ arif_query (
     int         input_len = last_num_offset(input, len);
     char const *old_input = ctx->old_line + ctx->old_offset;
 
-    if (0 != compare_text(old_input, ctx->old_len, input, input_len)) {
+    if (ctx->old_len != input_len || 0 != memcmp(old_input, input, input_len)) {
         // new text
         char *saved_line = xmalloc(sizeof(char) * (offset + input_len));
         memcpy(saved_line, line, offset + input_len);
