@@ -242,13 +242,8 @@ load_engine (
 #define ARIFY_ENGINE_SYM(engine)  "arif_" engine "_engine"
 
     if (var_name == NULL) {
-        size_t lib_name_len = sizeof(ARIFY_ENGINE_LIB("")) + strlen(lib_name);
-        lib_tmp = xmalloc(sizeof(char) * lib_name_len);
-        sprintf(lib_tmp, ARIFY_ENGINE_LIB("%s"), lib_name);
-
-        size_t var_name_len = sizeof(ARIFY_ENGINE_SYM("")) + strlen(lib_name);
-        var_tmp = xmalloc(sizeof(char) * var_name_len);
-        sprintf(var_tmp, ARIFY_ENGINE_SYM("%s"), lib_name);
+        xasprintf(&lib_tmp, ARIFY_ENGINE_LIB("%s"), lib_name);
+        xasprintf(&var_tmp, ARIFY_ENGINE_SYM("%s"), lib_name);
 
         lib_name = lib_tmp;
         var_name = var_tmp;

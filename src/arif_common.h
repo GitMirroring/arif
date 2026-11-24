@@ -23,6 +23,7 @@
 #ifndef ARIF_COMMON_H_
 #define ARIF_COMMON_H_
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -105,6 +106,32 @@ xgetenv (
         val = default_val;
     }
     return val;
+}
+
+static inline int
+xasprintf (
+    char       **strp,
+    char const  *fmt,
+    ...
+) {
+    va_list args;
+    va_start(args, fmt);
+
+#if defined(__FreeBSD__) || (defined(__linux__) && defined(_GNU_SOURCE))
+    int len = vasprintf(strp, fmt, args);
+    xassert(len >= 0);
+#else
+    int len = vsnprintf(NULL, 0, fmt, args);
+    xassert(len >= 0);
+
+    *strp = xmalloc(len + 1);
+    va_end(args);
+    va_start(args, fmt);
+    xassert(len == vsprintf(*strp, fmt, args));
+#endif
+
+    va_end(args);
+    return len;
 }
 
 #endif  // !defined(ARIF_COMMON_H_)

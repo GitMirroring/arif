@@ -135,25 +135,13 @@ disp_cand_default (
     int         idx,
     int        *display_len_ptr
 ) {
-    char const *fmt;
-    int         display_len;
+    char *disp;
     if (comment == NULL) {
-        fmt         = "[%d] %.*s";
-        display_len = snprintf(NULL, 0, fmt, idx, len, text);
+        *display_len_ptr = xasprintf(&disp, "[%d] %.*s", idx, len, text);
     } else {
-        fmt         = "[%d] %.*s (%.*s)";
-        display_len = snprintf(NULL, 0, fmt, idx, len, text,
+        *display_len_ptr = xasprintf(&disp, "[%d] %.*s (%.*s)", idx, len, text,
                 comment_len, comment);
     }
-
-    char *disp = xmalloc(sizeof(char) * (display_len + 1));
-    if (comment == NULL) {
-        sprintf(disp, fmt, idx, len, text);
-    } else {
-        sprintf(disp, fmt, idx, len, text, comment_len, comment);
-    }
-
-    *display_len_ptr = display_len;
     return disp;
 }
 
