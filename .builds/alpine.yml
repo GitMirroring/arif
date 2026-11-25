@@ -1,0 +1,43 @@
+#
+# Copyright (C) 2026  CismonX <admin@cismon.net>
+#
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+#
+
+image: alpine/latest
+packages: [
+  # build
+  autoconf, automake, libtool, pkgconf, pdpmake, tcc, dejagnu,
+  musl-dev, tcc-libs-static,
+  # libs
+  readline-dev, librime-dev, libpinyin-dev,
+]
+sources:
+  - https://git.sr.ht/~cismonx/arif
+environment:
+  cflags: -g -Wall -Wunsupported -Werror=unsupported
+  # Currently TinyCC doesn't support __has_attribute(),
+  # but does support __attribute__((constructor)).
+  cppflags: >-
+    -DARIF_CTOR='__attribute__((constructor))'
+    -U_DEFAULT_SOURCE -U_XOPEN_SOURCE -D_POSIX_C_SOURCE=200112L
+tasks:
+  # Use srcdir as builddir, since pdpmake does not support VPATH.
+  - setup: |
+      cd arif
+      autoreconf -i
+      ./configure --enable-arif-debug --enable-rlexec  \
+          --enable-arif-rime --enable-arif-pinyin      \
+          CFLAGS="$cflags" CPPFLAGS="$cppflags"        \
+          CC=tcc LD=tcc MAKE=pdpmake
+  - build: |
+      cd arif
+      pdpmake
+  - test: |
+      cd arif
+      pdpmake check
+
+# For history builds, see:
+# - <https://builds.sr.ht/~cismonx/arif/commits/master/alpine.yml>
