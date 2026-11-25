@@ -25,8 +25,8 @@ tasks:
   - setup: |
       mkdir arif/build && cd arif/build
       autoreconf -i ..
-      ../configure --enable-arif-debug --enable-arif-rime --enable-rlexec  \
-          --enable-arif-pinyin  \
+      ../configure --enable-arif-debug --enable-rlexec  \
+          --enable-arif-rime --enable-arif-pinyin       \
           CFLAGS="$cflags" CPPFLAGS="$undef_flags -D_POSIX_C_SOURCE=200112L"
   - build: |
       cd arif/build
@@ -35,4 +35,6 @@ tasks:
       cd arif/build
       make check
 
-# For history builds, see: <https://builds.sr.ht/~cismonx/arif>
+# For history builds, see:
+# - <https://builds.sr.ht/~cismonx/arif/commits/master/debian.yml>
+# - <https://builds.sr.ht/~cismonx/arif/commits/master/.build.yml>
