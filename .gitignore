@@ -33,3 +33,19 @@ Makefile.in
 
 # The build tree
 /build/
+
+# In case we're using the src tree as build tree
+/config.h
+/config.log
+/config.status
+/libtool
+/src/arif.pc
+/src/arify
+/src/rlexec
+/stamp-h*
+*.o
+*.la
+*.lo
+.deps/
+.libs/
+Makefile
