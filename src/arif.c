@@ -375,7 +375,10 @@ arif_query (
     }
     char const *input     = line + offset;
     int         input_len = last_num_offset(input, len);
-    char const *old_input = ctx->old_line + ctx->old_offset;
+    char const *old_input = ctx->old_line;
+    if (old_input != NULL) {
+        old_input += ctx->old_offset;
+    }
 
     if (ctx->old_len != input_len || 0 != memcmp(old_input, input, input_len)) {
         // new text
