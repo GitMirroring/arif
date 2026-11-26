@@ -1,0 +1,38 @@
+#
+# Copyright (C) 2026  CismonX <admin@cismon.net>
+#
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty, provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+#
+
+image: netbsd/latest
+packages: [
+  # build
+  autoconf, automake, libtool, pkgconf, dejagnu,
+  # libs
+  readline, librime, libpinyin,
+]
+sources:
+  - https://git.sr.ht/~cismonx/arif
+environment:
+  cflags: >-
+    -O0 -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow
+    -fsanitize=undefined -fno-sanitize-recover
+  cppflags: -D_POSIX_C_SOURCE=200112L
+tasks:
+  - setup: |
+      mkdir arif/build && cd arif/build
+      autoreconf -i ..
+      ../configure --enable-arif-debug --enable-rlexec  \
+          --enable-arif-rime --enable-arif-pinyin       \
+          CFLAGS="$cflags" CPPFLAGS="$cppflags"
+  - build: |
+      cd arif/build
+      make
+  - test: |
+      cd arif/build
+      make check
+
+# For history builds, see:
+# - <https://builds.sr.ht/~cismonx/arif/commits/master/netbsd.yml>
