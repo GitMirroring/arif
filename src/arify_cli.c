@@ -78,8 +78,10 @@ concat_str (
     size_t right_len = strlen(right) + 1;
 
     char *dest = xmalloc(sizeof(char) * (left_len + right_len + 1));
-    memcpy(dest, left, left_len);
-    dest[left_len++] = sep;
+    if (left_len > 0) {
+        memcpy(dest, left, left_len);
+        dest[left_len++] = sep;
+    }
     memcpy(dest + left_len, right, right_len);
     return dest;
 }
