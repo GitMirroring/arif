@@ -31,22 +31,15 @@ proc arif_test_stop {} {
     send \x04
 }
 
-proc random_uint32_list {len} {
-    set nbytes [expr {$len * 4}]
-    return [exec od -An -tu4 -N$nbytes /dev/urandom]
-}
-
 proc random_int {min max} {
-    set num [random_uint32_list 1]
-    return [expr {$num % ($max - $min + 1) + $min}]
+    return [expr {int(rand() * ($max - $min + 1) + $min)}]
 }
 
 proc random_string {len} {
-    set nums  [random_uint32_list $len]
     set chars [split abcdefghijklmnopqrstuvwxyz ""]
 
     for {set i 0} {$i < $len} {incr i} {
-        set offset [expr {[lindex $nums $i] % 26}]
+        set offset [expr {int(rand() * 26)}]
         append str [lindex $chars $offset]
     }
     return $str
