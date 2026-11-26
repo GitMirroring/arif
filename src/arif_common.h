@@ -116,11 +116,6 @@ xasprintf (
 ) {
     va_list args;
     va_start(args, fmt);
-
-#if defined(__FreeBSD__) || (defined(__linux__) && defined(_GNU_SOURCE))
-    int len = vasprintf(strp, fmt, args);
-    xassert(len >= 0);
-#else
     int len = vsnprintf(NULL, 0, fmt, args);
     xassert(len >= 0);
 
@@ -128,7 +123,6 @@ xasprintf (
     va_end(args);
     va_start(args, fmt);
     xassert(len == vsprintf(*strp, fmt, args));
-#endif
 
     va_end(args);
     return len;
