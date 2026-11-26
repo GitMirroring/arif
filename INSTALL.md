@@ -12,6 +12,7 @@ Prerequisites
 
   Runtime requirements:
   - POSIX.1-2001 compliant operating system
+    * Confirmed to be fully functional on GNU/Linux, FreeBSD and NetBSD.
   - GNU Readline (optional)
 
   Build tools:
@@ -19,6 +20,7 @@ Prerequisites
   - pkg-config
   - POSIX-compliant `make`
   - C compiler with ISO C99 support
+    * Requires `__attribute__((constructor))` for `arify` to work.
 
   Other software (optional):
   - DejaGnu (for running tests)
@@ -40,7 +42,7 @@ Build and Install
 
   Notable options:
   - `--disable-arify`
-    * Do not build the `arify` program.
+    * Do not build the `arify` program and the preload library.
   - `--disable-arif-readline`
     * Build the ARIF library without GNU Readline features.
   - `--enable-rlexec`
@@ -61,9 +63,10 @@ Build and Install
     >         --with-rime="$HOME/.local/lib/pkgconfig"  \
     >         CFLAGS='-O2'
 
-  After configuration, Build the binaries:
+  After configuration, build the binaries and run tests:
 
     $ make
+    $ make check
 
   Install:
 
