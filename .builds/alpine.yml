@@ -21,8 +21,7 @@ environment:
   # Currently TinyCC doesn't support __has_attribute(),
   # but does support __attribute__((constructor)).
   cppflags: >-
-    -DARIF_CTOR='__attribute__((constructor))'
-    -U_DEFAULT_SOURCE -U_XOPEN_SOURCE -D_POSIX_C_SOURCE=200112L
+    -DARIF_CTOR='__attribute__((constructor))' -D_POSIX_C_SOURCE=200112L
 tasks:
   # Use srcdir as builddir, since pdpmake does not support VPATH.
   - setup: |
