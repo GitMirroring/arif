@@ -27,4 +27,4 @@
 
 extern struct arif_engine const arif_rime_engine;
 
-#endif  // !defined(ARIF_RIME_H_)
+#endif  /* !defined(ARIF_RIME_H_) */

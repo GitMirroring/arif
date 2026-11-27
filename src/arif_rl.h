@@ -54,4 +54,4 @@ arif_rl_enable (
     char const           *word_break_chars
 );
 
-#endif  // !defined(ARIF_RL_H_)
+#endif  /* !defined(ARIF_RL_H_) */

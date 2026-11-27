@@ -27,4 +27,4 @@
 
 extern struct arify_frontend const arify_frontend_readline;
 
-#endif  // !defined(ARIFY_RL_H_)
+#endif  /* !defined(ARIFY_RL_H_) */

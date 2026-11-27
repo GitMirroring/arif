@@ -124,4 +124,4 @@ arif_set_engine (
     void                     *engine_data
 );
 
-#endif  // !defined(ARIF_H_)
+#endif  /* !defined(ARIF_H_) */

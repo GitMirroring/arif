@@ -31,4 +31,4 @@ struct arif_dummy_engine_opts {
 
 extern struct arif_engine const arif_dummy_engine;
 
-#endif  // !defined(ARIF_DUMMY_ENGINE_H_)
+#endif  /* !defined(ARIF_DUMMY_ENGINE_H_) */

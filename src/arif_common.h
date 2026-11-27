@@ -128,4 +128,4 @@ xasprintf (
     return len;
 }
 
-#endif  // !defined(ARIF_COMMON_H_)
+#endif  /* !defined(ARIF_COMMON_H_) */

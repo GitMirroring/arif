@@ -64,4 +64,4 @@ arify_next_engine (
     void **engine_data_ptr
 );
 
-#endif  // !defined(ARIFY_H_)
+#endif  /* !defined(ARIFY_H_) */
