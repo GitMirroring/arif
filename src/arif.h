@@ -24,9 +24,9 @@
 #define ARIF_H_
 
 #define ARIF_VER_MAJOR  0
-#define ARIF_VER_MINOR  4
+#define ARIF_VER_MINOR  5
 #define ARIF_VER_PATCH  0
-#define ARIF_VER_STR    "0.4.0"
+#define ARIF_VER_STR    "0.5.0"
 
 struct arif_cand;
 struct arif_ctx;
